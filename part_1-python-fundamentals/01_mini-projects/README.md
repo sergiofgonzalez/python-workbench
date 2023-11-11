@@ -1,5 +1,5 @@
 # 01: Python mini-projects
-> a collection of Python min-projects
+> a collection of Python mini-projects
 
 
 ## [01: Word replace](01_word-replace/README.md)
@@ -37,3 +37,18 @@ A simple intro to streamlit taken from https://docs.streamlit.io/library/get-sta
 ## [09: Taskier Webapp using Streamlit](09_streamlit-webapp-taskier/)
 
 A simple Task management application, with the backend implemented in pure Python scripts and the frontend based in Streamlit.
+
+## [10: Moving random files to folder](10_rand_files_move)
+
+Picking random files from a folder and moving them to a destination.  Typically helpful when you have a large bunch of files in a particular folder (e.g., `photos/`) in which you need to select a few of them and copy them to a different folder (e.g., `/backgrounds`), and in the process, also move the selected files to a folder so that they're not consider anymore for picking (e.g., `photos/used/`).
+
+The project is an `argparse` CLI application with a bunch of tests using different mocking techniques.
+
+## [11: Hello, `click`](11_hello_click)
+
+A collection of examples about the `click` framework for creating CLI apps.
+
+## [12: Hello, Azure Storage Account](12_hello-azure-storage-acct/)
+
+A couple of examples illustrating how to interact with queues and tables in Azure Storage Account service.
+

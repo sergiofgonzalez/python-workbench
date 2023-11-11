@@ -69,7 +69,6 @@ def get_reading_params(filter_params):
 
         Returns:
             dict[str]: a dictionary with the corresponding options to be considered.
-
     """
     reading_params = dict.fromkeys(["statuses", "urgencies", "content"])
     if selected_statuses := filter_params[TaskierFilterKey.SELECTED_STATUSES.value]:
