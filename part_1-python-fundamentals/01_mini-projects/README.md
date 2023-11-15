@@ -52,3 +52,5 @@ A collection of examples about the `click` framework for creating CLI apps.
 
 A couple of examples illustrating how to interact with queues and tables in Azure Storage Account service.
 
+
+

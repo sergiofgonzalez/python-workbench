@@ -13,3 +13,8 @@ Refactoring the Vector 2D library to accommodate both graphing and Math function
 
 A helper library to draw simple figures in the 3D space using Matplotlib as the backend.
 
+## [04: Vector 2D library for rendering](./04_vector-2d-lib-for-rendering/README.md)
+
+A small update on the 2D library to support the rendering of 3D objects in 2D.
+
+## [05: Rendering a 3D sphere]
