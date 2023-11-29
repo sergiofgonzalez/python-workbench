@@ -189,6 +189,7 @@ class Arrow(Figure2D):
             head_length=tip_length,
             fc=self.color.value,
             ec=self.color.value,
+            linestyle="dotted"
         )
 
 

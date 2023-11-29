@@ -1,5 +1,5 @@
 # Rendering a Octahedron using PyGame and OpenGL
-> illustrates how to render the same octahedron from [05_rendering-3d-sphere](../05_rendering-3d-sphere/render_octahedron.py) but using OpenGL as the graphics backend instead of Matplotlib and PyGame to handle interactivity and other related stuff
+> illustrates how to render the same octahedron from [05_rendering-3d-sphere](../05_rendering-3d-sphere/render_octahedron.py) but using OpenGL as the graphics backend instead of Matplotlib and PyGame to handle interactivity and other user related stuff
 
 ## Description
 

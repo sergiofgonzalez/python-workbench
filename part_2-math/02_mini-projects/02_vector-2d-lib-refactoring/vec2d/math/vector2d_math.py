@@ -179,7 +179,7 @@ def rotate(
     angle is negative.
 
     Args:
-        angle (float]): the angle (in radians) that will be used in the rotation
+        angle (float): the angle (in radians) that will be used in the rotation
         vectors (list[tuple[int | float, int | float]]): the list of vectors in
         to Cartesian coordinates to be rotated
 
@@ -192,6 +192,7 @@ def rotate(
 
     vectors_polar = [to_polar(v) for v in vectors]
     return [to_cartesian((r, theta + angle)) for r, theta in vectors_polar]
+
 
 def rescale(
     factor: float,

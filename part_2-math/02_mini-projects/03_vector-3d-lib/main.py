@@ -185,16 +185,29 @@ if __name__ == "__main__":
 
     # Finding a good viz for an octahedron face
 
-    v1 = (0, 1, 0)
-    v2 = (1, 0, 0)
-    v3 = (0, 0, 1)
+    # v1 = (0, 1, 0)
+    # v2 = (1, 0, 0)
+    # v3 = (0, 0, 1)
 
+    # draw3d(
+    #     Arrow3D(v1, color=Colors3D.GRAY),
+    #     Arrow3D(v2, color=Colors3D.GRAY),
+    #     Arrow3D(v3, color=Colors3D.GRAY),
+    #     Arrow3D(v2, v1, color=Colors3D.BLUE),
+    #     Arrow3D(v3, v1, color=Colors3D.BLUE),
+    #     Segment3D(v2, v3, color=Colors3D.BLUE),
+    #     Arrow3D(cross(subtract(v2, v1), subtract(v3, v1)), color=Colors3D.ORANGE),
+    # )
+
+    # Finding a good visualization for a 3D rotation
     draw3d(
-        Arrow3D(v1, color=Colors3D.GRAY),
-        Arrow3D(v2, color=Colors3D.GRAY),
-        Arrow3D(v3, color=Colors3D.GRAY),
-        Arrow3D(v2, v1, color=Colors3D.BLUE),
-        Arrow3D(v3, v1, color=Colors3D.BLUE),
-        Segment3D(v2, v3, color=Colors3D.BLUE),
-        Arrow3D(cross(subtract(v2, v1), subtract(v3, v1)), color=Colors3D.ORANGE),
+        Arrow3D((.5, .5, 2), color=Colors3D.BLUE),
+        Arrow3D((-.5, .5, 2), color=Colors3D.BLUE, linestyle=LineStyles3D.LOOSELY_DASHED),
+        Points3D((.5, .5, 2)),
+        Points3D((-.5, .5, 2)),
+        xticks=[-1, 0, 1],
+        yticks=[-1, 0, 1],
+        zticks=[-1, 0, 1],
+
+        elev=12
     )
