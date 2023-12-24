@@ -1,11 +1,20 @@
-from vec2d.math import add
-from vec2d.graph import draw, Arrow, Colors, LineStyles
+from vec3d.math import linear_combination, unit
 
-u = (2, 0)
-v = (1, 3)
 
-draw(
-    Arrow(u, color=Colors.ORANGE),
-    Arrow(v, color=Colors.PINK, linestyle=LineStyles.LOOSELY_DASHED),
-    Arrow(add(u, v), color=Colors.BLUE)
+print(unit((2, 0, 0)))
+
+print(linear_combination([1, 2, 3], (1, 1, 1), (2, 2, 2), (3, 3)))
+
+
+def multiply_matrix_vector(matrix, vector):
+    return linear_combination(vector, *zip(*matrix))
+
+B = (
+    (0, 2, 1),
+    (0, 1, 0),
+    (1, 0, -1),
 )
+
+v = (3, -2, 5)
+
+print(multiply_matrix_vector(B, v))

@@ -12,7 +12,7 @@ from vec3d.graph import (
     Polygon3D
 )
 
-from vec3d.math import cross, subtract
+from vec3d.math import cross, subtract, add
 
 import numpy as np
 
@@ -200,14 +200,38 @@ if __name__ == "__main__":
     # )
 
     # Finding a good visualization for a 3D rotation
-    draw3d(
-        Arrow3D((.5, .5, 2), color=Colors3D.BLUE),
-        Arrow3D((-.5, .5, 2), color=Colors3D.BLUE, linestyle=LineStyles3D.LOOSELY_DASHED),
-        Points3D((.5, .5, 2)),
-        Points3D((-.5, .5, 2)),
-        xticks=[-1, 0, 1],
-        yticks=[-1, 0, 1],
-        zticks=[-1, 0, 1],
+    # draw3d(
+    #     Arrow3D((.5, .5, 2), color=Colors3D.BLUE),
+    #     Arrow3D((-.5, .5, 2), color=Colors3D.BLUE, linestyle=LineStyles3D.LOOSELY_DASHED),
+    #     Points3D((.5, .5, 2)),
+    #     Points3D((-.5, .5, 2)),
+    #     xticks=[-1, 0, 1],
+    #     yticks=[-1, 0, 1],
+    #     zticks=[-1, 0, 1],
 
-        elev=12
+    #     elev=12
+    # )
+
+    # Finding a good visualization for a 3D sum vector and its projection
+    u = (2, -3, 1)
+    v = (3, 2, 2)
+    u_p = (2, -3, 0)
+    v_p = (3, 2, 0)
+
+    draw3d(
+        Arrow3D(u, color=Colors3D.BLUE),
+        Arrow3D(v, color=Colors3D.RED),
+        # Arrow3D(add(u, v), u, color=Colors3D.RED, linestyle=LineStyles3D.LOOSELY_DASHED),
+        # Arrow3D(add(u, v), v, color=Colors3D.BLUE, linestyle=LineStyles3D.LOOSELY_DASHED),
+        Arrow3D(add(u, v), color=Colors3D.PURPLE),
+        Arrow3D(u_p, color=Colors3D.BLUE),
+        Arrow3D(v_p, color=Colors3D.RED),
+        Arrow3D(add(u_p, v_p), u_p, color=Colors3D.RED, linestyle=LineStyles3D.DOTTED),
+        Arrow3D(add(u_p, v_p), v_p, color=Colors3D.BLUE, linestyle=LineStyles3D.DOTTED),
+        Arrow3D(add(u_p, v_p), color=Colors3D.PURPLE, linestyle=LineStyles3D.DOTTED),
+        Arrow3D(u_p, u, color=Colors3D.GRAY, linestyle=LineStyles3D.DENSELY_DOTTED),
+        Arrow3D(v_p, v, color=Colors3D.GRAY, linestyle=LineStyles3D.DENSELY_DOTTED),
+        Arrow3D(add(u_p, v_p), add(u, v), color=Colors3D.GRAY, linestyle=LineStyles3D.DENSELY_DOTTED),
+        elev=15,
+        azim=-95,
     )

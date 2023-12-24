@@ -25,7 +25,7 @@ python -m unittest discover -v
 
 - [ ] Change the strategy of the logger definition.
 
-    It was defined within the __main__ but it should be taken outside so that it is available everywheter.
+    It was defined within the __main__ but it should be taken outside so that it is available everywherr.
 
 - [ ] Create more files.
 
