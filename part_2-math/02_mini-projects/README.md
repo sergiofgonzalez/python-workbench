@@ -36,8 +36,19 @@ A simplistic rendering library using OpenGL and PyGame as the backend engine.
 
 ## [09: Draw Teapot library (no cam + animation)](./09-rendergl-no-cam/README.md)
 
-A reimplementation of [08: rendergl](../08-rendergl/) that gets rid of the camera files, and instead adds some interactivity to be able to rotate and translate the teapot.
+A reimplementation of [08: rendergl](./08-rendergl/) that gets rid of the camera files, and instead adds some interactivity to be able to rotate and translate the teapot.
 
 ## [10: Matrix library](10_mat-lib/README.md)
 
+A library for matrix operations
+
+
 ## [11: Render GL library (with matrix support)](11-rendergl-no-cam-matrix/README.md)
+
+An enhancement over [09: RenderGL (no cam)](./09-rendergl-no-cam/) that includes support for passing a function to the `draw_model` function that returns a time-based matrix to perform the animation.
+
+When passing that function, the corresponding animation is activated by default.
+
+## [12: Vec - A class lib for vectors]
+
+TBD
