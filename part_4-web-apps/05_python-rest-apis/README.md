@@ -644,3 +644,39 @@ class KitchenSchedules(MethodView):
 ## Implementing an in-memory list of schedules
 
 With all the validation in place, we can quickly implement an in-memory list of schedules as we did for the Orders service to be able to thoroughly check our appplication.
+
+You can find the implementation in [06: Flask-smorest in-memory data](./06-flask-smorest-kitchen-svc-in-memory-data/README.md)
+
+## Overriding flask-smorest's dynamically generated API spec
+
+The API spec you can access on http://localhost:5000/kitchen/docs can be overridden with our manually crafted OpenAPI spec.
+
+You just need to include the `PyYAML` package and change the `app.py` file:
+
+```python
+"""Kitchen service entry point"""
+from pathlib import Path
+
+import yaml
+from api.api import blueprint
+from apispec import APISpec
+from config import BaseConfig
+from flask import Flask
+from flask_smorest import Api
+
+app = Flask(__name__)
+app.config.from_object(BaseConfig)
+
+kitchen_api = Api(app)
+
+kitchen_api.register_blueprint(blueprint)
+
+api_spec = yaml.safe_load((Path(__file__).parent / "oas.yaml").read_text())
+spec = APISpec(
+    title=api_spec["info"]["title"],
+    version=api_spec["info"]["version"],
+    openapi_version=api_spec["openapi"],
+)
+spec.to_dict = lambda: api_spec
+kitchen_api.spec = spec
+```
