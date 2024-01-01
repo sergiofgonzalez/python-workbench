@@ -1,9 +1,9 @@
 # Implementing a Kitchen service using flask-smorest
-> Step 0: starting point
+> Step 2: Adding in-memory data management
 
 ## Description
 
-This project implements starting point for the Kitchen examples of the corresponding chapter. The API implemented is described by the [Kitchen OpenAPI spec](./oas.yaml).
+This project adds a very basic in-memory data management on top of the Kitchen Service example [05: Kitchen Service using Flask-smorest](../05-flask-smorest-kitchen-svc-payload-validation/). The API implemented is described by the [Kitchen OpenAPI spec](./oas.yaml).
 
 
 ### Setting up shop

@@ -24,7 +24,7 @@ def get_orders(cancelled: Optional[bool] = None, limit: Optional[int] = None):
     if cancelled is None and limit is None:
         return {"orders": orders.values()}
 
-    query_resultset = orders.values()
+    query_resultset = list(orders.values())
     if cancelled is not None:
         if cancelled:
             query_resultset = [

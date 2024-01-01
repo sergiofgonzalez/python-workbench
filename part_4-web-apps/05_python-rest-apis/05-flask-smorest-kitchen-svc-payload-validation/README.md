@@ -1,9 +1,9 @@
 # Implementing a Kitchen service using flask-smorest
-> Step 0: starting point
+> Step 1: Adding validation
 
 ## Description
 
-This project implements starting point for the Kitchen examples of the corresponding chapter. The API implemented is described by the [Kitchen OpenAPI spec](./oas.yaml).
+This project adds request, URL query parameter, and response payload validation for for the Kitchen Service example [04: Kitchen Service using Flask-smorest](../04-flask-smorest-kitchen-svc/). The API implemented is described by the [Kitchen OpenAPI spec](./oas.yaml).
 
 
 ### Setting up shop
