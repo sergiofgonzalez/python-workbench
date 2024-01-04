@@ -3,7 +3,7 @@
 
 ## Description
 
-This project implements starting point for the examples of the corresponding chapter. The API implemeted is described by the [Orders OpenAPI spec](./oas.yaml).
+This project implements starting point for the examples of the corresponding chapter. The API implemented is described by the [Orders OpenAPI spec](./oas.yaml).
 
 
 In this step, the management of the `cancelled` and `limit` query parameters for the `GET /orders` endpoint is implemented.

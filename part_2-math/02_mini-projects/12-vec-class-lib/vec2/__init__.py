@@ -1,5 +1,5 @@
 """
-__init__.py for the vec2d module provides a class for managing 2D vectors.
+__init__.py for the vec2 module provides a class for managing 2D vectors.
 """
 from vec2.vec2lib import Vec2
 

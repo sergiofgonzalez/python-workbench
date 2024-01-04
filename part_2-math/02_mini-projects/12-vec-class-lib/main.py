@@ -3,6 +3,7 @@
 from coordvec import CoordinateVector
 from vec2 import Vec2
 from vec3 import Vec3
+from car_for_sale import CarForSale
 
 v = Vec2(3, 4)
 w = v.add(Vec2(-2, 6))
@@ -58,3 +59,7 @@ print(10 * u)
 
 print(-u)
 
+cars = CarForSale.load_cars_from_dataset()
+print(cars[0])
+print(cars[1])
+print(cars[0] + cars[1])

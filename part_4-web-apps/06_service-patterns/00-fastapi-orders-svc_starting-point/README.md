@@ -1,12 +1,10 @@
 # Implementing an Orders service using FastAPI
-> Step 2: forbidding additional properties
+> Step 0: Starting point for the chapter
 
 ## Description
 
-This project implements starting point for the examples of the corresponding chapter. The API implemented is described by the [Orders OpenAPI spec](./oas.yaml).
+This project implements starting point for the examples of the corresponding chapter, in which the common microservices patterns are described. The API implemented is documented in the [Orders OpenAPI spec](./oas.yaml), but it is not used for the validation of the service endpoint payloads.
 
-
-In this step, we ban undeclared properties.
 
 ### Setting up shop
 
@@ -28,8 +26,3 @@ uvicorn orders.app:app --reload --port 8080
 ```
 
 The endpoints can be tested from the Swagger UI which you can find at http://localhost:8080/docs. Alternatively, you can also go to http://localhost:8080/redoc which is an alternative visualization for REST APIs.
-
-
-Note that the Swagger endpoints are not created from the [manually created OpenAPI spec file](oas.yaml), but rather created automatically by FastAPI from the code.
-
-## Sample Payloads

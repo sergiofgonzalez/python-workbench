@@ -1,9 +1,15 @@
-"""Test utilities for the Vector class library"""
+"""Test utilities for the Vector class library
+
+NOTE: the class design is terrible, but didn't want to spend a lot of time with
+it. Ideally, an ABC class should be created with the interface and then 
+"""
 import unittest
 from math import isclose
 from random import uniform
 
 from coordvec import CoordinateVector
+from vec0 import Vec0
+from vec1 import Vec1
 from vec2 import Vec2
 from vec3 import Vec3
 
@@ -48,6 +54,14 @@ class TestUtils(unittest.TestCase):
         )
 
     @staticmethod
+    def random_vec0():
+        return Vec0()
+
+    @staticmethod
+    def random_vec1():
+        return Vec1(TestUtils.random_scalar())
+
+    @staticmethod
     def random_vec2():
         return Vec2(TestUtils.random_scalar(), TestUtils.random_scalar())
 
@@ -58,6 +72,14 @@ class TestUtils(unittest.TestCase):
             TestUtils.random_scalar(),
             TestUtils.random_scalar(),
         )
+
+    @staticmethod
+    def is_vec0_approx_equal(u, v):
+        return u.__class__ == v.__class__
+
+    @staticmethod
+    def is_vec1_approx_equal(u, v):
+        return u.__class__ == v.__class__ and isclose(u.x, v.x)
 
     @staticmethod
     def is_vec2_approx_equal(u, v):
