@@ -1,0 +1,1 @@
+"""In-memory representation of the application data"""

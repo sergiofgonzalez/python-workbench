@@ -1,0 +1,1 @@
+"""Resolvers for the mutations of the Products API"""

@@ -1,0 +1,1 @@
+# SDL specs for the Products service
