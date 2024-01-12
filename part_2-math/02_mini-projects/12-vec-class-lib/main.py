@@ -1,10 +1,15 @@
 """App entry point"""
+import math
 
 from car_for_sale import CarForSale
 from coordvec import CoordinateVector
 from matrix_5x3 import Matrix5x3
 from vec2 import Vec2
 from vec3 import Vec3
+from vecfunc import Function
+from vecfunc2 import Function2
+from vecimg import ImageVector
+from vecpoly import Polynomial
 
 v = Vec2(3, 4)
 w = v.add(Vec2(-2, 6))
@@ -92,3 +97,66 @@ print(2 * m1)
 print(m1 == m2)
 print(m1 == m1)
 print(repr(m1))
+
+
+## ImageVector
+
+# img_vec = ImageVector("./beach.png")
+# img_vec.image().show()
+
+# res = 0.75 * ImageVector("./beach.png") + 0.25 * ImageVector("sunflower.png")
+# res.image().show()
+
+# res = 1.5 * ImageVector("sunflower.png")
+# res.image().show()
+
+# res = -ImageVector("beach.png")
+# res.image().show()
+
+# width, height = ImageVector.size
+# white = ImageVector([(255, 255, 255) for _ in range(width * height)])
+# white.image().show()
+
+# beach = ImageVector("beach.png")
+# beach.image().show()
+# res = white - beach
+# res.image().show()
+
+## Function
+
+# f = Function(lambda x: x + 5)
+# g = Function(math.sin)
+# print(f(0))
+# print(f(5))
+
+# Function.plot(
+#     [f, g, f + g, 3 * f],
+#     -10,
+#     10,
+#     ["f(x) = x + 5", "g(x) = sin(x)", "f+g", r"$3 \cdot f$"],
+# )
+
+## Polynomials
+
+# p1 = Polynomial(1, 2, 3)
+# p2 = Polynomial(1, 2)
+
+# print(p1._repr_latex_()) # pylint: disable=W0212:protected-access
+
+# print(p1)
+
+# print(p1 + p2)
+
+# print(2 * p1)
+
+# print(repr(p1))
+
+# print(p1(1))  # 1 + 2 * 1 + 3 * 1^2
+# print(p1(2))  # 1 + 2 * 2 + 3 * 2^2
+
+## Function2
+
+f = Function2(lambda x, y: x + y)
+print(f(1, 2))
+
+f.plot(xmin=-10, xmax=10, ymin=-10, ymax=10)
