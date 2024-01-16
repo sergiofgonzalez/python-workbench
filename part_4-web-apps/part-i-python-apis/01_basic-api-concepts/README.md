@@ -1,12 +1,22 @@
 # Basic API Implementation
 
-+ Reading and understanding the requiremetns of an API specification.
++ Reading and understanding the requirements of an API specification.
 + Structuring the application in a data layer, application layer, and interface layer.
 + Implementing API endpoints using FastAPI
 + Implementing data validation models using pydantic
 + Testing the API with Swagger UI
 
 ## Intro
+
+Messaging sends small chunks of data in pipelines among processes. Messages may be verb-like commands, or may just indicate noun-like events of interest. Current popular messaging solutions include Apache Kafka, RabbitMQ, NATS, and ZeroMQ.
+
+Communication when using messages can follow these different patterns:
+
++ **Request-Response** &mdash; 1:1, like a browser calling a web server.
+
++ **Publish-Subscribe** &mdash; A publisher emits a message and subscribers act on each according to some data in the message.
+
++ **Queues** &mdash; A publisher emits a message but only one out of a pool of subscribers grabs the message and acts on it.
 
 To illustrate the ideas we'll build certain components of an application that allows customers to order coffee in any location. The platform consists of a collection of microservices that implement different capabilities, such as processing orders and scheduling deliveries.
 
@@ -17,6 +27,10 @@ In this first part, we will implement the API for the orders service. This servi
 
 
 ## Introducing the orders API specification
+
+> A **resource** is data that you can distinguish and perform operations on.
+
+> An **endpoint** is a distinct URL and HTTP *verb* (action) a web service provides for each feature it wants to expose. An endpoint is sometimes called a route, because it routes the URL to a function that performs some logic.
 
 The orders API specification can be written in a standard format for documenting REST APIs called OpenAPI.
 
@@ -102,6 +116,10 @@ In addition, FastAPI uses [pydantic](https://github.com/samuelcolvin/pydantic/) 
 The following diagram illustrates this approach:
 
 ![FastAPI - Starlette](pics/fastapi-starlette.png)
+
+| NOTE: |
+| :---- |
+| The Web Server Gateway Interface (WSGI) is a synchronous Python standard specification to connect application code to be servers in a synchronous fashion.<br>Because concurrency has become more important in recent years, the Python Asynchronous Server Gateway Interface (ASGI) specification was developed. Uvicorn, the request handler that FastAPI uses, is an implementation of ASGI. |
 
 ### A few words about `pipenv`
 

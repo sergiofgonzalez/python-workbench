@@ -3,12 +3,14 @@ import math
 
 from car_for_sale import CarForSale
 from coordvec import CoordinateVector
+from matrix_5_by_3 import Matrix_5_by_3
 from matrix_5x3 import Matrix5x3
 from vec2 import Vec2
 from vec3 import Vec3
 from vecfunc import Function
 from vecfunc2 import Function2
 from vecimg import ImageVector
+from vecmatrix import Matrix
 from vecpoly import Polynomial
 
 v = Vec2(3, 4)
@@ -156,7 +158,29 @@ print(repr(m1))
 
 ## Function2
 
-f = Function2(lambda x, y: x + y)
-print(f(1, 2))
+# f = Function2(lambda x, y: x + y)
+# print(f(1, 2))
 
-f.plot(xmin=-10, xmax=10, ymin=-10, ymax=10)
+# f.plot(xmin=-10, xmax=10, ymin=-10, ymax=10)
+
+# Matrix class
+print("======")
+
+## The matrix base class shouldn't be instantiated
+try:
+    m = Matrix(((1, 2), (3, 4)))
+except TypeError:
+    print("Can't instantiate!")
+
+m = Matrix_5_by_3(
+    (
+        (1, 2, 3),
+        (4, 5, 6),
+        (7, 8, 9),
+        (10, 11, 12),
+        (13, 14, 15),
+    )
+)
+
+print(m)
+print(m._repr_latex_())
