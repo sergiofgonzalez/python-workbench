@@ -1,0 +1,1 @@
+# piplib: an stupidly simple Python library to illustrate editable builds

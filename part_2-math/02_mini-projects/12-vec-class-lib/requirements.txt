@@ -1,2 +1,3 @@
 typing_extensions==4.9.0
 vec3d==0.2.3
+-e git+ssh://git@github.com/sergiofgonzalez/python-workbench.git@727dbe65a72de95f05a97d8fef7f51f6f8c5e0c9#egg=mat&subdirectory=part_2-math/02_mini-projects/10_mat-lib

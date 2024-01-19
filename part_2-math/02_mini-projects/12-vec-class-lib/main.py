@@ -3,8 +3,10 @@ import math
 
 from car_for_sale import CarForSale
 from coordvec import CoordinateVector
+from linearmap_3d_to_5d import LinearMap_3D_to_5D, Vector3D, Vector5D
 from matrix_5_by_3 import Matrix_5_by_3
 from matrix_5x3 import Matrix5x3
+from tests.utils.testutils_vecimg import ImageVectorTestUtils
 from vec2 import Vec2
 from vec3 import Vec3
 from vecfunc import Function
@@ -167,20 +169,68 @@ print(repr(m1))
 print("======")
 
 ## The matrix base class shouldn't be instantiated
-try:
-    m = Matrix(((1, 2), (3, 4)))
-except TypeError:
-    print("Can't instantiate!")
+# try:
+#     m = Matrix(((1, 2), (3, 4)))
+# except TypeError:
+#     print("Can't instantiate!")
 
-m = Matrix_5_by_3(
-    (
-        (1, 2, 3),
-        (4, 5, 6),
-        (7, 8, 9),
-        (10, 11, 12),
-        (13, 14, 15),
-    )
-)
+# m = Matrix_5_by_3(
+#     (
+#         (1, 2, 3),
+#         (4, 5, 6),
+#         (7, 8, 9),
+#         (10, 11, 12),
+#         (13, 14, 15),
+#     )
+# )
 
-print(m)
-print(m._repr_latex_())
+# print(m)
+# print(m._repr_latex_())
+
+print(Matrix5x3.zero())
+
+
+# Linear_3D_to_5D
+# linear_map = LinearMap_3D_to_5D(
+#     (
+#         (1, 2, 3),
+#         (4, 5, 6),
+#         (7, 8, 9),
+#         (10, 11, 12),
+#         (13, 14, 15),
+#     )
+# )
+
+# print(linear_map)
+
+# v3d = Vector3D(1, 0, 0)
+
+# print(linear_map(v3d))
+
+# print(LinearMap_3D_to_5D.zero())
+
+# Overloading matrix multiplication so that you can use either scalars or
+# vectors
+
+# m = Matrix_5_by_3(
+#     (
+#         (1, 2, 3),
+#         (4, 5, 6),
+#         (7, 8, 9),
+#         (10, 11, 12),
+#         (13, 14, 15),
+#     )
+# )
+# print(m * 2)
+
+# v = Vec3(1, 1, 1)
+# print(m * v)
+
+# # Overloading vector multiplication is not needed, you can use it right away
+
+# print(2 * v)
+# print(m * v)
+
+# What does a random image look like?
+
+ImageVectorTestUtils.random_vector().image().show()

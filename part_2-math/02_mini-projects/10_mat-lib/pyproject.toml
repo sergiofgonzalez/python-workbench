@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "mat"
+version = "0.1.0"
+description = "Matrix multiplication library"
+authors = ["Sergio F. Gonzalez <sergio.f.gonzalez@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+packages = [{include = "mat"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+vec3d = "^0.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

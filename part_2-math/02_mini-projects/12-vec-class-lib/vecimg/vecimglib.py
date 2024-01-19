@@ -19,7 +19,7 @@ class ImageVector(Vector):
             if img.mode != "RGB":
                 img = img.convert("RGB")
             self.pixels = img.getdata()
-        except:
+        except: # pylint: disable=W0702:bare-except
             self.pixels = input
 
     def image(self):

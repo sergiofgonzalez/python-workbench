@@ -22,6 +22,17 @@ class Vec3(Vector):
     def scale(self, scalar):
         return Vec3(scalar * self.x, scalar * self.y, scalar * self.z)
 
+    # def __mul__(self, scalar_or_natrix: Matrix_5_by_3):
+    #     """Vec3 instances on the left"""
+    #     if isinstance(scalar_or_natrix, Matrix_5_by_3):
+    #         m = scalar_or_natrix
+    #         return tuple(
+    #             row[0] * self.x + row[1] * self.y + row[2] * self.z
+    #             for row in m.matrix
+    #         )
+    #     else:
+    #         return super().__rmul__(scalar_or_natrix)
+
     def __eq__(self, other):
         return (
             self.__class__ == other.__class__
