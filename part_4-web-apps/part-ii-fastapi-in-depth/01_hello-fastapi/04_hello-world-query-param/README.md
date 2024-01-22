@@ -55,7 +55,7 @@ or through a separate params object:
 ```bash
 >>> import requests
 >>> params = { "who": "adri" }
->>> r = requests.get("http://localhost:8080/hi?who=adri")
+>>> r = requests.get("http://localhost:8080/hi", params=params)
 >>> r.json()
 'Hello, adri!'
 ```

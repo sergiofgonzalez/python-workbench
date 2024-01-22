@@ -1,6 +1,6 @@
 # A few simple FastAPI exercises
 
-This chapter includes a few simple examples to cement basic FastAPI capabilities.
+This chapter lists a few simple examples to cement basic FastAPI capabilities seen in the previous chapters.
 
 ## Exercise
 
@@ -41,15 +41,15 @@ Repeat the previous exercise, but this time the name is provided in an HTTP head
 
 Create a web app with a public and protected endpoint:
 
-+ `GET /public` &mdash; will return a hardcoded "Hello, world!"
-+ `GET /protected` &mdash; will return a hardcoded string only when there's present a header with the contents `Bearer ` followed by a string.
++ `GET /public/hi` &mdash; will return a hardcoded "Hello, world!"
++ `GET /protected/hi` &mdash; will return a hardcoded string only when there's present a header `Authorization` with the contents `Bearer ` followed by a string. When not present it should return a 401 Unauthorized.
 
 ## Exercise
 
-Create a simple web app that lets you create, and get all the tasks which are defined as:
+Create a simple task management web app that lets you create, and get all the tasks which are defined as:
 
 + title &mdash; string, required
 + description &mdash; string, optional
 + urgency &mdash; integer
 
-When created, a task is given an ID, which is never returned to the user when the endpoint that returns all the tasks are returned.
+When created, a task is given an ID, which is never returned to the user.
