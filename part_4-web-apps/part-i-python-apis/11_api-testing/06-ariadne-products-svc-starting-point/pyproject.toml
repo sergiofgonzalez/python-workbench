@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "products"
+version = "0.1.0"
+description = ""
+authors = ["Sergio F. Gonzalez <sergio.f.gonzalez@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+uvicorn = "^0.27.0"
+ariadne = "^0.21"
+
+
+[tool.poetry.group.test.dependencies]
+schemathesis = "^3.24.3"
+requests = "^2.31.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

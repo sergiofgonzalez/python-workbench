@@ -33,7 +33,7 @@ To run the project, type:
 $ uvicorn server:server --port 8080 --reload
 ```
 
-The GraphQL endpoint can be tested from the GraphiQL UI provided by Ariadne in `http://localhost:8080/`, or using curl:
+The GraphQL endpoint can be tested from the GraphQL UI provided by Ariadne in `http://localhost:8080/`, or using curl:
 
 ```bash
 $ curl --verbose 'http://localhost:8080/' \
