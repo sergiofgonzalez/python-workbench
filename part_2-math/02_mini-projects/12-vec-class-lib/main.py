@@ -12,6 +12,7 @@ from vec3 import Vec3
 from vecfunc import Function
 from vecfunc2 import Function2
 from vecimg import ImageVector
+from veclinfunc import LinearFunction
 from vecmatrix import Matrix
 from vecpoly import Polynomial
 
@@ -233,4 +234,24 @@ print(Matrix5x3.zero())
 
 # What does a random image look like?
 
-ImageVectorTestUtils.random_vector().image().show()
+# ImageVectorTestUtils.random_vector().image().show()
+
+
+# # LinearFunction
+
+# f = LinearFunction(2, 3)
+# print(f)
+# print(repr(f))
+
+# g = LinearFunction(1, 0)
+# print(f)
+
+# LinearFunction.plot([f, g, f + g], -10, 10)
+
+
+# ImageVector (shades of gray)
+
+width, height = ImageVector.size
+gray = ImageVector([(1, 1, 1) for _ in range(width * height)])
+
+(191 * gray).image().show()

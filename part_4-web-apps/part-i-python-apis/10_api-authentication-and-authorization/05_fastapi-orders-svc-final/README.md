@@ -1,5 +1,5 @@
 # An Orders service using FastAPI
-> a FastAPI application with authorization with CORS, authentication and authorization.
+> a FastAPI application with powered with CORS, authentication and authorization middleware.
 
 ## Description
 
@@ -7,7 +7,7 @@ This project implements a complete microservice for processing orders. It includ
 
 The API implemented is documented in the [Orders OpenAPI spec](./oas.yaml), but Pydantic is used for the validation of the service endpoint payloads (both request and response).
 
-This step adds an authorization layer on the logic to drive logic based on the User ID field that is added to the `request.state` after successfult authentication.
+This step adds an authorization layer on the logic to drive logic based on the User ID field that is added to the `request.state` after successful authentication.
 
 Tokens can be generated using [03: Generate JWT](../03_jwt-generator/README.md).
 
