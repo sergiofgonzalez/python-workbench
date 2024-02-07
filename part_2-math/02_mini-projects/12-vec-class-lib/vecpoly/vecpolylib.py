@@ -34,15 +34,27 @@ class Polynomial(Vector):
         return Polynomial(*[scalar * c for c in self.coefficients])
 
     def __str__(self):
+        """User-oriented string representation"""
         monomials = []
         for power, coefficient in enumerate(self.coefficients):
             match power:
                 case 0:
-                    monomials.append(str(coefficient))
+                    if coefficient != 0:
+                        monomials.append(str(coefficient))
                 case 1:
-                    monomials.append(f"{coefficient}x")
+                    if coefficient == 1:
+                        monomials.append("x")
+                    elif coefficient == -1:
+                        monomials.append("-x")
+                    elif coefficient != 0:
+                        monomials.append(f"{coefficient}x")
                 case _:
-                    monomials.append(f"{coefficient}x^{power}")
+                    if coefficient == 1:
+                        monomials.append(f"x^{power}")
+                    elif coefficient == -1:
+                        monomials.append(f"-x^{power}")
+                    elif coefficient != 0:
+                        monomials.append(f"{coefficient}x^{power}")
 
         return " + ".join(monomials)
 
@@ -59,11 +71,22 @@ class Polynomial(Vector):
         for power, coefficient in enumerate(self.coefficients):
             match power:
                 case 0:
-                    monomials.append(str(coefficient))
+                    if coefficient != 0:
+                        monomials.append(str(coefficient))
                 case 1:
-                    monomials.append(f"{coefficient} \\cdot x")
+                    if coefficient == 1:
+                        monomials.append("x")
+                    elif coefficient == -1:
+                        monomials.append("-x")
+                    elif coefficient != 0:
+                        monomials.append(f"{coefficient} \\cdot x")
                 case _:
-                    monomials.append(f"{coefficient} \\cdot x^{{{power}}}")
+                    if coefficient == 1:
+                        monomials.append(f"x^{{{power}}}")
+                    elif coefficient == -1:
+                        monomials.append(f"-x^{{{power}}}")
+                    elif coefficient != 0:
+                        monomials.append(f"{coefficient} \\cdot x^{{{power}}}")
 
         return f"$ {' + '.join(monomials)} $"
 

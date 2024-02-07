@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "orders"
+version = "0.1.0"
+description = ""
+authors = ["Sergio F. Gonzalez <sergio.f.gonzalez@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+uvicorn = "^0.26.0"
+fastapi = "^0.109.0"
+pyyaml = "^6.0.1"
+sqlalchemy = "^2.0.25"
+requests = "^2.31.0"
+cryptography = "^42.0.0"
+pyjwt = "^2.8.0"
+psycopg2-binary = "^2.9.9"
+
+
+[tool.poetry.group.dev.dependencies]
+alembic = "^1.13.1"
+httpie = "^3.2.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

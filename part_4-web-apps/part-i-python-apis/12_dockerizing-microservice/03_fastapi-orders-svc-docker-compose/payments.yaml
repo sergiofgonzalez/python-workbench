@@ -1,0 +1,53 @@
+openapi: 3.0.3
+
+info:
+  title: Payments API
+  description: >
+    API that allows to manage the processing of payments for orders in the
+    CoffeeMesh application.
+  version: 0.1.0
+
+servers:
+  - url: http://localhost:5000
+    description: local development server
+  - url: https://coffeemesh.com
+    description: Main production server
+  - url: https://coffeemesh-staging.com
+    description: staging server for testing purposes only
+
+paths:
+  /payments:
+    post:
+      summary: Processes the payment of an order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_id
+                # - status        # NOTE: was listed as required but wasn't specified in properties
+              properties:
+                order_id:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          description: A JSON representation of the purchased order
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - payment_id
+                properties:
+                  payment_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum:
+                      - invalid
+                      - paid
+                      - pending
