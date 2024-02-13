@@ -131,3 +131,110 @@ That simple structure lets you:
 ```bash
 http localhost:8000
 ```
+
+## HTTP Requests
+
+An HTTP request consist of a header followed by one or more body sections.
+
+In a request you will also find path parameters (the values found in the URL as in `/echo/{msg}`, and query parameters (the infrmation found after the `?` in the URL as in `/greet/{who}?lang=en&mode=polite`).
+
+HTTPie is a great tool to quickly check how HTTP requests look.
+
+For example, the following command:
+
+```bash
+http -p HBh http://example.com
+```
+
+will print out:
+- [X] 'H' request headers
+- [X] 'B' request body
+- [X] 'h' response headers
+- [ ] 'b' response body
+- [ ] 'm' response metadata
+
+| NOTE: |
+| :---- |
+| You can review those details running `http --help`. |
+
+## Multiple routers
+
+While you can start with a single `app` variable in which you define all your endpoints, oftentimes your application will need to handle multiple kinds of resources.
+
+In those cases, it's better to use multiple *subrouters*.
+
+For example, in our application we will manage explorers and cryptids. We can create a *subrouter* for explorers, so that all endpoints related to the management of explorers are kept together in a separate file instead that in `main.py`.
+
+```python
+"""Explorer web layer in explorer.py"""
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/explorer")
+
+
+@router.get("/")
+def top():
+    return "root of explorer endpoint"
+```
+
+Then, in the `main.py` we do the linking:
+
+```python
+"""Entrypoint file: main.py"""
+import os
+from fastapi import FastAPI
+from web import explorer
+
+app = FastAPI()
+app.include_router(explorer.router)
+
+
+@app.get("/")
+def top():
+    return "root of the web layer here"
+...
+```
+
+## Defining the data models
+
+Let's define now the data that you'll be passing among layers.
+
+This can be an iterative process, so let's set up the basis first which are the initial definitions for our Explorers and Creatures. Those can be added in separate files within the `model/` folder.
+
+With the models defined, you can start creating stubs and fake data.
+
+*Stubs* are canned results that are returned without calling the normal *"live"* modules. They're a quick way to test routes and responses.
+
+*Fakes* are *stand-ins* for a real data source that performs some of the same functions. The most obvious example is an in-memory structure that mimics a database.
+
+With so little analysis groundwork done at this point we don't have a lot of information about the access points, but we can assume we will need operations for:
++ Get one, some, all
++ Create
++ Replace completely
++ Modify partially
++ Delete
+
+| NOTE: |
+| :---- |
+| Having completely isolates web, service, and data layers will let you scale your project very easily and ensure the expected degree of quality, as you'll be able to test the layers separately.<br>However, in certain projects, the service layer adds very little value. If that is the case you can skip the service layer, but keeping the web and data layer separate is a must. |
+
+## Pagination and sorting
+
+In the endpoints that return many or all things `GET /resource`, you will often want to implement:
++ sorting &mdash; order the results, even if you get only a set of them at a time
++ pagination &mdash; return only some resultt at a time, potentially respecting any sorting.
+
+It's a common practice to provide that information as query parameters:
+
+```
+# sorting and pagination
+GET /explorer?sort=country&offset=10&size=10
+
+# sorting only
+GET /explorer?sort=country&offset=10&size=10
+
+# pagination only
+GET /explorer?offset=10&size=10
+```
+
+It must be noted that sorting and pagination should occur in the data layer, and if possible on the database itself, as those system are prepared to handle those concerns very efficiently.
