@@ -237,20 +237,134 @@ if __name__ == "__main__":
     # )
 
     # Finding a good visualization for 2 non-parallel vectors in 3D that span a plane
-    s1 = np.linspace(-5, 5, 25)
-    s2 = np.linspace(-5, 5, 25)
+    # s1 = np.linspace(-5, 5, 25)
+    # s2 = np.linspace(-5, 5, 25)
 
-    u = (1, 0, 1)
-    v = (0, -2, 1)
+    # u = (1, 0, 1)
+    # v = (0, -2, 1)
 
-    s1s = np.linspace(-5, 5, 15)
-    s2s = np.linspace(-5, 5, 15)
+    # s1s = np.linspace(-5, 5, 15)
+    # s2s = np.linspace(-5, 5, 15)
 
-    points = [add(scale(s1, u), scale(s2, v)) for s1 in s1s for s2 in s2s]
+    # points = [add(scale(s1, u), scale(s2, v)) for s1 in s1s for s2 in s2s]
+
+    # draw3d(
+    #     Points3D(*points, color=Colors3D.BLUE),
+    #     Arrow3D(u, color=Colors3D.BLACK),
+    #     Arrow3D(v, color=Colors3D.BLACK),
+    # )
+
+# Finding a good visualization for a 3D plane
+    # plane_point = (0, 0, 1.2)
+    # perpendicular_v = (-1, 2, 5)
+
+
+    # def get_plane_points_fn(perpendicular_v, plane_point):
+    #     a, b, c = perpendicular_v
+    #     x0, y0, z0 = plane_point
+    #     def new_fn(x, y):
+    #         return (x, y, (a * x0 + b * y0 + c * z0 - a * x - b * y) / c)
+    #     return new_fn
+
+    # plane_fn = get_plane_points_fn(perpendicular_v, plane_point)
+    # xs = np.linspace(-5, 5, 15)
+    # ys = np.linspace(-5, 5, 15)
+
+    # draw3d(
+    #     Points3D(plane_point),
+    #     Points3D(*[plane_fn(x, y) for x in xs for y in ys], color=Colors3D.BLUE),
+    #     Arrow3D(plane_fn(xs[3], ys[3]), plane_point, color=Colors3D.BLACK),
+    #     Arrow3D(perpendicular_v, plane_point, color=Colors3D.BLACK),
+    #     elev=9,
+    #     azim=155,
+    # )
+
+    # Finding a good visualization for two intersecting planes
+    # plane1_point = (0, 0, 1.2)
+    # perpendicular1_v = (-1, 2, 5)
+
+    # plane2_point = (2, 2, 2)
+    # perpendicular2_v = (2, 0, 3)
+
+    # plane3_point = (0, 0, 0)
+    # perpendicular3_v = (0, 0, 1)
+
+    # def get_plane_points_fn(perpendicular_v, plane_point):
+    #     a, b, c = perpendicular_v
+    #     x0, y0, z0 = plane_point
+    #     def new_fn(x, y):
+    #         return (x, y, (a * x0 + b * y0 + c * z0 - a * x - b * y) / c)
+    #     return new_fn
+
+    # plane1_fn = get_plane_points_fn(perpendicular1_v, plane1_point)
+    # plane2_fn = get_plane_points_fn(perpendicular2_v, plane2_point)
+    # plane3_fn = get_plane_points_fn(perpendicular3_v, plane3_point)
+
+    # xs = np.linspace(-5, 5, 15)
+    # ys = np.linspace(-5, 5, 15)
+
+    # draw3d(
+    #     Points3D(*[plane1_fn(x, y) for x in xs for y in ys], color=Colors3D.BLUE),
+    #     Points3D(*[plane2_fn(x, y) for x in xs for y in ys], color=Colors3D.GREEN),
+    #     Points3D(*[plane3_fn(x, y) for x in xs for y in ys], color=Colors3D.RED),
+    #     elev=15,
+    #     azim=45,
+    # )
+
+    # Finding a good plane intersection visualization
+    # import matplotlib.pyplot as plt
+    # import numpy as np
+    # from mpl_toolkits import mplot3d
+
+    # def plane_1(x, y):
+    #     return x + y + 1
+
+    # def plane_2(x, y):
+    #     return 2 * y - 3
+
+    # def plane_3(x, y):
+    #     return 2 - x
+
+    # xs = np.linspace(-6, 6, 25)
+    # ys = np.linspace(-6, 6, 25)
+
+    # planes = [plane_1, plane_2, plane_3]
+
+    # fig = plt.figure()
+    # ax = plt.axes(projection="3d")
+
+    # for plane in planes:
+    #     X, Y = np.meshgrid(xs, ys)
+    #     Z = plane(X, Y)
+    #     ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap="binary", edgecolor="none", alpha=0.6)
+
+
+    # ax.set_xlabel("x")
+    # ax.set_ylabel("y")
+    # ax.set_zlabel("z")
+    # ax.set_title("Three planes")
+    # ax.view_init(33, 33)
+
+    # plt.show()
+
+    # finding a good visualization for three intersecting planes
+    def plane_1(x, y):
+        return (x, y, x + y + 1)
+
+    def plane_2(x, y):
+        return (x, y, 2 * y - 3)
+
+    def plane_3(x, y):
+        return (x, y, 2 - x)
+
+    xs = np.linspace(-5, 5, 15)
+    ys = np.linspace(-5, 5, 15)
 
     draw3d(
-        Points3D(*points, color=Colors3D.BLUE),
-        Arrow3D(u, color=Colors3D.BLACK),
-        Arrow3D(v, color=Colors3D.BLACK),
+        Points3D(*[plane_1(x, y) for x in xs for y in ys], color=Colors3D.BLUE),
+        Points3D(*[plane_2(x, y) for x in xs for y in ys], color=Colors3D.GREEN),
+        Points3D(*[plane_3(x, y) for x in xs for y in ys], color=Colors3D.RED),
+        Points3D((-1, 3, 3), color=Colors3D.BLACK),
+        elev=18,
+        azim=45,
     )
-

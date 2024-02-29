@@ -2,8 +2,10 @@
 
 from math import pi, sqrt
 from random import randint, uniform
+from typing import Generator
 
-from vec2d.math import rotate, to_cartesian, to_polar, translate
+import numpy as np
+from vec2d.math import distance, rotate, to_cartesian, to_polar, translate
 
 
 class PolygonModel:
@@ -17,6 +19,49 @@ class PolygonModel:
     X_MAX = 10
     Y_MIN = 10
     Y_MAX = 10
+
+    @staticmethod
+    def standard_form(p1, p2) -> tuple[float, float, float]:
+        """
+        Returns a tuple (a, b, c) representing the coefficients of the
+        linear equation in standard form ax + by = c representing the
+        straight line passing through the given points p1, p2.
+        """
+        x1, y1 = p1
+        x2, y2 = p2
+        a = y2 - y1
+        b = x1 - x2
+        c = x1 * y2 - x2 * y1
+        return a, b, c
+
+    @staticmethod
+    def intersection(u1, u2, v1, v2):
+        a1, b1, c1 = PolygonModel.standard_form(u1, u2)
+        a2, b2, c2 = PolygonModel.standard_form(v1, v2)
+        m = np.array(((a1, b1), (a2, b2)))
+        c = np.array((c1, c2))
+        return np.linalg.solve(m, c)
+
+    @staticmethod
+    def do_segments_intersect(s1, s2):
+        """
+        Returns True if the segments defined by s1 and s2 intersect.
+        s1 and s2 are a tuple of two elements, with each element being a point
+        that defines the segment.
+        """
+        u1, u2 = s1
+        v1, v2 = s2
+        d1, d2 = distance(*s1), distance(*s2)
+        try:
+            x, y = PolygonModel.intersection(u1, u2, v1, v2)
+            return (
+                distance(u1, (x, y)) <= d1
+                and distance(u2, (x, y)) <= d1
+                and distance(v1, (x, y)) <= d2
+                and distance(v2, (x, y)) <= d2
+            )
+        except np.linalg.LinAlgError:
+            return False
 
     def __init__(self, points) -> None:
         self.points = points
@@ -33,11 +78,24 @@ class PolygonModel:
         rotated_points = rotate(self.rotation_angle, self.points)
         return translate((self.x, self.y), rotated_points)
 
-    def does_intersect(self, segment):
+    def segments(
+        self,
+    ) -> Generator[tuple[tuple[float, float], tuple[float, float]], None, None]:
+        """
+        Returns the segments that define the Polygon
+        """
+        points = self.transformed()
+        for i in range(len(points)):
+            yield (points[i], points[(i + 1) % len(points)])
+
+    def does_intersect(self, laser_beam_segment):
         """
         Returns True if the given segment intersects with any of the segments of
         the polygon, False otherwise
         """
+        for segment in self.segments():
+            if PolygonModel.do_segments_intersect(segment, laser_beam_segment):
+                return True
         return False
 
 

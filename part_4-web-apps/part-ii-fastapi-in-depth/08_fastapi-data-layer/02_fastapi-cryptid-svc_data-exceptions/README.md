@@ -1,5 +1,5 @@
 # Cryptid service using FastAPI framework
-> Step 7: adding custom exceptions int the data layer to provide better experience.
+> Step 7: adding custom exceptions int the data layer to provide better experience and add unit tests for the data layer.
 
 This project illustrates how to build a web application that implements the management of *cryptids* (imaginary creatures) and the explorers who seek them.
 
@@ -32,11 +32,24 @@ poetry run uvicorn cryptid.main:app \
 
 | NOTE: |
 | :---- |
-| The code of the data layer does not include `connection.commit()`. As a result, the database file is never updated, which helps with the testing. |
+| The code of the data layer does not include `connection.commit()`. As a result, the database file is never updated, which helps with the testing.<br>If you want to persist the changes so that they survive server restarts you simply need to commit the changes after every operation that *changes* the database. |
 
 ## Testing the application
 
-### Explorer
+### Unit testing the data layer
+
+A couple of PyTest files have been included in the `tests/unit/data/` directory. Those can be executed running:
+
+```bash
+pytest tests/unit/data/
+```
+
+In those tests, SQLite is configured to as an in-memory database, but there's some coupling between the individual tests.
+
+
+### Manual Integration tests with HTTPie
+
+#### Explorer
 
 Sample HTTPie commands:
 
@@ -118,7 +131,7 @@ $ http delete http://localhost:8080/explorer/"Beau Buffette"
 
 - [X] Delete one that exists
 
-### Creature
+#### Creature
 
 Sample HTTPie commands:
 

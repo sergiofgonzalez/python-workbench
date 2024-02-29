@@ -187,4 +187,100 @@ def get_all() -> list[Creature]:
 
 It is a common practice to define custom exceptions for situations arising in the data layer, so that those are gracefully. In this case, errors occurring because we're trying to create duplicate data or trying to find non-persisted data are ocurring at the db level.
 
-Because of that, it makes sense to define custom exceptions on the data package.
+Because of that, it makes sense to define custom exceptions in the data package in a file named `/data/errors.py`:
+
+```python
+class MissingError(Exception):
+    pass
+
+
+class DuplicateError(Exception):
+    pass
+
+
+class InvalidStateError(Exception):
+    pass
+```
+
+Then we can update our data access layer code to raise those exceptions when an *unhappy path* situation is detected.
+
+```python
+def get_one(name: str) -> Explorer:
+    query = """
+        SELECT * FROM explorer
+         WHERE name = :name
+    """
+    params = {"name": name}
+    if curs:
+        curs.execute(query, params)
+        row = curs.fetchone()
+        if row:
+            return row_to_model(row)
+        else:
+            raise MissingError(f"Explorer {name} not found")
+    else:
+        raise InvalidStateError("Cursor not initialized")
+```
+
+## Unit Tests
+
+SQLite makes it very easy to write unit tests because it supports a completely in-memory mode when using `":memory:"` as the database location.
+
+That allows you to create test functions for your data layer without requiring you to clean the results after each session execution.
+
+We can configure this functionality with a small hack that sets the value `CRYPTID_SQLITE_DB` environment variable before importing the data access layer.
+
+In the test programs we also use PyTest fixtures.
+
+A PyTest fixture is a special function that helps you set up and manage the environment for your tests. In our case, we can use it to pass data to our tests.
+
+```python
+import os
+
+import pytest
+
+from cryptid.data.errors import DuplicateError, MissingError
+from cryptid.model.explorer import Explorer
+
+# Setting SQLite in-memory mode before importing the Data Layer
+os.environ["CRYPTID_SQLITE_DB"] = ":memory:"
+from cryptid.data import explorer
+
+
+@pytest.fixture
+def sample() -> Explorer:
+    return Explorer(
+        name="Van Helsing",
+        country="NL",
+        description="Vampire slayer"
+    )
+
+
+def test_create(sample):
+    got = explorer.create(sample)
+    assert got == sample
+
+
+def test_create_duplicate(sample):
+    with pytest.raises(DuplicateError):
+        explorer.create(sample)
+
+
+def test_get_one_missing():
+    with pytest.raises(MissingError):
+        creature.get_one("Werewolf")
+```
+
+Note that a PyTest function will receive the result from a fixture automatically by simply declaring an argument that matches the fixture name. Otherwise, the fixture will not be provided (as in `test_get_one_missing`).
+
+Note also that you can use `with` to write tests that expect exceptions to be raised.
+
+We didn't make use of it, but with PyTest a fixture can be configured to have a particular scope:
+
++ Function scope &mdash; the fixture is called before every test function. This is the default.
+
++ Session scope &mdash; the fixture is called only once, at the beginning of the test file execution.
+
+In the example above, the fixture uses the default function scope, so that the test functions get a brand new object as configured in the fixture.
+
+On the other hand, because we're not resetting the database at the end of each test function execution, we're relying on the execution of the previous test functions (which is not a very good idea, as we cannot run the test functions individually).

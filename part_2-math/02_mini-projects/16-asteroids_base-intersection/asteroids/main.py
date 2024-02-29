@@ -71,15 +71,18 @@ if __name__ == "__main__":
         # Get the state of the keyboard keys
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE]:
-            laser_shot = ship.laser_segment()
-            draw_segment(screen, laser_shot)
+            laser_beam = ship.laser_segment()
+            draw_segment(screen, laser_beam)
 
             for asteroid in asteroids:
-                if asteroid.does_intersect(laser_shot):
+                if asteroid.does_intersect(laser_beam):
                     asteroids.remove(asteroid)
 
         if keys[pygame.K_LEFT]:
             ship.rotation_angle += 0.0005
+        if keys[pygame.K_RIGHT]:
+            ship.rotation_angle -= 0.0005
+
 
         # Update the screen
         pygame.display.flip()
