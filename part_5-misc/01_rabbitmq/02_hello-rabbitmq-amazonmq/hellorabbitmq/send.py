@@ -7,15 +7,19 @@ import certifi
 import pika
 from dotenv import load_dotenv
 
-load_dotenv()  # take environment variables from .env.
+load_dotenv(override=True)  # take environment variables from .env.
 
-RABBITMQ_URL: str = os.getenv("RABBITMQ_URL", "")
+RABBITMQ_URL: str = os.getenv(
+    "RABBITMQ_URL", "amqps://user:pass@localhost:5671/vhost"
+)
 
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 ssl_context.load_verify_locations(certifi.where())
 
 conn_parameters = pika.URLParameters(RABBITMQ_URL)
 conn_parameters.ssl_options = pika.SSLOptions(context=ssl_context)
+
+print(f"Connecting to {conn_parameters.host}")
 connection = pika.BlockingConnection(conn_parameters)
 
 
