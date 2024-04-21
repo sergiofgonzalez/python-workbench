@@ -2,9 +2,9 @@
 
 + Reading and understanding the requirements of an API specification.
 + Structuring the application in a data layer, application layer, and interface layer.
-+ Implementing API endpoints using FastAPI
-+ Implementing data validation models using pydantic
-+ Testing the API with Swagger UI
++ Implementing API endpoints using FastAPI.
++ Implementing data validation models using pydantic.
++ Testing the API with Swagger UI.
 
 ## Intro
 

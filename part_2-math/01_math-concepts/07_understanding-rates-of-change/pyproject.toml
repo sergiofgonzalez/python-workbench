@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "math-ipynb"
+version = "0.1.0"
+description = ""
+authors = ["Sergio F. Gonzalez <sergio.f.gonzalez@gmail.com>"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+plthlp = {path = "../../02_mini-projects/20_matplotlib-helpers", develop = true}
+ipykernel = "^6.29.3"
+lines = {path = "../../02_mini-projects/18-line-equations", develop = true}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

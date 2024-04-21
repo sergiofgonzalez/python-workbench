@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "01-langchain-intro"
+version = "0.1.0"
+description = "Introduction to LangChain"
+authors = ["Sergio F. Gonzalez <sergio.f.gonzalez@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+openai = "^1.13.3"
+python-dotenv = "^1.0.1"
+langchain = "^0.1.11"
+pypdf = "^4.1.0"
+pydub = "^0.25.1"
+beautifulsoup4 = "^4.12.3"
+tiktoken = "^0.6.0"
+chromadb = "^0.4.24"
+lark = "^1.1.9"
+yt-dlp = "^2024.3.10"
+ipykernel = "^6.29.3"
+langchain-openai = "^0.1.1"
+pysqlite3-binary = "^0.5.2.post3"
+scikit-learn = "^1.4.2"
+docarray = "^0.40.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

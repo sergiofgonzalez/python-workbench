@@ -13,6 +13,7 @@ from vec3d.graph import (
 )
 
 from vec3d.math import cross, subtract, add, scale
+from collections import namedtuple
 
 import numpy as np
 
@@ -348,23 +349,65 @@ if __name__ == "__main__":
     # plt.show()
 
     # finding a good visualization for three intersecting planes
-    def plane_1(x, y):
-        return (x, y, x + y + 1)
+    # def plane_1(x, y):
+    #     return (x, y, x + y + 1)
 
-    def plane_2(x, y):
-        return (x, y, 2 * y - 3)
+    # def plane_2(x, y):
+    #     return (x, y, 2 * y - 3)
 
-    def plane_3(x, y):
-        return (x, y, 2 - x)
+    # def plane_3(x, y):
+    #     return (x, y, 2 - x)
 
-    xs = np.linspace(-5, 5, 15)
-    ys = np.linspace(-5, 5, 15)
+    # xs = np.linspace(-5, 5, 15)
+    # ys = np.linspace(-5, 5, 15)
+
+    # draw3d(
+    #     Points3D(*[plane_1(x, y) for x in xs for y in ys], color=Colors3D.BLUE),
+    #     Points3D(*[plane_2(x, y) for x in xs for y in ys], color=Colors3D.GREEN),
+    #     Points3D(*[plane_3(x, y) for x in xs for y in ys], color=Colors3D.RED),
+    #     Points3D((-1, 3, 3), color=Colors3D.BLACK),
+    #     elev=18,
+    #     azim=45,
+    # )
+
+    # Finding a good visualization for a 3D trajectory
+
+
+    Kinematics = namedtuple("Kinematics", "times, positions, velocities, accelerations")
+
+    def get_kinematics_euler(t0, s0, v0, a0, t_end, steps):
+        t = t0
+        s = s0
+        v = v0
+        a = a0
+        dt = (t_end - t0) / steps
+
+        times = [t]
+        positions = [s]
+        velocities = [v]
+        accelerations = [a]
+        for _ in range(steps):
+            t += dt
+            s = add(s, scale(dt, v))
+            v = add(v, scale(dt, a))
+
+            times.append(t)
+            positions.append(s)
+            velocities.append(v)
+            accelerations.append(a)
+
+        return Kinematics(times, positions, velocities, accelerations)
+
+
+    kinematics = get_kinematics_euler(
+        t0=0,
+        s0=(0, 0, 0),
+        v0=(1, 2, 0),
+        a0=(0, -1, 1),
+        t_end=10,
+        steps=10
+    )
 
     draw3d(
-        Points3D(*[plane_1(x, y) for x in xs for y in ys], color=Colors3D.BLUE),
-        Points3D(*[plane_2(x, y) for x in xs for y in ys], color=Colors3D.GREEN),
-        Points3D(*[plane_3(x, y) for x in xs for y in ys], color=Colors3D.RED),
-        Points3D((-1, 3, 3), color=Colors3D.BLACK),
-        elev=18,
-        azim=45,
+        Points3D(*kinematics.positions)
     )

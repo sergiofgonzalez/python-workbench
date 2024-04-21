@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "langchain-sandbox"
+version = "0.1.0"
+description = ""
+authors = ["Sergio F. Gonzalez <sergio.f.gonzalez@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+langchain = "^0.1.12"
+pypdf = "^4.1.0"
+# transformers = "^4.38.2"
+# torch = "^2.2.1"
+# yt-dlp = "^2024.3.10"
+# pydub = "^0.25.1"
+# librosa = "^0.10.1"
+python-dotenv = "^1.0.1"
+openai = "^1.14.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

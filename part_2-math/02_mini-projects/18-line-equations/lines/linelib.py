@@ -31,7 +31,7 @@ def canonical_line_coefficients(
     return a, b, c
 
 
-def canonical_line_latex(a, b, c: float) -> str:
+def canonical_line_latex(a: float, b: float, c: float) -> str:
     """
     Returns the canonical line equation in LaTeX format
     """
@@ -51,7 +51,7 @@ def canonical_line_latex(a, b, c: float) -> str:
     return f"$ {a_str} + {b_str} = {c} $"
 
 
-def fn_std_form_line(a, b, c: float) -> Callable[[float], float]:
+def fn_std_form_line(a: float, b: float, c: float) -> Callable[[float], float]:
     """
     Returns a function that returns the value of y for a given x so that it can
     be easily plotted with Matplotlib.
@@ -72,3 +72,13 @@ def canonical_line_coefficients_point_vector(
     x0, y0 = p
     a, b = v
     return a, b, a * x0 + b * y0
+
+
+def fn_secant_line(
+    f: Callable[[float], float], x1: float, x2: float
+) -> Callable[[float], float]:
+    """Returns the secant line over time for a function f between x1 and x2."""
+    p1 = (x1, f(x1))
+    p2 = (x2, f(x2))
+    a, b, c = canonical_line_coefficients(p1, p2)
+    return fn_std_form_line(a, b, c)

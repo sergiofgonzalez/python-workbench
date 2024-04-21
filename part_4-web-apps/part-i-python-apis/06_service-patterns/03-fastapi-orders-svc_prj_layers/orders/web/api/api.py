@@ -123,7 +123,8 @@ def cancel_order(order_id: UUID):
 def pay_order(order_id: UUID):
     try:
         with UnitOfWork() as unit_of_work:
-            repo = OrdersRepository(unit_of_work.session)
+            repo = OrdersRepository(
+                .session)
             orders_service = OrdersService(repo)
             order = orders_service.pay_order(order_id=order_id)
             unit_of_work.commit()
