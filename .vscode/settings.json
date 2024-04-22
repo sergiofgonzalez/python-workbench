@@ -1,0 +1,10 @@
+{
+  "python.analysis.extraPaths": [
+    "\"./lib\"",
+    // "/home/ubuntu/anaconda3/bin",
+    // "/home/ubuntu/anaconda3/lib/python3.8/site-packages",
+    // "./part_2-math/02_mini-projects/02_vector-2d-lib-refactoring",
+    // "./part_2-math/02_mini-projects/03_vector-3d-lib",
+  ],
+  "python.analysis.typeCheckingMode": "basic"
+}
