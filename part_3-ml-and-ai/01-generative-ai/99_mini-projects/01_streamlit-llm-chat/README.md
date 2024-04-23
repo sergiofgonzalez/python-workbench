@@ -103,3 +103,23 @@ This will be later used to let the user select the knowledge base that will let 
 | :------- |
 | See [04: LLM bot](docschat/04_llm_bot.py) for a runnable example. |
 
+## Building a simple app that lets you talk to your documents using Azure OpenAI
+
+In this section, we build a chatbot using RAG that lets you talk to a PDF document. The chatbot has no memory, so you cannot ask subsequent questions.
+
+Also, a configuration file is created in `.streamlit/config.toml` so that a browser window is not opened automatically on `streamlit run`. Note however, that the configuration has not been placed there because LangChain expects certain environment variables to be defined, and therefore, it is easier to keep using `python-dotenv`.
+
+Should you decide to use `config.toml` you would be able to access the values there using:
+
+```python
+# [server]
+# headless = true
+
+if "server.headless" in st.config.get_config_options():
+  ...
+
+try:
+  headless_flag = st.config.get_option("server.headless")
+except RuntimeError as e:
+  print(f"Could not read 'server.headless' config option: {str(e)}")
+```
