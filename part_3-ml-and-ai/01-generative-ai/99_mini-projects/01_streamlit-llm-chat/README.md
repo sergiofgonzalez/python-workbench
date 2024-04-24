@@ -143,4 +143,10 @@ Also, the *UI* stuff is refactored creating functions and a clearly defined entr
 | :------- |
 | You can inspect the refactored application in [LLM Doc Bot: Refactored](02-docschat-initial-refactoring/). |
 
-## 
+## Adding caching for long running operations
+
+Certain operations in the application might be long running (instantiation of the LLM, generation of documents and splits, etc.). Streamlit supports memoizations via the `@st.cache_resource` decorator.
+
+In this iteration, we see how to improve the performance of the application.
+
+The improvement was obtained by examining the chosen file and comparing it with the ones recently seen. That way, you can save the time of writing it and updating the database. Although I used caching, I don't think is having any effect, because the file uploaded is saved in a temporary location, and therefore, always gets a new name and memoization is then ineffective.
