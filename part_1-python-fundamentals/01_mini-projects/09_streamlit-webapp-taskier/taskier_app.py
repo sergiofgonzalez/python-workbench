@@ -1,5 +1,5 @@
 """
-Streamlits script for the Task management app
+Streamlit script for the Task management app
 """
 import streamlit as st
 from taskier import Task, TaskierDBOption, set_db_option, TaskStatus, TaskierError

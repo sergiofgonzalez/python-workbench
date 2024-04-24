@@ -1,0 +1,4 @@
+[server]
+
+# Don't open a browser window on streamlit run
+headless = true

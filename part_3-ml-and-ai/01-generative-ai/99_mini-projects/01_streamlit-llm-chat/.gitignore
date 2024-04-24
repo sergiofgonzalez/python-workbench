@@ -1,5 +1,5 @@
 # Streamlit specific
-.streamlit/secrets.toml
+**/.streamlit/secrets.toml
 
-# Project specifi
+# Project specific
 TODO.md

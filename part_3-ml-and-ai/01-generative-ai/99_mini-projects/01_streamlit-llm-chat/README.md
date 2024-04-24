@@ -10,6 +10,7 @@
   + Build a bot that echoes the user's input to develop some intuition around how the chat elements and session state works.
   + Build a chatbot GUI with streaming
   + Build a ChatGPT-like app
+  + Misc improvements
 
 The end state should look something like:
 
@@ -64,7 +65,7 @@ if prompt:
 
 | EXAMPLE: |
 | :------- |
-| See [00: Hello, `st.chat_message`](docschat/00_hello_chat_message.py) and [01: Hello, `st.chat_input`](docschat/01_hello_chat_input.py) and runnable examples. |
+| See [00: Hello, `st.chat_message`](01-first-steps/docschat/00_hello_chat_message.py) and [01: Hello, `st.chat_input`](01-first-steps/docschat/01_hello_chat_input.py) and runnable examples. |
 
 ## Build a bot that echoes your input
 
@@ -83,7 +84,7 @@ The components to use are:
 
 | EXAMPLE: |
 | :------- |
-| See [02: Echo Bot](docschat/02_echo_bot.py) for a runnable example. |
+| See [02: Echo Bot](01-first-steps/docschat/02_echo_bot.py) for a runnable example. |
 
 ## Build a simple chatbot GUI with streaming
 
@@ -91,7 +92,7 @@ In this section, we will build a chatbot that responds to the user's input with 
 
 | EXAMPLE: |
 | :------- |
-| See [03: Canned bot](docschat/03_canned_bot.py) for a runnable example. |
+| See [03: Canned bot](01-first-steps/docschat/03_canned_bot.py) for a runnable example. |
 
 ## Building a ChatGPT-like app with Azure OpenAI
 
@@ -101,7 +102,7 @@ This will be later used to let the user select the knowledge base that will let 
 
 | EXAMPLE: |
 | :------- |
-| See [04: LLM bot](docschat/04_llm_bot.py) for a runnable example. |
+| See [04: LLM bot](01-first-steps/docschat/04_llm_bot.py) for a runnable example. |
 
 ## Building a simple app that lets you talk to your documents using Azure OpenAI
 
@@ -123,3 +124,23 @@ try:
 except RuntimeError as e:
   print(f"Could not read 'server.headless' config option: {str(e)}")
 ```
+
+| EXAMPLE: |
+| :------- |
+| See [LLM Doc Bot: chat with a PDF](01-first-steps/docschat/05_llm_docbot.py) for a fully functional, initial version of an LLM-based bot that lets a user talk to a PDF via an LLM using an in-memory database ([Docarray](https://github.com/docarray/docarray)). |
+
+## Refactoring the LLM DocBot app
+
+Since the introduction of complex state management and LLM interactions, the code of the app has become overly complex and ugly. In this version we refactor it a little bit separating the *backend services* from the purely *UI* stuff.
+
+Also, the *UI* stuff is refactored creating functions and a clearly defined entry point.
+
+| NOTE: |
+| :---- |
+| Because this refactoring involves `import` statements with helpers and *backend* services, the project becomes more complicated. As a result specific project folders are created from this point onwards. |
+
+| EXAMPLE: |
+| :------- |
+| You can inspect the refactored application in [LLM Doc Bot: Refactored](02-docschat-initial-refactoring/). |
+
+## 
