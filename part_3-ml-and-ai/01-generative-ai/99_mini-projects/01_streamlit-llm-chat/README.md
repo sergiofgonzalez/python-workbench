@@ -150,3 +150,14 @@ Certain operations in the application might be long running (instantiation of th
 In this iteration, we see how to improve the performance of the application.
 
 The improvement was obtained by examining the chosen file and comparing it with the ones recently seen. That way, you can save the time of writing it and updating the database. Although I used caching, I don't think is having any effect, because the file uploaded is saved in a temporary location, and therefore, always gets a new name and memoization is then ineffective.
+
+| EXAMPLE: |
+| :------- |
+| You can review [LLM Doc Bot: Improving performance](03-docschat-caching/) to have a detailed view of the solution. |
+
+
+## Allowing the selection of multiple files
+
+The Streamlit element we used to select a file can be configured to select multiple files. That will enhance the current app functionalities, because we will be able to use as knowledge base multiple related documents (e.g., transcripts of sessions held in different days around the same topic, etc.).
+
+Note that because the Streamlit app reruns on each and every user interaction, we will need to be careful with the application performance so that we're not reloading the database on each user's question, and only when the knowledge base changes.
