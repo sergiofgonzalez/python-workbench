@@ -181,4 +181,18 @@ In this version, we enhance the current app to include the previous questions, s
 
 Prompt engineering is key to obtain good results. Until now we've relied on the default prompts provided by LangChain, which are OK, but you might have identified several use cases in which you don't get what you were expecting:
 + you ask about summarizing the document and LLM answers that it doesn't know what you're asking about?
-+ You ask for a clarification and it 
++ You ask for a clarification and it
+
+| EXAMPLE: |
+| :------- |
+| See [LLM Doc Bot: Custom prompt](06-docschat-custom-prompt/) for a runnable example in which the prompt is customized. |
+
+
+## Showing an spinner when UI is not accepting user input
+
+In this iteration, we introduce a spinner in the screen in the time consuming UI operations, so that from the UX perspective it is clearer that the application is doing something in the background and not accepting user input.
+
+| EXAMPLE: |
+| :------- |
+| See [LLM Doc Bot: Spinner](07-docschat-spinner/) for a runnable example showing a spinner while the knowledge base is being loaded. |
+

@@ -1,5 +1,5 @@
 # Building a basic LLM chat app with streamlit
-> Multifile selection
+> Prompt custimization
 
 This project contains more mature versions of the application in which specific features are added incrementally.
 

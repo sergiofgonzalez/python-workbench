@@ -1,5 +1,5 @@
 # Building a basic LLM chat app with streamlit
-> Adding conversation memory support so that the user can ask follow-up questions
+> Spinner display for long running operations
 
 This project contains more mature versions of the application in which specific features are added incrementally.
 
