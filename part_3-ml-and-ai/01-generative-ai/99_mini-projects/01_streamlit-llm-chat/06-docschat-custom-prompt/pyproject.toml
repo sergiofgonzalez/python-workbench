@@ -1,16 +1,19 @@
 [tool.poetry]
-name = "09-symbolic-expr-ipynb"
+name = "docschat"
 version = "0.1.0"
-description = "09 - Symbolic expressions"
+description = ""
 authors = ["Sergio F. Gonzalez <sergio.f.gonzalez@gmail.com>"]
-license = "MIT"
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
-ipykernel = "^6.29.4"
-symexpr = {path = "../../02_mini-projects/25-symbolic-expr-v1", develop = true}
+streamlit = "^1.33.0"
+python-dotenv = "^1.0.1"
+langchain-openai = "^0.1.3"
+langchain = "^0.1.16"
+pypdf = "^4.2.0"
+docarray = "^0.40.0"
+loguru = "^0.7.2"
 
 
 [build-system]

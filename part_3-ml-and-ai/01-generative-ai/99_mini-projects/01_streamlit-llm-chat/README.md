@@ -161,3 +161,24 @@ The improvement was obtained by examining the chosen file and comparing it with 
 The Streamlit element we used to select a file can be configured to select multiple files. That will enhance the current app functionalities, because we will be able to use as knowledge base multiple related documents (e.g., transcripts of sessions held in different days around the same topic, etc.).
 
 Note that because the Streamlit app reruns on each and every user interaction, we will need to be careful with the application performance so that we're not reloading the database on each user's question, and only when the knowledge base changes.
+
+| EXAMPLE: |
+| :------- |
+| See [LLM Doc Bot: Multifile support](04-docschat-multifile/) for a runnable example illustrating how to deal with the multifile support. |
+
+## Adding memory to the conversation
+
+The previous incarnation did not support conversations: if you ask a question and then ask for a clarification, the bot won't be able to handle that.
+
+In this version, we enhance the current app to include the previous questions, so that the bot can support that type of interactions. The changes are minimal.
+
+| EXAMPLE: |
+| :------- |
+| See [LLM Doc Bot: Conversation memory support](05-docschat-conversation-memory/) for a runnable example illustrating how to deal with the multifile support. |
+
+
+## Customizing the prompt
+
+Prompt engineering is key to obtain good results. Until now we've relied on the default prompts provided by LangChain, which are OK, but you might have identified several use cases in which you don't get what you were expecting:
++ you ask about summarizing the document and LLM answers that it doesn't know what you're asking about?
++ You ask for a clarification and it 

@@ -665,6 +665,19 @@ pure-eval = "*"
 tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
+name = "symexpr"
+version = "0.1.0"
+description = ""
+optional = false
+python-versions = "^3.10"
+files = []
+develop = true
+
+[package.source]
+type = "directory"
+url = "../../02_mini-projects/25-symbolic-expr-v1"
+
+[[package]]
 name = "tornado"
 version = "6.4"
 description = "Tornado is a Python web framework and asynchronous networking library, originally developed at FriendFeed."
@@ -724,4 +737,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "63d1eb5a07424c2764306fbcb96a58abbdb42e74c713b48f4d4189473962821e"
+content-hash = "08432dcb77f194ffc21e3f5c08d94ac60a66ea1163211e8a848e3a57ebcaf5d4"

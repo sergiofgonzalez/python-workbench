@@ -1,16 +1,12 @@
 [tool.poetry]
-name = "09-symbolic-expr-ipynb"
+name = "symexpr"
 version = "0.1.0"
-description = "09 - Symbolic expressions"
+description = ""
 authors = ["Sergio F. Gonzalez <sergio.f.gonzalez@gmail.com>"]
-license = "MIT"
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
-ipykernel = "^6.29.4"
-symexpr = {path = "../../02_mini-projects/25-symbolic-expr-v1", develop = true}
 
 
 [build-system]
