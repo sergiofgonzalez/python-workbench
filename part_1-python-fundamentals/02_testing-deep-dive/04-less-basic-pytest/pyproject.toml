@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "my-package"
+version = "0.1.0"
+description = ""
+authors = ["Sergio F. Gonzalez <sergio.f.gonzalez@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.2.1"
+pytest-sugar = "^1.0.0"
+
+[tool.pytest.ini_options]
+addopts = ["-s", "--no-header", "--no-summary"]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

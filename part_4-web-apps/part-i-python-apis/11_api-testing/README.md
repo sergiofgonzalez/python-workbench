@@ -210,7 +210,7 @@ These expectations are not very helpful, as that would be that we would need to 
 
 In software testing, fixtures are the preconditions required to run a test. Typically, fixtures are data that we load into a db for testing, but they can also include configuration settings, directories and files, or infrastructure resources.
 
-While we could use fixtures, i better approach is using Dredd hooks &mdash; scripts that allow you to customize Dredd's behavior during the execution of the test suite.
+While we could use fixtures, a better approach is using Dredd hooks &mdash; scripts that allow you to customize Dredd's behavior during the execution of the test suite.
 
 Using this approach you can:
 + Create resources for use during the test
