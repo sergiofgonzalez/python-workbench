@@ -10,7 +10,10 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.10"
 ipykernel = "^6.29.4"
-symexpr = {path = "../../02_mini-projects/25-symbolic-expr-v1", develop = true}
+symexpr = {path = "../../02_mini-projects/26-symbolic-expr-v2", develop = true}
+numpy = "^1.26.4"
+matplotlib = "^3.9.0"
+fns = {path = "../../02_mini-projects/21_fns-rates-of-change", develop = true}
 
 
 [build-system]
