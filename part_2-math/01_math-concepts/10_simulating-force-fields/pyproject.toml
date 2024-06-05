@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "09-symbolic-expr-ipynb"
+name = "10-simulating-force-fields-ipynb"
 version = "0.1.0"
-description = "09 - Symbolic expressions"
+description = "10 - Simulating force fields"
 authors = ["Sergio F. Gonzalez <sergio.f.gonzalez@gmail.com>"]
 license = "MIT"
 readme = "README.md"
@@ -10,11 +10,6 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.10"
 ipykernel = "^6.29.4"
-symexpr = {path = "../../02_mini-projects/26-symbolic-expr-v2", develop = true}
-numpy = "^1.26.4"
-matplotlib = "^3.9.0"
-fns = {path = "../../02_mini-projects/21_fns-rates-of-change", develop = true}
-sympy = "^1.12.1"
 
 
 [build-system]
