@@ -12,6 +12,7 @@ from lines.linelib import (
     canonical_line_latex,
     fn_parametric_line,
     fn_std_form_line,
+    fn_secant_line,
 )
 
 
@@ -64,11 +65,38 @@ def get_canonical_line_coefficients_point_vector(p, v):
     return a, b, c
 
 
-def main():
-    # plot_parametric_line_through_points((2, 3), (4, 2))
-    plot_line(*get_canonical_line_coefficients((2, 3), (1, 5)))
-    plot_line(*get_canonical_line_coefficients_point_vector((3, 5), (3, 2)))
+def plot_secant_line():
+
+    def f(x):
+        """$ y = x^2 $"""
+        return x ** 2
+
+    x_min = -10
+    x_max = 10
+    xs = np.arange(x_min, x_max)
+
+    fig, ax = plt.subplots()
+    ax.grid(True)
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+
+    ax.axhline(y=0, color="k")
+    ax.axvline(x=0, color="k")
+
+    ax.plot(xs, [f(x) for x in xs], label=f.__doc__)
+    ax.scatter(-5, f(-5), color="black")
+
+    ax.legend()
+
+    secant_line = fn_secant_line(f, -5.01, -4.99)
+    xs = np.arange(-9, 2)
+    ax.plot(xs, [secant_line(x) for x in xs], label="Secant line at x = -5")
+    ax.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
-    main()
+    # plot_parametric_line_through_points((2, 3), (4, 2))
+    # plot_line(*get_canonical_line_coefficients((2, 3), (1, 5)))
+    # plot_line(*get_canonical_line_coefficients_point_vector((3, 5), (3, 2)))
+    plot_secant_line()
