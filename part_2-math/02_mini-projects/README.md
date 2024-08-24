@@ -1,6 +1,26 @@
 # 02: Math mini-projects
 > a collection of Math mini-projects
 
+## Creating a new project
+
+Most of the projects use poetry for dependency management.
+
+To create a new project type:
+
+```bash
+poetry new <dir-name> --name <pkg-nameZ
+```
+
+Then `cd` into it, open an instance of VS Code and add your dependencies using:
+
+```bash
+poetry add <dep>
+```
+
+VS Code should be able to identify the virtual environment that Poetry creates once the dependencies are added, but sometimes you might need to restart your window.
+
+
+
 ## [01: Vector 2D library](./01_vector-2d-lib/README.md)
 
 A library to draw simple figures such as points, segments, polygons, and  arrows in the 2D plane using Matplotlib as the backend.
