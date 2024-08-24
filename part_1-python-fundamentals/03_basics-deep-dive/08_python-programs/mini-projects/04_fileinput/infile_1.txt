@@ -1,0 +1,5 @@
+<start of file infile_1.txt>
+ | 1 | 1  >> <start of file infile_1.txt>
+ | 2 | 2  >>  | 1 | 1  >> this is the first line of the file.
+ | 3 | 3  >>  | 2 | 2  >> this is the second line of the files.
+ | 4 | 4  >>  | 4 | 4  >> this file has many lines but this one is mine.

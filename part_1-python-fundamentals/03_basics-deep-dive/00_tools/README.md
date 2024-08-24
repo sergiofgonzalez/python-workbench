@@ -55,3 +55,7 @@ Verify the version has been correctly activated
 ```bash
 python --version
 ```
+
+| NOTE: |
+| :---- |
+| If you don't find a specific version, you might want to do `pyenv update`. |
