@@ -1,0 +1,1 @@
+This is windows line, which ends in cr-lf, instead of only newline

@@ -1,0 +1,3 @@
+This is a file that will
+be copies to a target file
+using File.writelines.
