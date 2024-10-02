@@ -1,0 +1,19 @@
+[project]
+name = "02-database-metadata"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["sqlalchemy>=2.0.35"]
+
+
+[tool.ruff]
+# Set the maximum line length to 80
+line-length = 80
+
+[tool.ruff.lint]
+# # Add the `line-too-long` rule to the enforced rule set.
+# extend-select = ["E501"]
+ignore = ["T201"] # Allow print statements
+
+select = ["ALL"]
