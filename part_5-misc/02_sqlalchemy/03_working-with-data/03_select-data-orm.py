@@ -1,11 +1,8 @@
 """Selecting data using Core."""
 
 from sqlalchemy import (
-    Column,
     ForeignKey,
-    Integer,
     String,
-    Table,
     and_,
     bindparam,
     create_engine,
@@ -41,7 +38,10 @@ class User(Base):
 
     def __repr__(self) -> str:
         """Provide dev level string representation of User."""
-        return f"User(id={self.id!r}, name={self.name!r}, fullname={self.fullname!r})"
+        return (
+            f"User(id={self.id!r}, name={self.name!r}, "
+            f"fullname={self.fullname!r})"
+        )
 
 
 class Address(Base):

@@ -1,11 +1,11 @@
-# Working with data
-> selecting, updating, and deleting data mostly with core and some basics about selecting data using ORM
+# Working with data in ORM
+> selecting, updating, and deleting data using ORM
 
 ## Setting up shop
 
 ```bash
-uv init 03_working-with-data
-cd 03_working-with-data
+uv init 04_orm-data-manipulation
+cd 04_orm-data-manipulation
 uv add sqlalchemy
 ```
 

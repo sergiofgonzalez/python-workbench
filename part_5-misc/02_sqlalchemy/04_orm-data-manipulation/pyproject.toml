@@ -1,5 +1,5 @@
 [project]
-name = "03-working-with-data"
+name = "04-orm-data-manipulation"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -14,10 +14,9 @@ line-length = 80
 # # Add the `line-too-long` rule to the enforced rule set.
 # extend-select = ["E501"]
 ignore = [
-  "T201",    # Allow print statements
-  "ERA001",  # Allow commented code
-  "PLR2004", # Allow magic constants
-  "PLR0915", # Too many statements
+    "T201",   # Allow print statements
+    "S101",   # Allow assert
+    "ERA001", # Allow commenting code
 ]
 
 select = ["ALL"]

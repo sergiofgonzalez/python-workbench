@@ -1,11 +1,11 @@
-# Working with data
-> selecting, updating, and deleting data mostly with core and some basics about selecting data using ORM
+# ORM relationships
+> defining, maintaining and persisting relationships between mapped classes when using ORM
 
 ## Setting up shop
 
 ```bash
-uv init 03_working-with-data
-cd 03_working-with-data
+uv init 05_orm-relationships
+cd 05_orm-relationships
 uv add sqlalchemy
 ```
 

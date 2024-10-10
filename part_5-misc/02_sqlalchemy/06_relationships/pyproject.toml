@@ -1,5 +1,5 @@
 [project]
-name = "03-working-with-data"
+name = "06-relationships"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -15,9 +15,11 @@ line-length = 80
 # extend-select = ["E501"]
 ignore = [
   "T201",    # Allow print statements
-  "ERA001",  # Allow commented code
+  "S101",    # Allow assert statements
   "PLR2004", # Allow magic constants
-  "PLR0915", # Too many statements
+  "D200",    # Comments: single-line comments should fit in one line
+  "D205",    # Comments: one blank line required between summary and desc
+  "D212",    # Comments: multi-line comments should start on first line
 ]
 
 select = ["ALL"]

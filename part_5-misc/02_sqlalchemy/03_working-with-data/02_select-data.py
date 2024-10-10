@@ -134,7 +134,7 @@ def main() -> None:
         .where(address_table.c.user_id == user_table.c.id),
     )
 
-    # alternatively to produce expressions joing by AND, you can simply pass
+    # alternatively to produce expressions joined by AND, you can simply pass
     # multiple expressions to where()
     print(
         select(address_table.c.email_address).where(
@@ -207,7 +207,7 @@ def main() -> None:
     print(
         select(address_table.c.email_address)
         .select_from(user_table)
-        .join(address_table, user_table.c.id == address_table.c.user_id)
+        .join(address_table, user_table.c.id == address_table.c.user_id),
     )
 
     # if you need a particular type of join (LEFT OUTER, FULL JOIN...)

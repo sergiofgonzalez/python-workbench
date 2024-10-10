@@ -1,11 +1,11 @@
-# Working with data
-> selecting, updating, and deleting data mostly with core and some basics about selecting data using ORM
+# Grokking entity relationships
+> understanding entity relationships with SQLAlchemy Core and ORM
 
 ## Setting up shop
 
 ```bash
-uv init 03_working-with-data
-cd 03_working-with-data
+uv init 06_relationships
+cd 06_relationships
 uv add sqlalchemy
 ```
 

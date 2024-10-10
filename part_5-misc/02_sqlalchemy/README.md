@@ -335,3 +335,161 @@ my_table = Table("my_table", metadata_obj, autoload_with=engine)
 ### Working with data
 
 Please check [03: Working with data](03_working-with-data/) for examples on insert, select, and update. Refer to the [documentation](https://docs.sqlalchemy.org/en/20/tutorial/data.html) for advanced techniques.
+
+### Data manipulation with ORM
+
+When using the ORM, the `Session` object is responsible for constructing `Insert` constructs and emitting them as `INSERT` statements within the ongoing transaction.
+
+The way to do so is by adding object entries to it. Then, the `Session` makes sure these new entries will be emitted to the database when they are needed using a process called **flush**.
+
+The overall process used by the `Session` to persist objects is known as the **unit of work** pattern.
+
+When using ORM we make direct use of the custom Python classes we defined.
+
+For examples see [04: Data manipulation with ORM](04_orm-data-manipulation/README.md)
+
+### Relationships between objects in ORM
+
+In this section and examples we cover how ORM interacts with mapped classes that refer to other objects. We already saw that this was achieved using a construct called `relationship()`.
+
+This construct defines a linkage between two different mapped classes, or from a mapped class to itself.
+
+Let's consider our definition of `User` and `Address`, focusing only on the relationship part:
+
+```python
+class User(Base):
+    # ... other fields ...
+
+    addresses: Mapped[list["Address"]] = relationship(back_populates="user")
+
+
+class Address(Base):
+
+    # ... other fields ...
+    user: Mapped[User] = relationship(back_populates="addresses")
+```
+
+First we see that we have a `User.addresses` and an `Address.user` fields.
+
+Then, we see the use of `Mapped` to indicate the type of the field.
+
+Then, `relationship()` tells the ORM to inspect the table relationships between the `Table` objects that are mapped to the `User` and `Address` classes.
+
+Let's expand now a bit more the definition of the classes:
+
+```python
+class User(Base):
+    __tablename__ = "user_account"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    # ... other fields ...
+    addresses: Mapped[list["Address"]] = relationship(back_populates="user")
+
+
+class Address(Base):
+    __tablename__ = "address"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id = mapped_column(ForeignKey("user_account.id"))
+    # ... other fields ...
+    user: Mapped[User] = relationship(back_populates="addresses")
+```
+
+Because `Address.user_id` is declared as a foreign key, that is, it is a key in another table (i.e., `user_account`), the ORM system can unambiguosly determine that there is a one to many relationship between `User` and `Address`, as one particular row in the `user_account` may be referenced multiple by many rows in the `address` table.
+
+All **one-to-many** relationships correspond to a **many-to-one** relationship in the other direction. In this case, `Address.user` backpopulates the `User.addresses` field, which is a list, and therefore, we have the many-to-one relationship.
+
+Loader strategies might be configured in the relationships too:
+
+```python
+class User(Base):
+    addresses: Mapped[list["Address"]] = relationship(back_populates="user", lazy="selectin")
+```
+
+### Representing object relationships in the db
+
+The purpose of an ORM framework is to allow you to treat your database with regular Python objects. However, as databases do not store objects, it's important to understand how the associations between objects can be represented in a database.
+
+#### Identifying the type of relationship between classes
+
+Typically, you will start with an informal class diagram depicting your entities/classes and the relationship between them. That informal diagram should lead to a more strict identification of the tables that should be created in the database, and the nature of the cardinality between them(i.e., type of relationship):
+
+That is, if you have a relationship between two classes like the one below, in which you don't have clarity on the type of the association between them, you can consider the subsequent questions to identify it clearly:
+
+![Entity Relationship Identification](pics/entity_relationship_identification.png)
+
++ Question 1: Can `Entity2` belong to more than one `Entity1`?
++ Question 2: Can `Entity1` have more than one `Entity2`?
+
+| Answer to Question 1 | Answer to Question 2 | Relationship | Diagram |
+| :------: | :------: | :------: | :-------: |
+| No | No | One-to-One | ![One-to-One](pics/entity_relationship-one_to_one.png) |
+| Yes | No | Many-to-One | ![Many-to-One](pics/entity_relationship-many_to_one.png) |
+| No | Yes | One-to-Many | ![One-to-Many](pics/entity_relationship-one_to_many.png) |
+| Yes | Yes | Many-to-Many | ![Many-to-Many](pics/entity_relationship-many_to_many.png) |
+
+| NOTE: |
+| :---- |
+| This method will have to be applied for each pair of entities in your application. |
+
+##### A. The One-to-One Association
+
+Consider the following simple scenario involving a one-to-one relationship between a `User` and an `Address` entity.
+
+![User-Address: One-to-One](pics/user_address-one_to_one.png)
+
+When answering the questions above we have:
++ Q1: Can `Address` belong to more than one `User` => No
++ Q2: Can a `User` have more than one `Address` => No
+
+###### A1. One-to-One: Single Table
+
+A one-to-one relationship can be modeled with a single table, provided that you define  unique indices to prevent having duplicate user names and email addresses.
+
+![One-to-One: single table](pics/entity_relationship-one_to_one-single-table.png)
+
+
+###### A2. One-to-One: Tables sharing primary key
+
+An alternative way to model a one-to-one relationship is to maintain two separate entities with identical primary keys.
+
+![One-to-One: single table](pics/entity_relationship-one_to_one-distinct_tables_sharing_pk.png)
+
+
+###### A3. One-to-One: Distinct Tables
+
+In this third alternative to model a one-to-one mapping, we use two tables with separate primary keys, and the key for one of the entities is maintainedin the other with a foreign key. A unique constraint must be applied to the foreign key to prevent a one-to-many relationship.
+
+![One-to-One: distinct tables](pics/entity_relationship-one_to_one-distinct_tables.png)
+
+##### B. The One-to-Many and Many-to-One Association
+
+Consider the following scenario involving a relationship between a `User` and an `Address` entity that allows a user to have multiple emails:
+
+![One-to-Many](pics/user_address-one_to_many.png)
+
+
+When answering the questions that allows you to easily identify the type of db relationship to implement we have:
++ Q1: Can `Address` belong to more than one `User` => No
++ Q2: Can a `User` have more than one `Address` => Yes
+
+| NOTE: |
+| :---- |
+| A many-to-one relationship is just a one-to-many relationship seen from the perspective of the other class. |
+
+###### B1. One-to-Many: Distinct Tables
+
+The simplest way to represent a one-to-many association is through a couple of distinct tables with a foreign key defined on the many side.
+
+![One-to-Many distinct tables](pics/entity_relationship-one_to_many-distinct_tables.png)
+
+###### B2. One-to-Many: Link table
+
+The one-to-many relationship can be backed by a *link table*. This link table maintains a foreign key for each of the associated tables, which will itself form the composite primary key of the link table.
+
+![One-to-many: link table](pics/entity_relationship-one_to_many-link_table.png)
+
+| NOTE: |
+| :---- |
+| A unique constraint should be applied to the *many* side of the relationship to prevent a many-to-many association between the tables. |
+| Additional columns may be added to the link table to maintain extra information about the relationship (e.g., identifying the emails as primary, secondary, etc.) |
