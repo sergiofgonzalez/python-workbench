@@ -1,5 +1,6 @@
 """
-Implementing a One-to-many relationship through a link table using Core.
+Implementing a many-to-many relationship with a link table featuring a PK using
+SQLAlchemy Core.
 """
 
 from sqlalchemy import (
@@ -43,9 +44,9 @@ def main() -> None:
     user_address_link_table = Table(
         "user_account_address_link",
         metadata_obj,
-        Column("user_id", ForeignKey("user_account.id"), primary_key=True),
-        Column("address_id", ForeignKey("address.id"), primary_key=True),
-        UniqueConstraint("address_id", name="user_account_address_idx_0"),
+        Column("id", Integer, primary_key=True),
+        Column("user_id", ForeignKey("user_account.id")),
+        Column("address_id", ForeignKey("address.id")),
     )
 
     # create the tables defined in the metadata object
@@ -142,6 +143,16 @@ def main() -> None:
                     "username": "sandy",
                     "email": "sandy.cheeks@example.com",
                 },
+                # Patrick isn't very experienced with emails so he delegates
+                # each of his addresses to sandy and spongebob
+                {
+                    "username": "sandy",
+                    "email": "patrick@example.com",
+                },
+                {
+                    "username": "spongebob",
+                    "email": "patrick@bikini-bottom.com",
+                },
             ],
         )
         conn.commit()
@@ -191,7 +202,7 @@ def main() -> None:
                 address_table,
                 address_table.c.id == user_address_link_table.c.address_id,
             )
-            .where(user_table.c.name == "patrick")
+            .where(user_table.c.name == "sandy")
         )
 
         rows = conn.execute(stmt)

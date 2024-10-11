@@ -410,6 +410,13 @@ class User(Base):
 
 The purpose of an ORM framework is to allow you to treat your database with regular Python objects. However, as databases do not store objects, it's important to understand how the associations between objects can be represented in a database.
 
+The following section will be a deep-dive on the associations between objects and how they can be represented on the database. You will start learning how to properly categorize the relationships between:
++ one-to-one
++ one-to-many and many-to-one
++ many-to-many
+
+Then, you will see the different ways in which you can represent those relationships as tables in the database. Subsequently, you will see how those can be represented as Python objects using SQLAlchemy ORM.
+
 #### Identifying the type of relationship between classes
 
 Typically, you will start with an informal class diagram depicting your entities/classes and the relationship between them. That informal diagram should lead to a more strict identification of the tables that should be created in the database, and the nature of the cardinality between them(i.e., type of relationship):
@@ -432,6 +439,10 @@ That is, if you have a relationship between two classes like the one below, in w
 | :---- |
 | This method will have to be applied for each pair of entities in your application. |
 
+The following sections will detail the different ways in which these associations can be represented as tables in a relational database.
+
+The examples will feature a `User` and an `Address` entities.
+
 ##### A. The One-to-One Association
 
 Consider the following simple scenario involving a one-to-one relationship between a `User` and an `Address` entity.
@@ -442,11 +453,16 @@ When answering the questions above we have:
 + Q1: Can `Address` belong to more than one `User` => No
 + Q2: Can a `User` have more than one `Address` => No
 
+
 ###### A1. One-to-One: Single Table
 
 A one-to-one relationship can be modeled with a single table, provided that you define  unique indices to prevent having duplicate user names and email addresses.
 
 ![One-to-One: single table](pics/entity_relationship-one_to_one-single-table.png)
+
+| EXAMPLE: |
+| :------- |
+| See [one-to-one: single table](06_relationships/a1_one-to-one_single-table.py) for a runnable example. |
 
 
 ###### A2. One-to-One: Tables sharing primary key
@@ -456,11 +472,19 @@ An alternative way to model a one-to-one relationship is to maintain two separat
 ![One-to-One: single table](pics/entity_relationship-one_to_one-distinct_tables_sharing_pk.png)
 
 
+| EXAMPLE: |
+| :------- |
+| See [one-to-one: distinct tables sharing PK](06_relationships/a2_one-to-one_distinct-tables-sharing-pk.py) for a runnable example. |
+
 ###### A3. One-to-One: Distinct Tables
 
 In this third alternative to model a one-to-one mapping, we use two tables with separate primary keys, and the key for one of the entities is maintainedin the other with a foreign key. A unique constraint must be applied to the foreign key to prevent a one-to-many relationship.
 
 ![One-to-One: distinct tables](pics/entity_relationship-one_to_one-distinct_tables.png)
+
+| EXAMPLE: |
+| :------- |
+| See [one-to-one: distinct tables](06_relationships/a3_one-to-one_distinct-tables.py) for a runnable example. |
 
 ##### B. The One-to-Many and Many-to-One Association
 
@@ -483,6 +507,10 @@ The simplest way to represent a one-to-many association is through a couple of d
 
 ![One-to-Many distinct tables](pics/entity_relationship-one_to_many-distinct_tables.png)
 
+| EXAMPLE: |
+| :------- |
+| See [one-to-many: distinct tables](06_relationships/b1_one-to-many_distinct-tables.py) for a runnable example. |
+
 ###### B2. One-to-Many: Link table
 
 The one-to-many relationship can be backed by a *link table*. This link table maintains a foreign key for each of the associated tables, which will itself form the composite primary key of the link table.
@@ -493,3 +521,37 @@ The one-to-many relationship can be backed by a *link table*. This link table ma
 | :---- |
 | A unique constraint should be applied to the *many* side of the relationship to prevent a many-to-many association between the tables. |
 | Additional columns may be added to the link table to maintain extra information about the relationship (e.g., identifying the emails as primary, secondary, etc.) |
+
+| EXAMPLE: |
+| :------- |
+| See [one-to-many: link table](06_relationships/b2_one-to-many_link-table.py) for a runnable example. |
+
+##### C. The Many-to-Many
+
+Consider the following scenario involving a relationship between a `User` and an `Address` entity that allows a user to have multiple emails and an email to be associated to multiple users:
+
+![Many-to-many](pics/user_address-many_to_many.png)
+
+When answering the questions that allows you to easily identify the type of db relationship to implement we have:
++ Q1: Can `Address` belong to more than one `User` => Yes
++ Q2: Can a `User` have more than one `Address` => Yes
+
+###### C1. Many-to-Many: Link table
+
+A many-to-many relationship can be represented by a table linking `User` and `Address`. This is the same solution used in [B2. One-to-Many: Link table](#b2-one-to-many-link-table) but dropping the index on the `address_id` field.
+
+![Many-to-many: link table](pics/entity_relationship-many_to_many-link_table.png)
+
+| EXAMPLE: |
+| :------- |
+| See [many-to-many: link table](06_relationships/c1_many-to-many_link-table.py) for a runnable example. |
+
+###### C2. Many-to-Many: Link table with primary key
+
+A many-to-many relationship can also be represented in the database with a link table that features its own primary (usually a surrogate key). This representation also allows a user to be associated to more than one address, and one address to be associated to more than one user.
+
+![Many-to-many: link table with PK](pics/entity_relationship-many_to_many-link_table-pk.png)
+
+| EXAMPLE: |
+| :------- |
+| See [many-to-many: link table with PK](06_relationships/c2_many-to-many_link-table-pk.py) for a runnable example. |
