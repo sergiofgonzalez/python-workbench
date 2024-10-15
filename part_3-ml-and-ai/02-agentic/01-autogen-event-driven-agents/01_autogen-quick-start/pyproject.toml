@@ -1,0 +1,31 @@
+[project]
+name = "01-autogen-quick-start"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "autogen-core==0.4.0.dev0",
+    "python-dotenv>=1.0.1",
+]
+
+[tool.ruff]
+# Set the maximum line length to 80
+line-length = 80
+
+[tool.ruff.lint]
+# # Add the `line-too-long` rule to the enforced rule set.
+# extend-select = ["E501"]
+ignore = [
+  "T201", # Allow print statements
+]
+#   "S101",    # Allow assert statements
+#   "PLR0915", # Allow long functions
+#   "PLR2004", # Allow magic constants
+#   "D200",    # Comments: single-line comments should fit in one line
+#   "D205",    # Comments: one blank line required between summary and desc
+#   "D212",    # Comments: multi-line comments should start on first line
+#   "ERA001",  # Allow code comments
+# ]
+
+select = ["ALL"]
