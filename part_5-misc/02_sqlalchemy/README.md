@@ -555,3 +555,230 @@ A many-to-many relationship can also be represented in the database with a link 
 | EXAMPLE: |
 | :------- |
 | See [many-to-many: link table with PK](06_relationships/c2_many-to-many_link-table-pk.py) for a runnable example. |
+
+#### Using SQLAlchemy ORM to represent relationships
+
+As anticipated, this section deals with the representation of the different types of relationships between entities when using SQLAlchemy ORM package.
+
+By using ORM, you will focus on the design of your Python objects and SQLAlchemy ORM will be responsible for mapping the corresponding database tables and figuring out the SQL queries so that your Python objects reflect the contents of the database rows.
+
+Because the focus is on the Python classes, I will be only giving a few recipes instead of trying to recreate with ORM all of the possible associations described in the previous section. That is, there may be additional ways to deal with the associations using ORM, but the ones described in the subsequent sections fit the bill for bidirectional one-to-one, one-to-many/many-to-one, and many-to-many associations.
+
+##### One-to-One Associations
+
+Let's consider a one-to-one association between `User` and `Address` classes:
+
+![One-to-One](pics/orm_relationship-one_to_one.png)
+
+###### A.1 One-to-One: Single table using `composite`
+
+When using SQLAlchemy, it is possible to create a one-to-one association between two classes originating a single class in the database.
+
+The declaration of the classes look as follows:
+
+```python
+@dataclasses.dataclass
+class Address:
+    email_address: str
+
+
+class Base(DeclarativeBase):
+    ...
+
+
+class User(Base):
+    __tablename__ = "user_account"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(30), unique=True)
+    fullname: Mapped[str | None]
+    email: Mapped[str] = mapped_column(String, unique=True)
+
+    address: Mapped[Address] = composite(Address, email)
+```
+
+This will end up creating a single `user_account` table in the database with an `email` field:
+
+![one-to-one: single table](pics/orm_relationship-one_to_one-single-table.png)
+
+
+| EXAMPLE: |
+| :------- |
+| See [ORM: one-to-one: single table](06_relationships/orm_a1_one-to-one_composite.py) for a runnable example. |
+
+
+###### A2. One-to-One: Distinct Tables
+
+It is also possible to use two distinct tables to represent each of the entities (`User` and `Address`). This is useful if you expect that the relationship could be upgraded in the future to a one-to-many or many-to-many.
+
+The declaration of the classes should be as follows:
+
+```python
+class Base(DeclarativeBase):
+    ...
+
+class User(Base):
+    __tablename__ = "user_account"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(30), unique=True)
+    fullname: Mapped[str | None]
+
+    address: Mapped["Address"] = relationship(back_populates="user")
+
+
+class Address(Base):
+    __tablename__ = "address"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id = mapped_column(ForeignKey("user_account.id"), unique=True)
+    email_address: Mapped[str] = mapped_column(unique=True)
+
+    user: Mapped[User] = relationship(back_populates="address")
+```
+
+This snippet will trigger the creation of the following tables:
+
+![one-to-one: distinct tables](pics/orm_relationship-one_to_one-distinct_tables.png)
+
+See how we had to make `user_id` unique, so that a one-to-many relationship cannot be established.
+
+Note that the snippet will create a one-to-one bidirectional association between the classes so that you will be able to automatically get a user's address, and the address' user by simply accessing the properties `User.address` and `Address.user` respectively:
+
+![Bidirectional](pics/orm_relationship-one_to_one-bidirectional.png)
+
+| EXAMPLE: |
+| :------- |
+| See [ORM: one-to-one: distinct tables](06_relationships/orm_a2_one-to-one_distinct-tables.py) for a runnable example. |
+
+
+##### One-to-Many and Many-to-One Associations
+
+Let's consider a one-to-many association between `User` and `Address` classes:
+
+That is:
++ One `Address` cannot belong to more than one `User`
++ A `User` can have more than one `Address`
+
+![One-to-Many](pics/orm_relationship-one_to_many.png)
+
+Note that a one-to-many relationship is the same as a many-to-one association seen from the other side, in our case:
+
++ Q1: Can `User` belong to more than one `Address` => Yes (the user can be referenced by multiple addresses)
++ Q2: Can a `Address` have more than one `User` => No (each address have a single associated user)
+
+| Answer to Question 1 | Answer to Question 2 | Relationship | Diagram |
+| :------: | :------: | :------: | :-------: |
+| No | No | One-to-One | ![One-to-One](pics/entity_relationship-one_to_one.png) |
+| Yes | No | Many-to-One | ![Many-to-One](pics/entity_relationship-many_to_one.png) |
+| No | Yes | One-to-Many | ![One-to-Many](pics/entity_relationship-one_to_many.png) |
+| Yes | Yes | Many-to-Many | ![Many-to-Many](pics/entity_relationship-many_to_many.png) |
+
+
+###### B.1. One-to-Many: Distinct Tables
+
+The declaration of the classes for a one-to-many association between `User` and `Address` should be as follows:
+
+```python
+class Base(DeclarativeBase):
+    ...
+
+class User(Base):
+    __tablename__ = "user_account"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(30), unique=True)
+    fullname: Mapped[str | None]
+
+    addresses: Mapped[list["Address"]] = relationship(back_populates="user")
+
+class Address(Base):
+    __tablename__ = "address"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id = mapped_column(ForeignKey("user_account.id"))
+    email_address: Mapped[str] = mapped_column(unique=True)
+
+    user: Mapped[User] = relationship(back_populates="addresses")
+```
+
+This snippet will trigger the creation of the following tables:
+
+![one-to-many: distinct tables](pics/orm_relationship-one_to_many-distinct_tables.png)
+
+Note that the snippet will create a one-to-many bidirectional association between the classes so that you will be able to automatically get the user's addresses, and the address' user by simply accessing the properties `User.addresses` and `Address.user` respectively:
+
+![Bidirectional](pics/orm_relationship-one_to_many-bidirectional.png)
+
+| EXAMPLE: |
+| :------- |
+| See [ORM: one-to-many: distinct tables](06_relationships/orm_b1_one-to-many_distinct-tables.py) for a runnable example. |
+
+
+##### Many-to-Many Associations
+
+Let's consider a many-to-many association between `User` and `Address` classes:
+
+That is:
++ One `Address` can belong to more than one `User`
++ A `User` can have more than one `Address`
+
+![Many-to-Many](pics/orm_relationship-many_to_many.png)
+
+
+###### C.1. Many-to-Many: Link table
+
+The declaration of the classes for a many-to-many association between `User` and `Address` using a link table is as follows:
+
+```python
+class Base(DeclarativeBase):
+    ...
+
+link_table = Table(
+    "user_account_address_link",
+    Base.metadata,
+    Column("user_id", ForeignKey("user_account.id"), primary_key=True),
+    Column("address_id", ForeignKey("address.id"), primary_key=True),
+)
+
+
+class User(Base):
+    __tablename__ = "user_account"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(30), unique=True)
+    fullname: Mapped[str | None]
+
+    addresses: Mapped[list["Address"]] = relationship(
+        secondary=link_table,
+        back_populates="users",
+    )
+
+
+class Address(Base):
+    __tablename__ = "address"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email_address: Mapped[str] = mapped_column(unique=True)
+
+    users: Mapped[list[User]] = relationship(
+        secondary=link_table,
+        back_populates="addresses",
+    )
+```
+
+Note that a bit of core SQLAlchemy is required for setting up the link table, as that cannot be described declaratively in the classes. Note also that the link table is mentioned in the corresponding `relationship()` specification.
+
+This snippet will trigger the creation of the following tables:
+
+![one-to-many: distinct tables](pics/orm_relationship-many_to_many-link_tables.png)
+
+Note that the snippet will create a many-to-many bidirectional association between the classes so that you will be able to automatically get the user's addresses, and the address' users by simply accessing the properties `User.addresses` and `Address.users` respectively:
+
+![Bidirectional](pics/orm_relationship-many_to_many.png)
+
+The data in the link table will also be manages automatically by the framework.
+
+| EXAMPLE: |
+| :------- |
+| See [ORM: many-to-many: link table](06_relationships/orm_c1_many-to-many_link-table.py) for a runnable example. |
