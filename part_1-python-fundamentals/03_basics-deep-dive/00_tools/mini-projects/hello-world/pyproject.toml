@@ -1,0 +1,12 @@
+[project]
+name = "hello-world"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "lines",
+]
+
+[tool.uv.sources]
+lines = { path = "../../../../../part_2-math/02_mini-projects/18-line-equations", editable = true }

@@ -664,8 +664,8 @@ That is:
 
 Note that a one-to-many relationship is the same as a many-to-one association seen from the other side, in our case:
 
-+ Q1: Can `User` belong to more than one `Address` => Yes (the user can be referenced by multiple addresses)
-+ Q2: Can a `Address` have more than one `User` => No (each address have a single associated user)
++ Q1: Can a `User` instance belong to more than one `Address` => Yes (the user can be referenced by multiple addresses)
++ Q2: Can an `Address` instance have more than one `User` => No (each address have a single associated user)
 
 | Answer to Question 1 | Answer to Question 2 | Relationship | Diagram |
 | :------: | :------: | :------: | :-------: |
@@ -704,7 +704,7 @@ class Address(Base):
 
 This snippet will trigger the creation of the following tables:
 
-![one-to-many: distinct tables](pics/orm_relationship-one_to_many-distinct_tables.png)
+![one-to-many: distinct tables](pics/entity_relationship-one_to_many-distinct_tables.png)
 
 Note that the snippet will create a one-to-many bidirectional association between the classes so that you will be able to automatically get the user's addresses, and the address' user by simply accessing the properties `User.addresses` and `Address.user` respectively:
 
@@ -771,13 +771,13 @@ Note that a bit of core SQLAlchemy is required for setting up the link table, as
 
 This snippet will trigger the creation of the following tables:
 
-![one-to-many: distinct tables](pics/orm_relationship-many_to_many-link_tables.png)
+![many-to-many: link tables](pics/entity_relationship-many_to_many-link_table.png)
 
 Note that the snippet will create a many-to-many bidirectional association between the classes so that you will be able to automatically get the user's addresses, and the address' users by simply accessing the properties `User.addresses` and `Address.users` respectively:
 
 ![Bidirectional](pics/orm_relationship-many_to_many.png)
 
-The data in the link table will also be manages automatically by the framework.
+The data in the link table will also be managed automatically by the framework.
 
 | EXAMPLE: |
 | :------- |
