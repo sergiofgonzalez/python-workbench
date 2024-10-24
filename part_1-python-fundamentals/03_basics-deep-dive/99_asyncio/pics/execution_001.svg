@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="-216 -222 647 453" width="647" height="453">
+  <defs>
+    <font-face font-family="Courier New" font-size="16" panose-1="2 7 3 9 2 2 5 2 4 4" units-per-em="1000" underline-position="-232.91016" underline-thickness="41.015625" slope="0" x-height="422.85156" cap-height="571.28906" ascent="832.5195" descent="-300.29297" font-weight="400">
+      <font-face-src>
+        <font-face-name name="CourierNewPSMT"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Helvetica Neue" font-size="10" panose-1="2 0 5 3 0 0 0 2 0 4" units-per-em="1000" underline-position="-100" underline-thickness="50" slope="0" x-height="517" cap-height="714" ascent="951.9958" descent="-212.99744" font-weight="400">
+      <font-face-src>
+        <font-face-name name="HelveticaNeue"/>
+      </font-face-src>
+    </font-face>
+    <font-face font-family="Courier New" font-size="33" panose-1="2 7 3 9 2 2 5 2 4 4" units-per-em="1000" underline-position="-232.91016" underline-thickness="41.015625" slope="0" x-height="422.85156" cap-height="571.28906" ascent="832.5195" descent="-300.29297" font-weight="400">
+      <font-face-src>
+        <font-face-name name="CourierNewPSMT"/>
+      </font-face-src>
+    </font-face>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -3 7 6" markerWidth="7" markerHeight="6" color="#b1001c">
+      <g>
+        <path d="M 4.8 0 L 0 -1.8 L 0 1.8 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+  </defs>
+  <metadata> Produced by OmniGraffle 7.17 
+    <dc:date>2020-08-13 08:50:54 +0000</dc:date>
+  </metadata>
+  <g id="Canvas_1" stroke="none" stroke-opacity="1" fill="none" fill-opacity="1" stroke-dasharray="none">
+    <title>Canvas 1</title>
+    <rect fill="white" x="-216" y="-222" width="647" height="453"/>
+    <g id="Canvas_1: Stack0">
+      <title>Stack0</title>
+      <g id="Group_79">
+        <g id="Graphic_84">
+          <rect x="-195" y="-201" width="605" height="411" fill="#ffc0ff"/>
+          <rect x="-195" y="-201" width="605" height="411" stroke="gray" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        </g>
+        <g id="Graphic_83">
+          <rect x="-184.2815" y="-179" width="545.7815" height="152.5" fill="#ffffc0"/>
+          <path d="M -184.2815 -179 L 361.5 -179 L 361.5 -26.5 L -184.2815 -26.5 Z M -129.70335 -179 L -129.70335 -26.5 M 306.92185 -26.5 L 306.92185 -179" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(-124.70335 -174.75)" fill="black">
+            <tspan font-family="Courier New" font-size="16" font-weight="400" fill="black" x="0" y="13">00 def a_func(x):</tspan>
+            <tspan font-family="Courier New" font-size="16" font-weight="400" fill="black" x="0" y="31">01     return x-2</tspan>
+            <tspan font-family="Courier New" font-size="16" font-weight="400" fill="black" x="0" y="67">02 def main():</tspan>
+            <tspan font-family="Courier New" font-size="16" font-weight="400" fill="black" x="0" y="85">03     some_value = 12</tspan>
+            <tspan font-family="Courier New" font-size="16" font-weight="400" fill="black" x="0" y="103">04     some_other_value = a_func(some_value)</tspan>
+            <tspan font-family="Courier New" font-size="16" font-weight="400" fill="black" x="0" y="139">05 main()</tspan>
+          </text>
+        </g>
+        <g id="Graphic_82">
+          <rect x="-35.5" y="182" width="431" height="15" fill="#c0c0ff"/>
+          <rect x="-35.5" y="182" width="431" height="15" stroke="gray" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(-30.5 183.36)" fill="black">
+            <tspan font-family="Helvetica Neue" font-size="10" font-weight="400" fill="black" x="179.85" y="10">Start of Stack</tspan>
+          </text>
+        </g>
+        <g id="Graphic_81">
+          <circle cx="-127.5" cy="136.5" r="50.0000798950948" fill="#c0ffff"/>
+          <circle cx="-127.5" cy="136.5" r="50.0000798950948" stroke="gray" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(-162.5 105.72)" fill="black">
+            <tspan font-family="Helvetica Neue" font-size="10" font-weight="400" fill="black" x="1.765" y="10">INSTRUCTION</tspan>
+            <tspan font-family="Helvetica Neue" font-size="10" font-weight="400" fill="black" x="12.315" y="22.28">POINTER:</tspan>
+            <tspan font-family="Courier New" font-size="33" font-weight="400" fill="black" x="15.196777" y="51.56">05</tspan>
+          </text>
+        </g>
+        <g id="Line_80">
+          <path d="M -140.64699 88.25054 L -177.5 -47 L -143.89702 -47.722645" marker-end="url(#FilledArrow_Marker)" stroke="#b1001c" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

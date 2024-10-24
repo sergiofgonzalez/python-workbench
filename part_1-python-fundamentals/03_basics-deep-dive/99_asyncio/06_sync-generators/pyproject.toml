@@ -1,0 +1,23 @@
+[project]
+name = "06-sync-generators"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.ruff]
+# Set the maximum line length to 80
+line-length = 80
+
+[tool.ruff.lint]
+ignore = [
+    "T201",   # Allow print statements
+    "D200",   # Comments: single-line comments should fit in one line
+    "D205",   # Comments: one blank line required between summary and desc
+    "D212",   # Comments: multi-line comments should start on first line
+    "UP028",  # disable yield from
+    "BLE001", # allow catching blind exceptions
+]
+
+select = ["ALL"]
