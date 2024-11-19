@@ -1,0 +1,23 @@
+[project]
+name = "08-async-calling-long-running-sync"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "requests>=2.32.3",
+]
+
+[tool.ruff]
+# Set the maximum line length to 80
+line-length = 80
+
+[tool.ruff.lint]
+ignore = [
+  "T201", # Allow print statements
+  "D205", # Allow multiline comments
+  "D212", # Allow multiline comments
+  "D215", # Allow multiline comments
+]
+
+select = ["ALL"]

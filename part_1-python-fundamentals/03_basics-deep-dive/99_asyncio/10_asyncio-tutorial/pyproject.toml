@@ -1,0 +1,31 @@
+[project]
+name = "10-asyncio-tutorial"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aiofiles>=24.1.0",
+  "aiohttp>=3.10.10",
+  "requests>=2.32.3",
+  "rich>=13.9.3",
+]
+
+[tool.ruff]
+# Set the maximum line length to 80
+line-length = 80
+
+ignore = [
+  "T201",    # Allow print statements
+  "D200",    # Allow single-line multiline comments when they are long
+  "D205",    # Allow multiline comments
+  "D212",    # Allow multiline comments
+  "D215",    # Allow multiline comments
+  "S311",    # Don't care much about safety of pseudo-random numbers
+  "ERA001",  # Allow commented out code
+  "C901",    # Too complex
+  "PLR0912", # Too many branches
+  "PLR0915", # Too long
+]
+
+select = ["ALL"]

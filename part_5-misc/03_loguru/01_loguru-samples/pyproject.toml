@@ -1,0 +1,23 @@
+[project]
+name = "01-loguru-samples"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "loguru>=0.7.2",
+]
+
+[tool.ruff]
+# Set the maximum line length to 80
+line-length = 80
+
+[tool.ruff.lint]
+ignore = [
+    "T201",   # Allow print statements
+    "ERA001", # Allow commented-out code
+    "D212",   # Allow flexible style for multiline docstring
+    "S311",   # Don't care about cryptographic safety
+]
+
+select = ["ALL"]
