@@ -1991,4 +1991,24 @@ if writer.is_closing():
     # ... do things while it is being closed
 ```
 
-#### Example of checking website status
+| EXAMPLE: |
+| :------- |
+| See [asyncio: streams example](10_asyncio-tutorial/44_asyncio-streams-website-checker.py) for a runnable example with streams. |
+
+## asyncio queues
+
+asyncio queues are designed to be similar to classes of the queue module. They have been designed to be used specifically in async/await code.
+
+asyncio queues don't have a timeout parameter, therefore, consider using `asyncio.wait_for()` for queue operations that should timeout after some time.
+
+The idea behind asyncio queues is to distribute workload between several concurrent tasks.
+
+| EXAMPLE: |
+| :------- |
+| See [asyncio: queues](10_asyncio-tutorial/45_asyncio-queues.py) for a runnable example. |
+
+## asyncio events
+
+An asyncio event is a synchronization artifact that can be used to notify multiple asyncio tasks that some event has happened.
+
+An `asyncio.Event` has an internal flag that can be set to true with the `set()` method, and set to `False` with the `clear()` method. The `wait()` method blocks until the flag is set to `True`.
