@@ -1910,7 +1910,7 @@ Using that stream interface, data can be written and read from the stream using 
 
 #### Opening a socket connection using `asyncio.open_connection()`
 
-The function `asyncio.open_connection()` establishes a network connection and return a pair of reader that is an instance of `StreamReader` and writer that is an instance of `StreamWriter`.
+The function `asyncio.open_connection()` establishes a network connection and return a pair of reader and writer that is an instance of `StreamReader` and an instance of `StreamWriter` respectively.
 
 ```python
 # Open a connection
@@ -2012,3 +2012,41 @@ The idea behind asyncio queues is to distribute workload between several concurr
 An asyncio event is a synchronization artifact that can be used to notify multiple asyncio tasks that some event has happened.
 
 An `asyncio.Event` has an internal flag that can be set to true with the `set()` method, and set to `False` with the `clear()` method. The `wait()` method blocks until the flag is set to `True`.
+
+## asyncio and FastAPI
+
+The short story is:
+
+If you're using 3rd party libraries that work with async/await, define your path operations as coroutines:
+
+```python
+@app.get("/")
+async def read_results():
+    results = await some_library()
+    return results
+```
+
+If you're using a 3rd party library that doesn't support coroutines, declare your path operations normally:
+
+```python
+@app.get("/")
+def read_results():
+    results = some_library()
+    return results
+```
+
+If your application doesn't communicate with anything else, using `async def`.
+
+If you're unsure, use regular functions.
+
+| NOTE: |
+| :---- |
+| You can mix `def` and `async def` in your path operation functions as much as you need and define each one using the best option for the specific path operation. In any of the cases above, FastAPI will still work asynchronously and be extremely fast. |
+
+When you declare a path operation with normal functions instead of coroutines, it is run in an external threadpool that is then awaited, instead of being called directly (in order not to block the server).
+
+The same applies to dependencies. If a dependency is a standard `def` function instead of `async def`, it is run in the external threadpool.
+
+You can also have multiple dependencies and sub-dependencies requiring each other (as parameters of the other functions), some of them using coroutines, and some other using regular functions. The ones created with regular functions will be called on an external thread from the threadpool instead of being awaited.
+
+Other utility functions you that you call directly from your path operations can be created with normal `def` or `async def` and FastAPI won't do anything with them. In those cases, you should apply the patterns and idioms of `asyncio` for both regular functions (which you might want to call in a separate thread if the call happens within a coroutine) and coroutines (which you will have to await).

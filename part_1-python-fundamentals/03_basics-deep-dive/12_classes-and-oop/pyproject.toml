@@ -1,0 +1,39 @@
+[project]
+name = "basics-notebook"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ipykernel>=6.29.5",
+]
+
+[tool.ruff]
+# # Set the maximum line length to 80
+# line-length = 80
+
+# Jupyter notebooks allowed list
+ignore = [
+    "ANN001",   # Don't need type annotations
+    "ANN201",   # Don't need return type annotations for regular methods
+    "ANN202",   # Don't need return type annotations for private methods
+    "ANN204",   # Don't need return type annotations for special methods
+    "ANN205",   # Don't need return type annotations for static methods
+    "ANN206",   # Don't need return type annotations for class methods
+    "D101",     # Don't need class docs
+    "D102",     # Don't need method docs for regular methods
+    "D107",     # Don't need method docs for special methods
+    "D204",     # Don't require blank line in comments
+    "D401",     # Don't require imperative mode
+    "EM101",    # Allow constant messages in exceptions
+    "F811",     # Allow redefinition in cells
+    "S101",     # Allow assert
+    "T201",     # Allow print statements
+    "TRY003",   # Allow messages in exceptions
+]
+
+
+select = ["ALL"]
+
+[tool.uv.workspace]
+members = ["mini-projects/01_clarifying-scope"]

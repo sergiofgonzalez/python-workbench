@@ -1,0 +1,19 @@
+[project]
+name = "01-clarifying-scope"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.ruff]
+# Set the maximum line length to 80
+line-length = 80
+
+ignore = [
+  "D401", # Don't care about imperative mode
+  "E501", # Don't care about line length in this
+  "T201", # Don't care about print
+]
+
+select = ["ALL"]
