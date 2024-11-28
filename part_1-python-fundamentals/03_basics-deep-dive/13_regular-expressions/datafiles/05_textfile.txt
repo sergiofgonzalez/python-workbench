@@ -1,0 +1,8 @@
+# This is comment line, won't be parsed
+surname, first-name middle-name: 555-123-4567
+Isaacs, Jason: 123-4567
+Pugh, Florence Mary: 123-4567
+Krabs, Eugene: 800-123-4567
+Cruz, Penelope: (+34)555-321-4321
+Riz, Ahmed: (+1)800-321-4321
+Leclerc, Charles: (+377)765-4321
