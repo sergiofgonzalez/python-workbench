@@ -1,5 +1,23 @@
-# An async chat server written in Python
-> a port of the Node.js chat server using asyncio streams
+# An async chat server written in Python v2
+> an improved implementation of [asyncio telnet chat server](../12_asyncio-telnet-chat-server/)
+
+In this version, the new client connection handler is slightly changed so that it receives the server and can therefore stop it.
+
+The handler's signature is expected to be:
+
+```python
+async def handle_new_client(
+    reader: asyncio.StreamReader,
+    writer: asyncio.StreamWriter,
+) -> None:
+```
+
+So, to send additional arguments you can wrap a lambda:
+
+```bash
+lambda r, w: handle_new_client(r, w, server)
+```
+
 
 
 ## Running the app
@@ -22,7 +40,7 @@ Your id is: '127.0.0.1:36832'.
 There are 1 client(s) connected to this server.
 ```
 
-The clients can type `"SHUTDOWN"` to shut down the server. However, I haven't found a way to close it gracefully, as there seems to be a deadlock.
+Clients can send a "SHUTDOWN" message to close the chat server, and the server is prepared to deal with SIGINT and Keyboard interrupt.
 
 ## Description
 
