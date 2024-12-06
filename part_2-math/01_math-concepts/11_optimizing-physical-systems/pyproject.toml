@@ -11,10 +11,13 @@ package-mode = false
 python = "^3.12"
 ipykernel = "^6.29.5"
 matplotlib = "^3.9.1.post1"
-cannonballsim = {path = "../../02_mini-projects/29-cannonball-simulation", develop = true}
-lines = {path = "../../02_mini-projects/18-line-equations", develop = true}
+cannonballsim = { path = "../../02_mini-projects/29-cannonball-simulation", develop = true }
+lines = { path = "../../02_mini-projects/18-line-equations", develop = true }
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff.lint]
+ignore = ["F811"]
