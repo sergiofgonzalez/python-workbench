@@ -1431,7 +1431,7 @@ Tasks are the fundamental concept of `asyncio`, so understanding their lifecycle
     3a. **Suspended**: the task may await some other coroutine, and therefore yields control of the event loop so that it can pick up another task to execute. This might happen when non-blocking I/O is involved and the task performs an `await file.write()` or similar.
     3b. Result: the task finishes successfully and returns the result.
     3c. Exception: the task finishes because an exception was raised.
-    3d. Cancelled: the task was picked up by the event loop, but at some point, some other coroutine canceled the task.
+    3d. Cancelled: the task was picked up by the event loop, but at some point, some other coroutine cancelled the task.
 4. **Done**: The task has completed its execution and is not eligible to be executed by the event loop.
 
 The important states are the ones highlighted above, while Result, Exception, and Canceled are important points of transition.
@@ -1456,7 +1456,7 @@ You can get the task result using `task.result()`:
 result = task.result():
 ```
 
-If a task did not finished successfully the exception will be raise while awaiting the task, and it will be re-raised when calling `task.result()`. Therefore, it is common to wrap the retrieval of the task result in a try block:
+If a task did not finish successfully the exception will be raised while awaiting the task, and it will be re-raised when calling `task.result()`. Therefore, it is common to wrap the retrieval of the task result in a try block:
 
 ```python
 if not task.done():
