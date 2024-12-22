@@ -179,3 +179,121 @@ As an example, Node.js features an `EventEmitter` class with the following metho
 In Node.js, all those methods return the `EventEmitter` instance, to allow method chaining.
 
 The listeners, are regular functions that receive the optional arguments `arg1`, `arg2`, etc.
+
+| EXAMPLE: |
+| :------- |
+| See [07: synchronous observer (EventEmitter)](07_sync-observer-event-emitter/) for a synchronous implementation of the observer pattern, and [06: Async observer (EventEmitter)](06_async-observer-event-emitter/) for an async implementation and allows registering coroutines as callbacks.  |
+
+### Making any object observable
+
+It's not very common to find a *subject* object in the wild. Instead, the norm is to extend a class such as the `EventEmitter` of the previous section to inherit the capabilities of that class and ultimately making the custom class a factory of observable objects.
+
+| EXAMPLE: |
+| :------- |
+| See [08: Observables](08_async-observables/) for a runnable example. |
+
+### Observables and memory leaks
+
+When subscribing to observables with a long life span, it is very important to unsubscribe our listeners/callbacks when they are no longer needed.
+
+This will prevent memory leaks associated with chunks of memory that are kept even those will no longer be needed.
+
+| NOTE: |
+| :---- |
+| In JavaScript in particular, where event managements are so prevalent, unreleased listeners are the main source of memory leaks. |
+
+Consider the following example:
+
+```python
+long_str = "long string taking a lot of memory...."
+emitter.register_listener("an_evt", lambda: print(long_str))
+```
+
+Because the listener function references `long_str`, it will not be reclaimed by the garbage collector unless the `emitter` itself is collected or we explicitly release the listener.
+
+> A memory leak is a software defect whereby memory that is no longer needed is not released, causing the memory usage of an application to grow indefinitely.
+
+As a precaution, Node.js keeps track of the number of listeners an `EventEmitter` controls, and warns the user when the limit is reached. Also, Node.js exposes a `once(event, listener)` which automatically unregisters a listener after the event is triggered for the first time. Note however, that if the corresponding event is never fired, `once()` will nevertheless create a memory leak.
+
+### Caveats and additional notes
+
+Python features an `Event` synchronization object in the `asyncio` package that is completely different in nature from the events we've used in the previous section. An `asyncio.Event` can be used to establish a waiter task that will be stopped until the event has been fired. The event won't carry additional information by default, and once fired, the rest of the logic will be executed:
+
+```python
+async def handle_evt(evt: asyncio.Event):
+    # ... do stuff before waiting ...
+    await event.wait()
+    # ... do stuff after event fired
+```
+
+That approach complicates using an `asyncio.Event` to implement a generic Observer pattern.
+
+By contrast, the `EventEmitter` works pretty much like the Node.js one, but it's not as robust, and many things should be considered.
+
+> It is crucial that we never mix the sync and async approach in the same `EventEmitter`, and that you don't emit the same event type using a mix of sync and async code.
+
+When events are emitted asynchronously, new listeners can be registered even after the task that produces the events because it is guaranteed that they will not be fired up until the next cycle of the event loop. This is not guaranteed for events emitted synchronously, and therefore, we need to register the listeners before we launch the task, or we will miss all the events.
+
++ Talk about mixing sync and async event (maybe emit should be async).
++ Try to find caveats
++ Not a good thing to mix sync and async, same with callbacks.
+
+### Callbacks vs. EventEmitter (Observer pattern)
+
+The difference between using callbacks and the observer pattern is mostly semantic:
+
++ Use a callback when a result must be returned in an asynchronous way.
++ Use events when there's a need to communicate that something has happened to external observers.
+
+When deciding whether to use callbacks or events follow these rules:
++ Use events when you need to communicate different types of situations (e.g., `"fileread"`, `"complete"`, `"match"`...). Callbacks are not well prepared to handle different types of situations, and might require an extra argument to identify the event, making the API less elegant.
+
++ Use events when a situation can occur a multiple number of times, or may not occur at all. Callbacks are expected to be invoked exactly once, whether the operation is successful or not. If you're using callbacks for a situation that is repetitive in nature, reconsider if an event based approach would be more appropriate.
+
++ Use callbacks for an API that has to communicate a given result to exactly one interested party. If a given result should be communicated to more than one party, use events instead.
+
+### Combining callbacks and events
+
+In some circumstances, using an event-based approach in conjunction with callbacks gives us an extremeley powerful pattern.
+
+> Using both a callback and an `EventEmitter` allows us to pass a result asynchronously using a callback, and at the same time providing a more detailed account on the status of the asynchronous processing using event.
+
+For example:
+
+```python
+event_emitter = find_regex(search_str, callback)
+```
+
+This will allow the callback to process the whole list of matches, while the event emitter will be helpful to provide live feedback to the user while the scanning is in progress.
+
+| EXAMPLE: |
+| :------- |
+| See [09: Mixing events and Callbacks](09_mixing-events-and-callbacks/) for a runnable example. |
+
+### Exercises on events and callbacks
+
+#### Exercise 1: [A simple event](e01_find-regex-simple-event/)
+
+Modify the `FindRegex` class so that it emits an event when the find process starts, passing the list of input files as an argument to the event handler.
+
+#### Exercise 2: [Ticker](e02_ticker/)
+
+Write a function that accepts a number and a callback as the arguments. The function will return an `EventEmitter` that emits an event called `"tick"` every 50 milliseconds until the number of milliseconds is passed from the invocation of the function. The function will also call the callback when the number of milliseconds has passed, providing as the result the total count of `"tick"` events emitted.
+
+Bonus: try to use `asyncio.sleep()` recursively.
+
+#### Exercise 3: [A simple modification](e03_ticker-simple-modification/)
+
+Modify the function from the previous exercise ([Ticker](e02_ticker/)) to emit a `"tick"` event immediately after the function is invoked.
+
+#### Exercise 4: [Playing with errors](e04_ticker-playing-with-errors/)
+
+Modify the function created in the previous exercise ([A simple modification](e03_ticker-simple-modification/)) to produce an error if the timestamp at the moment of a tick (including the one emitted at the beginning) is divisible by 5. Propagate the error using both the callback and the event emitter and handle the error correctly.
+
+#### Exercise 5: [Identifying event/callback associated memory leaks]()
+
+Create a program that creates a memory leak by subscribing to an event and never unsubscribing from it.
+
+Identify the problem and fix it by unsubscribing.
+
+Try to find a package like clinic but for Python to visually identify the memory leak.

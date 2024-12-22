@@ -1,0 +1,17 @@
+[project]
+name = "e02-ticker"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.ruff]
+# Set the maximum line length to 80
+# line-length = 80
+
+ignore = [
+  "T201", # Allow use of print statements
+]
+
+select = ["ALL"]
