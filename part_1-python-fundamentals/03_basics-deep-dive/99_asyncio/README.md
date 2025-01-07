@@ -11,7 +11,7 @@ When a program is IO-bound, it's pretty common for the CPU to spend a lot of tim
 
 ## Subroutines and Coroutines
 
-Most programming languages have functions/methos which follow what is called the *subroutine* calling model. In this model of calling each time a function is called execution moves to the start of that function, then continues until it reaches the end of that function (or a `return` statement), at which point execution moves back to the point immediately after the function call, any later calls to the function are independent calls which start again at the beginning.
+Most programming languages have functions/methods which follow what is called the *subroutine* calling model. In this model of calling, each time a function is called execution moves to the start of that function, then continues until it reaches the end of that function (or a `return` statement), at which point execution moves back to the point immediately after the function call, any later calls to the function are independent calls which start again at the beginning.
 
 There's an alternative model of code execution called the ***coroutine* calling model**. In this calling model there is a new way for the method/function called *coroutine* to move execution back to the caller: instead of returning, it can yield control. When the coroutine yields execution moves back to the point immediately after it was called, but future calls to the coroutine do not start again at the beginning, but instead, they continue from where the execution left off most recently.
 
@@ -174,11 +174,11 @@ What happens when this `await` statement is executed depends upon what the objec
 
 A coroutine object is *"awaitable"* (it can be used in an `await` statement).
 
-Recall that when you are executing async code you are always doing so in the context of a *"Task"*, which is an object maintained by the Event Loop., and that each *Task* has its own call stack.
+Recall that when you are executing async code you are always doing so in the context of a *"Task"*, which is an object maintained by the Event Loop, and that each *Task* has its own call stack.
 
 The first time a *Coroutine* object is awaited the code block inside its definition is executed in the current Task, with its new code context added to the top of the call stack for this Task, just like a normal function call.
 
-When the code block reaches its end (or otherwise returns), then execution moves back to the `await` statement that called it. The return value of the `await` statement is the valur returned by the code block. If a Coroutine object is awaited a second time this raises an exception.
+When the code block reaches its end (or otherwise returns), then execution moves back to the `await` statement that called it. The return value of the `await` statement is the value returned by the code block. If a Coroutine object is awaited a second time this raises an exception.
 
 | NOTE: |
 | :---- |
@@ -245,13 +245,13 @@ await asyncio.gather(fetcher(), monitor())
 
 ### Futures
 
-A `Future` object is a type of awaitable. Unlike a coroutine object, when a future is awaited it does not cause a code of block to be executed. Instead, a future object can be thought of as representing some process that is ongoing elsewhere and hich may or may not yet be finished.
+A `Future` object is a type of awaitable. Unlike a coroutine object, when a future is awaited it does not cause a code of block to be executed. Instead, a future object can be thought of as representing some process that is ongoing elsewhere and which may or may not yet be finished.
 
 When you await a future the following happens:
 
 + If the process the future represents has finished and returned a value, then the await statement immediately returns that value.
 
-+ If the process the future represents has finished and raised and exception then the await statement immediately raises that exception.
++ If the process the future represents has finished and raised an exception then the await statement immediately raises that exception.
 
 + If the process the future represents has not yet finished, then the current Task is paused until the process has finished. Once it is finished it behaves as described in the first points.
 
@@ -259,7 +259,7 @@ All `Future` objects have the following sync interface (in addition to being awa
 
 + `f.done()` &mdash; returns `True` if the process the `Future` represents has finished.
 
-+ `f.exception()` &mdash; raises an `asyncio.InvalidStateError` exception if the process has not yet finished. If the process has finished it returns the exception it raised, or `None`if it terminated without raising.
++ `f.exception()` &mdash; raises an `asyncio.InvalidStateError` exception if the process has not yet finished. If the process has finished it returns the exception it raised, or `None` if it terminated without raising.
 
 + `f.result()` &mdash; raises an `asyncio.InvalidStateError` exception if the process has not yet finished. If the process has finished it raises the exception it raised (if any), or returns the value it returned if it finished without raising.
 
@@ -267,7 +267,7 @@ A future becoming done is a one-time occurrence.
 
 | NOTE: |
 | :---- |
-| A Coroutine's code will not be executed until it is awaited. A Future represents something that is executing anyway, and simply allows your code to wait for it to finish, check if it has finished, and fetch the result it has. |
+| A Coroutine's code will not be executed until it is awaited. A Future represents something that is executing anyway, and simply allows your code to wait for it to finish, check if it has finished, and fetch the result it has returned. |
 
 You won't create your own futures very often, unless implementing new libraries that extend `asyncio`. If you do need to create your own future directly you can do:
 
@@ -324,7 +324,7 @@ async def process_data(data):
     ...
 
 async def main():
-    while true:
+    while True:
         data = await get_data_from_io()
         await process_data(data)
 
@@ -352,7 +352,7 @@ main()
 
 | NOTE: |
 | :---- |
-| The seconda way is less common, although it might be useful in certain circumstances. |
+| The second way is less common, although it might be useful in certain circumstances. |
 
 It must be notes that these examples do not benefit from the ability of async code to work on multiple tasks concurrently, as you're immediately awaiting the result of the first coroutine object before executing the second, and then awaiting until the second has completed.
 
@@ -366,7 +366,7 @@ In those rare cases, you can do:
 await asyncio.sleep(0)
 ```
 
-`asyncio.sleep(num_seconds)` taskes a single parameter and returns a future which is not marked done, but will be when the specified number of seconds have passed. Specifying `0` as the number of seconds will make the current task to stop executing, giving a chance to the event loop to make some other task active. Specifying a number > 0 guarantess that your task won't be awakened before those number of seconds have passed.
+`asyncio.sleep(num_seconds)` takes a single parameter and returns a future which is not marked done, but will be when the specified number of seconds have passed. Specifying `0` as the number of seconds will make the current task to stop executing, giving a chance to the event loop to make some other task active. Specifying a number > 0 guarantess that your task won't be awakened before those number of seconds have passed.
 
 ### Summary: awaitables, coroutines, futures, and tasks
 
@@ -1134,7 +1134,7 @@ Note that the only difference is that you won't have methods such as `task.done(
 
 #### `asyncio.gather`
 
-The method `asyncio.gather()` accepts a collection of coroutines/futures/tasks (awaitables) and combines them into a single future that can be awaited. The result of awaiting `asyncio.gather()` will be a list of the result of the individual awaitables.
+The function `asyncio.gather()` accepts a collection of coroutines/futures/tasks (awaitables) and combines them into a single future that can be awaited. The result of awaiting `asyncio.gather()` will be a list of the result of the individual awaitables.
 
 See the examples:
 + [asyncio: asyncio.gather with coroutines](10_asyncio-tutorial/16_asyncio-gather-coroutines.py)
@@ -1158,7 +1158,7 @@ See [asyncio: asyncio.as_completed](10_asyncio-tutorial/19_asyncio-as_completed.
 > https://medium.com/@moraneus/mastering-pythons-asyncio-a-practical-guide-0a673265cf04
 
 Core concepts of `asyncio`:
-+ Event Loop: the central execution engine provided by `asyncio`. It manages and distributes the execution of different tassks. It's responsible for handling events and scheduling the execution of async routines.
++ Event Loop: the central execution engine provided by `asyncio`. It manages and distributes the execution of different tasks. It's responsible for handling events and scheduling the execution of async routines.
 
 + Coroutines: async functions declared with `async def`. These functions can be paused when dealing with I/O operations and resumed again when the I/O operation has completed.
 
@@ -1213,7 +1213,7 @@ if future.done():
 
 If the coroutines do not return a value, `None` will be added to the list.
 
-`asyncio.gather` provides a `return_exceptions` argument, that when set to True will not make `asyncio.gather` not to raise exceptions, and instead return the exception in the results list. By doing so, all the coroutines will be executed.
+`asyncio.gather` provides a `return_exceptions` argument, that when set to True will make `asyncio.gather` not to raise exceptions, and instead return the exception in the results list. By doing so, all the coroutines will be executed.
 
 Conversely, when setting `return_exceptions=False` or using the default invocation, `asyncio.gather` will re-raise the corresponding coroutine exception as soon as the coroutine fails without waiting for the other coroutines that are being executed concurrently to complete. This opens up additional options for explicitly awaiting the running tasks after an exception in one of them.
 
@@ -1397,7 +1397,7 @@ This means that we you create a task with functions such as `asyncio.create_task
 | :------- |
 | See [asyncio: Tasks vs. Coroutines](10_asyncio-tutorial/27_tasks-vs-coroutines.py) for a runnable example. |
 
-The class `asyncio.Task` extends from `asyncio.Future`, which represents a lower-level awaitable object that represents an eventual result of an async operation. Subclass of `Future` (such as `Task`) are sometimes called *Future-like*.
+The class `asyncio.Task` extends from `asyncio.Future`, which is a lower-level awaitable object that represents an eventual result of an async operation. Subclass of `Future` (such as `Task`) are sometimes called *Future-like*.
 
 A `Task` is awaitable.
 
@@ -1569,7 +1569,7 @@ The mental model that you can use is to think of the `asyncio.gather()` as a way
 
 You don't have to `await` the result of an `asyncio.gather()` called. Instead, you can use the same logic used with tasks and check the `results.done()` where results is the Future returned by `asyncio.gather()`.
 
-Note that if coroutines are provided to `asyncio.gather()`, they are wrapped in `Task` objects automatically, meaning they'll be scheduled to execution in the event loop automatically.
+Note that if coroutines are provided to `asyncio.gather()`, they are wrapped in `Task` objects automatically, meaning they'll be scheduled for execution in the event loop automatically.
 
 | EXAMPLE: |
 | :------- |
@@ -1618,7 +1618,7 @@ Note that if the timeout is reached before the condition is met, an exception is
 
 An `asyncio.TaskGroup` is a way to manage multiple coroutines in a group. When a task in the group fails with an exception, all tasks will be cancelled automatically.
 
-This was introduced in Pytho 3.11, and it is the recommended way to dealing with a group fo tasks, rather than relying on `asyncio.create_task()` and `asyncio.gather()`.
+This was introduced in Python 3.11, and it is the recommended way to dealing with a group of tasks, rather than relying on `asyncio.create_task()` and `asyncio.gather()`.
 
 The `TaskGroup` class is an async context manager holding a group of tasks that will wait for all of of them upon exit:
 
