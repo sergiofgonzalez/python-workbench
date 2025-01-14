@@ -823,3 +823,48 @@ async def async_work() -> float:
 #### Exercise 12: [Concurrency and recursion caveats](e12_concurrency-recursion/)
 
 When using limited parallel execution, you may face a deadlock if the level of concurrency is less than the required recursion depth needed to find a result. Create an async implementation of the `factorial()` function using work queues and illustrate that caveat.
+
+## Working with streams
+
+Python's asyncio library provides streams, but those have been primarily designed to work with network connections. This section introduces the patterns associated with streams in general, and show the code to handle some of the most common stream-related examples using Python using other constructs.
+
+### Buffering versus streaming
+
+When dealing with I/O operations, the most straightforward approach is the buffer mode. In this mode, an input operation makes all the data coming from a resource to be collected into a buffer until the operation is completed. Then it is passed back to the caller as a single blob of data:
+
+![Buffer mode](pics/04_buffer-mode.png)
+
+1. Some data is received from the resource and saved into a buffer.
+2. Additional chunks are received and buffered.
+3. The entire buffer is made available to the consumer when the operation is comple.
+
+By contrast, processing using streams is radically different &mdash; data is made available to the consumer as soon as it arrives from the resource:
+
+![Streams](pics/05_streams.png)
+
+When working with streams, as soon as a new chunk of data is received from the resource, it is immediately passed to the consumer, who has the chance to process it right away.
+
+There are three main advantages of streams vs. buffering:
++ Spatial efficiency: no need to materialize the while contents of the resource before it can be processed.
++ Time efficiency: information can be processed as soon as it is produced by the resource, rather than waiting until the whole information is available.
++ Composability: as the output can be reprocessed in another stream.
+
+| EXAMPLE: |
+| :------- |
+| See [12: Gzip a file using buffer mode](12_gzip-buffer-mode/) for a runnable example using the buffer mode, and [13: Gzip a file using streams](13_gzip-streams/) for a runnable example using streams. |
+
+### Time efficiency
+
+Let's consider a more complex example, involving an application with two subcomponents.
+
+The client side of the application will compress a file, and send it to a remote HTTP server. In turn, the server side of the application will be listening to incoming requests that will assume to be gzipped files that will decompress and save them in the file system.
+
+This is a good scenario for streams, as we wouldn't want the client to materialize the file before being able to send it to the server, and we wouldn't want to the server to recreate the file in memory before it can save it (imagine the server handling multiple concurrent requests involving large files!).
+
+Therefore:
++ on the client side we will use streams to allow compressing the information and sending data chunks as soon as they're read from the file system.
++ on the server side, we will use streams to decompress every chunk as soon as it is received, writing each chunk as we receive it.
+
+| EXAMPLE: |
+| :------- |
+| See [14: HTTP client and server streaming](14_http-compress-server/) for a runnable project with several examples using chunking, compression, etc. using custom clients and [httpie](https://github.com/httpie). |

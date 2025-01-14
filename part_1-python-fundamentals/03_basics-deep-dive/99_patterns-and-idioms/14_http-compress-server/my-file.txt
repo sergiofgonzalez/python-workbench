@@ -1,0 +1,3 @@
+This is a Windows text file.
+There are more files like this one.
+But this is mine.
