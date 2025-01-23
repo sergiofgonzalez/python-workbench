@@ -1,0 +1,7 @@
+version = 1
+requires-python = ">=3.12"
+
+[[package]]
+name = "23-proxy-monkey-patching"
+version = "0.1.0"
+source = { virtual = "." }

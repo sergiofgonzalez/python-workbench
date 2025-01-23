@@ -868,3 +868,483 @@ Therefore:
 | EXAMPLE: |
 | :------- |
 | See [14: HTTP client and server streaming](14_http-compress-server/) for a runnable project with several examples using chunking, compression, etc. using custom clients and [httpie](https://github.com/httpie). |
+
+## Creational design patterns
+
+Creational design patterns are the ones that address techniques related to the creation of objects: such as **Factory**, **Builder**, **Revealing Constructor** and **Singleton**.
+
+We can define a design pattern as a reusable solution to a recurring problem.
+
+### Factory design pattern
+
+The **Factory** pattern allows you to encapsulate the creation of an object within a function.
+
+Its main advantages are:
++ It lets you decouple the creation of an object from one particular implementation &mdash; for example, it lets you create an object whose actual class is determined at runtime.
++ It lets you expose a surface are that is much smaller than that of a class &mdash; as the object creation is encapsulated in a function, there's no way to extern or manipulate the class and also provides a more straightforward developer experience.
++ It can be used to enforce encapsulation, when leveraging closures.
+
+A **factory** allows you to separte the creation of an object from its implementation.
+
+Essentially, a factory wraps the creation of a new instance, giving us more flexibility and control in the way we create them. Inside the factory, we can choose to create a new instance of the class using the initializer, return a different object based on a certain condition, or use any other technique.
+
+The consumer of the factory is totally agnostic about how the creation is carries out, which is much more flexible than using the class initializer, as we will not be binding our code to a particular way of creating the object.
+
+Consider the following way of creating an `Image` object instance:
+
+```python
+def create_image(name) -> Image:
+    return Image(name)
+
+image = create_image("photo.jpg")
+```
+
+By simply encapsulating the creation of the image in `create_image()` gives us a lot of flexibility with respect to using `image = Image(name)`.
+
+For example, we could do a little refactoring and create specialized classes for each type of image we support:
+
+```python
+def create_image(name) -> Image:
+    if Path(name).suffix.match(r"\.jpe?g"):
+        return ImageJpeg(name)
+    elif Path(name).suffix.match(r"\.gif"):
+        return ImageGif(name)
+    elif Path(name).suffix.match(r"\.png"):
+        return ImagePng(name)
+    else:
+        msg = f"unsupported format {Path(name).suffix(name)!r}"
+        raise UnsupportedImageFormat(msg)
+```
+
+Note that despite the refactoring, the consumer code will be completely unaffected by the change, while if we had used `Image(name)` we would need to update the consumer code.
+
+Also, when using the *factory*, the classes may remain hidden to the consumer class (which can be achieved by creating a module in which only the *factory* is exported in `__all__`).
+
+| EXAMPLE: |
+| :------- |
+| See [15: Factory pattern](15_factory-pattern/) for a runnable example, and [16: Code Profiler (Factory pattern)](16_factory-code-profiler/) for an application of the factory pattern. |
+
+The factory pattern has its roots in object oriented development. The problem it tries to solve is the coupling problem associated with the creation of an instance: `obj = MyClass()`.
+
+One of the mantras of object-oriented design is:
+> classes must be opened for extension, but closed for modification.
+
+The way in which classes are instantiated breaks this design principle, as a small change in the class hierarchy represents a change in the consumer code. The set of object-oriented *factory* patterns (simple factory, factory method, abstract factory) solves this problem using interfaces and inheritance. The examples used so far are known as the **simple factory idiom**: defining a function that encapsulates object creation, so that clients of that object will use the factory function instead of the class instantiation `obj = MyClass()`.
+
+### Builder design pattern
+
+The **builder** design pattern is a creational pattern that simplifies the creation of complex objects by providing a fluent interface, which allows you to build objects step by step.
+
+With a **builder**, you can greatly improve the developer experience and overall readability of complex object creation.
+
+The general motivation for a **builder** comes from a class constructor that requires a long list of arguments, many of them complex ones, that are required to build a comple and consistent object instance.
+
+Consider the following `Boat` class:
+
+```python
+class Boat:
+    def __init__(self, has_motor, motor_count, motor_brand, motor_model, has_sails, sails_count, sails_material, sails_color, hull_color, has_cabin):
+        ...
+```
+
+Invoking such constructor is hard to read and error prone.
+
+When using the builder pattern, you end up instantiating the object with:
+
+```python
+    my_boat = (
+        BoatBuilder()
+        .with_motors(2, "Best Motor Co.", "OM123")
+        .with_sails(1, "fabric", "white")
+        .with_cabin()
+        .with_hull_color("blue")
+        .build()
+    )
+```
+
+| EXAMPLE: |
+| :------- |
+| See [17: Builder pattern](17_builder-pattern/) for a runnable example. |
+
+The general rules for implementing the **builder** pattern for an object are:
++ The main objective is to break down a complex constructor into multiple, more readable, and more manageable steps.
++ Try to create builder methods that can set multiple parameters at once.
++ Deduce and implicitly set parameters based on the values received as input by a setter method, and in general, try to encapsulate as much parameter setting related logic into the setter methods so that the consumer of the builder interface is free from doing so.
++ It's possible (and a good practice) to further manipulate the parameters (type casting, normalization, validation) before passing them to the constructor of the class built to simplify the work left to do by the class.
+
+| NOTE: |
+| :---- |
+| It is also common to find **builder** pattern used to invoke functions. In such cases, you must follow the same rules and simply change the `build()` method for an `invoke()` method which will be in charge of invoking the complex function with the parameters collected by the builder. |
+
+| EXAMPLE: |
+| :------- |
+| See [18: URL Builder](18_url-object-builder/) for a runnable example illustrating how to use the **builder** pattern to build a URL class. |
+
+Note that the **builder** pattern can also be implemented directly in the class you want to instantiate. However, it is a good practice to separate the object and the builder in separate classes to ensure that every object returned by the builder is valid.
+
+### Singleton
+
+The **Singleton** pattern enforces the presence of only one instance of a class and centralizes access to it.
+
+There are many use cases for **singletons** in an application:
++ sharing stateful information
++ optimizing resource usage
++ synchronizing access to a resource
+
+Consider a typical `Database` class:
+
+```python
+class Database:
+    def __init__(db_name, connection_details):
+        ...
+```
+
+A `Database` object will need to keep a pool of database connections so that new ones are not created from scratch for each request to the database. Also, the `Database` object will need to store some stateful information that should be kept and maybe shared like the list of active transactions.
+
+That's why it is common to use the **Singleton** pattern for managing a single `Database` object, and let every component of the application use that single shared Database instance.
+
+The implementation of the **Singleton** pattern in Python is straightforward &mdash; you simply need to export an instance from a module:
+
+```python
+class Database:
+    ...
+
+
+db_instance = Database(...)
+```
+
+By simply creating that instance, we can assume that there will only be one instance of `db_instance` (it'll be guaranteed by the Python runtime).
+
+The client code wanting to use the `db_instance` can do so by doing:
+
+```python
+from database import db_instance
+```
+
+Note that you can check that two references to an object refer to the same object by doing:
+
+```python
+assert db_instance_1 is db_instance_2
+```
+
+As a reminder, `is` compares whether two objects are the same object (identity test). By contrast, `==` compares whether two objects have the same value.
+
+For example, when checking an object against `None` you should use `is`, because `None` is a singleton object and you'd like to check if the memory address of your object and the memory address of `None` is the same.
+
+> `is` should be used when you need to check if the memory address of two objects are the same. In particular, any comparison with `None` should be using `None`.
+
+> `==` should be used when you need to check that the value of two objects are the same, even if they have different memory addresses.
+
+
+| EXAMPLE: |
+| :------- |
+| See [19: Singleton](19_singleton-pattern/) for a runnable example illustrating that even when importing through different modules you only get one instance. |
+
+### Wiring Modules
+
+Every application is the result of the aggregation of several components and, as the application grows, the way we connect these components becomes the key factor for the maintainability and success of the project.
+
+When a component *A* needs component *B* to fulfill a given functionality, we say that "*A* is dependent on *B*", or conversely, that "*B* is a dependency of *A*".
+
+Let's consider the scenario of writing an API for a blogging system that uses a database to store its data. We can have a generic module implementing the database connection `db.py` and a blog module that exposes the main functionality to retrieve blog posts from the database `blog.py`.
+
+![Dependencies](pics/06_dependencies.png)
+
+The following subsections explains how this dependency can be modeled using two different approaches: *Singleton Dependencies* and *Dependency Injection*.
+
+#### Singleton Dependencies
+
+This is the simplest way to wire modules together. Because the way in which Python handles dependencies, we can rely on Python to cache the module and provide the cached instance to any other module that imports it.
+
+The **Singleton Dependencies** pattern leverages the modules system to provide dependencies of a module as **Singletons**, which ensures the correct wiring even for stateful dependencies.
+
+| EXAMPLE: |
+| :------- |
+| See [20: Singleton dependencies](20_blogging-singleton-dependencies/) for a runnable example illustrating how to wire dependencies using the **Singleton Dependencies** pattern. |
+
+If you review the example, you'll see there's no magic: it's the most simple, immediate, and readable solution to pass stateful dependencies around.
+
+However, you will find limitations to this approach when you want to mock your database during your test, or when you want to switch your database backing system for another one.
+
+#### Dependency Injection
+
+While the Python module system and the *Singleton Dependencies* pattern are great tools for organizing and wiring together the components of an application, they introduce *tight coupling* between components.
+
+For example, in our previous example [20: Blogging system with Singleton dependencies](20_blogging-singleton-dependencies/):
++ `blog.py` cannot work without `db.py`
++ `blog.py` cannot use a different database module.
+
+The **Dependency Injection** pattern helps you address that coupling.
+
+**Dependency Injection** is a pattern in which dependencies of a component are *provided as inputs* by an external entity, often referred to as the **injector**.
+
+The **injector** initializes the different components and ties their dependencies together. It can be a simple initialization script, or a more sophisticated *global container* that maps all the dependencies and centralizes the wiring of all the modules of the system.
+
+The main advantage of this approach is the improved decoupling, especially for modules depending on stateful instances.
+
+When using **Dependency Injection (DI)**, each dependency, instead of being hardcoded into the module, is received from the outside. In practice, it means that the dependent module can be configured to use any compatible dependency, and therefore, the module itself can be reused in different contexts with minimal effort.
+
+![Dependency Injection](pics/07_dependency-injection.png)
+
+The diagram above illustrates what the **Dependency Injection** pattern provides:
++ a **Service** expects a dependency with a predetermined interface.
++ an **Injector** retrieves and creates an actual concrete instance that implements such an interfaces, and passes it (*injects it*) into the **Service**. That is, the **Injector** is responsible for providing an instance that fulfills the **Service** dependency.
+
+We can rework our previous blogging example to make use of **Dependency Injection**.
+
+Let's start with the `blog.py` module. We need to change it so that it receives the `db` connection object on initialization:
+
+```python
+"""blog.py: module with the API to create and retrieve blog posts, and init the db."""
+
+from datetime import UTC, date, datetime
+from sqlite3 import Connection
+
+
+class Blog:
+    """Blog class."""
+
+    def __init__(self, db: Connection) -> None:
+        """Initialize an instance of the Blog class."""
+        self.db = db
+
+    def init_db(self) -> None:
+        """Initialize the blog database."""
+        init_statement = """
+        CREATE TABLE IF NOT EXISTS posts (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            content TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """
+        cursor = self.db.cursor()
+        cursor.execute(init_statement)
+        self.db.commit()
+...
+```
+
+The rest is the same, except that now the functions are declared as methods, so that they can access the stateful `self.db` connection object.
+
+Note that we're no longer importing the `db.py` method, which means we've broken the tight coupling that existed in the previous example.
+
+In the `db.py` module, we just need to get rid of the **Singleton Dependencies** pattern to come up with an implementation that is more reusable and configurable:
+
+```python
+"""db.py: The database module for the blogging system using SQLite."""
+
+from pathlib import Path
+from sqlite3 import Connection, connect
+
+
+def create_db(db_file: Path | str) -> Connection:
+    """Return a properly configured db connection object."""
+    return connect(db_file)
+```
+
+Note that we've used a **Factory function** that will allow us to change the underlying implementation without affecting the client code. Additionally, we're allowing the client code to pass the `db_file` now, so that an application could potentially manage multiple db connection objects if needed. That wasn't possible before either.
+
+The last part of the **Dependency Injection** pattern is the **injector**, which can be implemented in the `main.py` file with a couple of lines that get the `db` connection object and instantiate the `Blog` instance with it:
+
+```python
+"""App illustrating how dependencies are wired via Singleton Dependencies pattern."""
+
+from datetime import datetime
+from pathlib import Path
+
+from blog import Blog
+from db import create_db
+
+
+def main() -> None:
+    """Application entry point."""
+    prj_root_dir = Path(__file__).resolve().parents[0]
+    db_file = prj_root_dir / "blog_db" / "blog_db_data.sqlite"
+    db = create_db(db_file)
+    blog = Blog(db)
+
+    blog.init_db()
+    posts = blog.get_all_posts()
+...
+```
+
+As a result, `blog.py` is totally decoupled from the actual database implementation, making it more composable and easy to test in isolation.
+
+| EXAMPLE: |
+| :------- |
+| See [21: Dependency Injection](21_blogging-dependency-injection/) for a runnable example. |
+
+The example above illustrates how to inject dependencies through constructor arguments, which is known as **Constructor Injection**. Dependencies can also be passed when invoking a function or method (**Function Injection**) or explicitly injected by assigning the relevant properties of an object (**Property Injection**).
+
+The greater disadvantage of the **Dependency Injection** pattern is that it makes the application more difficult to understand, as dependencies are not resolved at coding time. This is especially evident in big applications with a large and complex dependency graph.
+
+Another disadvantage is that we have to make sure that the dependencies are ready and available when we inject them into the dependent objects, and before we invoke any of the methods of the dependent object that uses **Dependency Injection**.
+
+Building the dependency graph of the entire application by hand, making sure that we do it in the right order might become a very complex task when the number of modules to wire becomes too high.
+
+#### Inversion of Control (IoC)
+
+The **Inversion of Control (IoC)** pattern allows you to shift the responsibility of wiring the modules of an application to a third party entity.
+
+This entity can be a **Service Locator**, a component which will serve a dependency through a method invocation (as in `service_locator.get("db")`) or a **Dependency Injection Container**, a system that injects the dependencies into a component based on some metadata specified in code or in a config file.
+
+| NOTE: |
+| :---- |
+| You can find more on these components in Martin Fowler's blog: [Invesion of Control Containers and the Dependency Injection pattern](https://martinfowler.com/articles/injection.html). |
+
+
+### Exercises
+
+#### Exercise 13: [Color Console Factory](e13_color-console-factory/)
+
+Create a class called `ColorConsole` that has just one empty method called `log()`. Then, create three subclasses: `RedConsole`, `BlueConsole`, and `GreenConsole`. The `log()` method of every `ColorConsole` subclass will accept a string as input and will print that string to the console using the color that gives the name to the class.
+
+Then create a factory function that takes color as input such as `red`, and returns the related `ColorConsole` subclass. Finally, write a small command-line script to try the new console color factory. Hint: use [this](https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color/41407246#41407246) to understand how to change colors in the console.
+
+#### Exercise 14: [Request builder](e14-request-builder/)
+
+Create your own builder class around `requests`. The builder must be able to provide at least basic facilities to specify the HTTP method, the URL, the query component of the URL, the header parameters, and the eventual body data to be sent.
+
+To send the request, provide and `invoke()` method that returns the result for the invocation.
+
+## Structural design patterns
+
+Structural design patterns are the ones that let you build more complex, flexible, and reusable structures through the combinaation of objects.
+
+### Proxy
+
+A **Proxy** is an object that controls access to another object called the **subject**. A **proxy** intercepts all or some of the operations that are meant to be executed on the **subject**, augmenting or complementing its behavior.
+
+The **proxy** and the **subject** have identical interfaces, and this allows you to swap one for the other transparently.
+
+The **proxy** forwards each operation to the subject, enhancing its behavior with additional preprocessing or postprocessing.
+
+| NOTE: |
+| :---- |
+| Sometimes, the **Proxy** pattern is called the **surrogate**. |
+
+![Proxy](pics/08_proxy.png)
+
+It's important to notice that the **Proxy** pattern involves wrapping an actual instance of the **subject**, not its class &mdash; the internal state of the object is thus preserved.
+
+A **proxy** is useful in the following circumstances:
+
++ data validation &mdash; it gives you a chance to validate the input before forwarding it to the subject.
+
++ security &mdash; the **proxy** can verify that the client is authorized to perform the operation.
+
++ caching &mdash; the **proxy** can keep an internal cache and only execute the operation on the **subject** if the data is not yet present in the cache.
+
++ lazy initialization &mdash; if creating the subject is expensive, the **proxy** can delay its initialization until it is necessary.
+
++ logging &mdash; the **proxy** can intercept the method invocation and record the parameters.
+
++ remote objects &mdash; the **proxy** can be used to make a remote object appear local to consumers.
+
+
+#### Techniques for implementing proxies
+
+When *proxying* an object, we can decide to intercept all of its methods or only some of them, while delegating the rest directly to the subject. In this section we will explore several different ways we can achieve this.
+
+As an example, we will use a simple `StackCalculator` class as our  **subject**. The class provides methods for multiplication and division. We will want to *proxy* the instances of this class to catch things such as division by zero, before getting to the class.
+
+##### Object composition
+
+**Composition** is a technique whereby an object is combined with another object for the purpose of extending or using its functionality.
+
+In the specific case of the **Proxy** pattern, a new object with the same interface as the **subject** is created, and a reference to the **subject** is stored internally in the proxy in the form of an instance variable.
+
+The **subject** can then be injected from the client at creation time, or created by the **proxy** itself.
+
+The *subject* will be a simple `StackCalculator` class. The class provides methods for multiplication and division. We will want to *proxy* the instances of this class to enhance it by providing a different behavior for division, to return a "NaN" instead of raising an error when dividing by zero.
+
+In practice, the example creates a `SafeCalculator` class that proxies the `divide()` method on the `StackCalculator` class to intercept the *divide by zero* situation.
+
+```python
+class SafeCalculator:
+    """A proxy over StackCalculator."""
+
+    # Proxy using composition
+    def __init__(self, calculator: StackCalculator) -> None:
+        """Initialize an instance of StackCalculator."""
+        self.calculator = calculator
+
+    # Proxied method
+    def divide(self) -> float | str:
+        """Proxied method that handles StackCalculator.divide differently."""
+        divisor = self.calculator.peek_value()
+        if divisor == 0:
+            return "NaN (divide by zero)"
+        return self.calculator.divide()
+
+    # Delegated method
+    def put_value(self, value: float) -> None:
+        """Put a value using the delegated method: put_value."""
+        self.calculator.put_value(value)
+```
+
+Then the client code can use the proxy by instantiating the `SafeCalculator` and injecting in it an instance of the `StackCalculator`:
+
+```python
+stack_calc = StackCalculator()
+safe_calc = SafeCalculator(stack_calc)
+```
+
+You can also implement the **Proxy** pattern using object composition with a **Factory** function:
+
+```python
+def create_safe_calculator(stack_calculator: StackCalculator) -> SafeCalculator:
+    """Return an instance of SafeCalculator using the Factory pattern."""
+    return SafeCalculator(stack_calculator)
+```
+
+| EXAMPLE: |
+| :------- |
+| See [Proxy using object composition](22_proxy-object-composition/) for a runnable example. |
+
+Note that having to delegate many methods for complex classes can be very tedious and make it harder to implement.
+
+##### Object augmentation
+
+**Object augmentation** (or **monkey patching**) is probably the simplest and most common way of proxying just a few methods of an object.
+
+It involves modifying the **subject** directly by replacing a method with its proxied implementation.
+
+```python
+def patch_to_safe_calculator(calculator: StackCalculator) -> StackCalculator:
+    """Return an instance of StackCalculator in which the divide method has been patched."""
+    divide_original = calculator.divide
+    def patched_divide(self: StackCalculator) -> float | str:
+        """Proxied implementation of the StackCalculator.divide method."""
+        divisor = self.peek_value()
+        if divisor == 0:
+            return "NaN (divide by zero)"
+        return divide_original()
+
+    calculator.divide = patched_divide.__get__(calculator, StackCalculator)
+
+    return calculator
+```
+
+In this technique, we only need to implement the method on which we need to add some logic. For the other ones, the original calculator methods are used.
+
+This implementation is more succinct, and convenient, but comes at the cost of mutating the **subject** object, which can be dangerous. This can have unintended consequences when the **subject** is shared with other parts of the codebase, as they might not expect a changed method. Also, the implementation is uglier.
+
+The **Monkey Patching** technique for creating proxies is only recommended for **subjects** that exist in a controlled context or in a private scope, as the original behavior is changed, and there might be parts of the application that rely on the original behavior.
+
+##### Proxy pattern in Python: The recommended way
+
+The recommended way to implement the **Proxy** design pattern in Python is to define an abstract interface declaring common operations that the **subject** and the **Proxy** will share. In the client code, this interface can be used as a proxy instead of using the real **subject**.
+
+| EXAMPLE: |
+| :------- |
+| See [Proxy pattern](24_proxy-pattern/) for a runnable example illustrating the ideal way to implement the proxy pattern in Python. It must be noted that it's not always possible to follow this approach, as you might not be in control of the `RealSubject` definition. |
+
+
+### Exercises
+
+#### Exercise 15: [SafeCalculator using ideal Proxy Pattern implementation]()
+
+Rewrite the [SafeCalculator](22_proxy-object-composition/) to use the approach described in [Proxy Pattern in Python: The recommended way](#proxy-pattern-in-python-the-recommended-way).
+
+
