@@ -147,6 +147,7 @@ The following diagram illustrates the five sections you will find on an OpenAPI 
 An OpenAPI spec contains **everything** that the consumer of the API needs to know to be able to interact with the API. It is structured around five sections:
 
 | Section | Description |
+| :------ | :---------- |
 | `openapi` | Indicates the version of OpenAPI that is used. |
 | `info` | Contains general information such as the title and version of the API. |
 | `servers` | Contains a list of URLs where the API is available.<br>It is common to include production, staging, development, etc. |
@@ -389,7 +390,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schema/CreateOrderSChema"
+              $ref: "#/components/schema/CreateOrderSchema"
 ```
 
 ## Documenting API responses
@@ -445,7 +446,7 @@ components:
             $ref: "#/components/schemas/OrderItemSchema"
 ```
 
-An alternative way to reuse schemas is to use a strategy called *model composition*, which allows us to combine the properties of different schemas in a single object definition. This is achieved using the keywaord `allOf` to indicate that the object requires all the properties in the listed schemas.
+An alternative way to reuse schemas is to use a strategy called *model composition*, which allows us to combine the properties of different schemas in a single object definition. This is achieved using the keyword `allOf` to indicate that the object requires all the properties in the listed schemas.
 
 The following snippet illustrates such an approach:
 
@@ -454,7 +455,7 @@ components:
   schema:
     GetOrderSchema:
       allOf:
-        - $ref: "#components/schemas/CreateOrderSchema"
+        - $ref: "#/components/schemas/CreateOrderSchema"
         - type: object
           properties:
             id:
@@ -554,7 +555,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GetOrderSchema"
-        "404"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
 ```
 
 
@@ -564,7 +567,7 @@ With this concepts in place we can have our endpoints fully documented. You can 
 
 If our API is protected, the API spec must describe how users need to authenticate and authorize their requests.
 
-The security definitinions go within the `#/components/securitySchemes` section.
+The security definitions go within the `#/components/securitySchemes` section.
 
 In the following snippet we describe three security schemes: one for OpenID Connect (OIDC), one for OAuth2, and another for bearer authorization.
 
@@ -577,7 +580,7 @@ components:
       type: openIdConnect
       openIdConnectUrl: https://coffeemesh-dev-eu-auth0.com/known/open-id-configuration
     oauth2:
-      type: oauth2:
+      type: oauth2
       flows:
         clientCredentials:
           tokenUrl: https://coffeemesh-dev-eu-auth0.com/oauth2/token

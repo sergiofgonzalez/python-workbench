@@ -44,7 +44,7 @@ Nested endpoints can be created to represent nested resources. For example, to r
 | :---- |
 | Nested endpoints is a common optimization technique when resources are represented by large payloads. |
 
-The resource-oriented nature of REST API is limiting when you need model actions. A common approach is to represent those actions as nested resources. For example, to cancel an order you can define the endpoint `POST /orders/{order_id}/cancel`.
+The resource-oriented nature of REST APIs is limiting when you need model actions. A common approach is to represent those actions as nested resources. For example, to cancel an order you can define the endpoint `POST /orders/{order_id}/cancel`.
 
 ## Architectural Constraints of REST Applications
 
@@ -70,7 +70,7 @@ Another important concept in REST is Hypermedia As The Engine Of the Application
 
 HATEOAS is a paradigm in the design of REST APIs that emphasizes the concept of discoverability. HATEOAS makes APIs easier to use by enriching responses with all the information users need to interact with a resource. For example, if a client requests the details of an order, the response must include the links to cancel and pay for the order.
 
-This means that as a response to a request such as: `GET /orders/8` the system should respond with somthing like:
+This means that as a response to a request such as: `GET /orders/8` the system should respond with something like:
 
 ```json
 {
@@ -195,7 +195,7 @@ HTTP status codes are organized into groups:
 | :---- | :---------- |
 | 1xx | An operation is in progress. |
 | 2xx | A request was successfully processed. |
-| 3xx | A resource has been moved to a new location . |
+| 3xx | A resource has been moved to a new location. |
 | 4xx | Something was wrong with the request. |
 | 5xx | An error occurred processing a valid request. |
 
@@ -233,8 +233,8 @@ The following table summarizes the HTTP status codes that should be used to info
 | Situation | Example | Status Code |
 | :-------- | :------ | :---------- |
 | Sending a malformed payload with invalid syntax | An invalid JSON document is sent | 400 (Bad Request) |
-| Sending a malformed payload that is syntactically correct but miss a required parameter, or contains an invalid parameter, or assigns the wrong value or type to a parameter. | An order request misses the `"product"` key. | 422 (Unprocessable Entity) |
-| Sending a request to a resource that doesn't exist | Sending a request to `orders/1234` when `1234` is not a valid order.<br>Also, if sending a request to `orders_api` if that resource doesn't exist. | 404 (Not Found) |
+| Sending a malformed payload that is syntactically correct but misses a required parameter, or contains an invalid parameter, or assigns the wrong value or type to a parameter. | An order request misses the `"product"` key. | 422 (Unprocessable Entity) |
+| Sending a request to a resource that doesn't exist | Sending a request to `/orders/1234` when `1234` is not a valid order.<br>Also, if sending a request to `orders_api` if that resource doesn't exist. | 404 (Not Found) |
 | Sending a request using an HTTP method that is not supported | `PUT /orders` | 501 (Not Implemented), if you plan to implement support in the future<br>405 (Method Not Allowed), otherwise.|
 | Making a request without having authenticated first | Sending an unauthenticated request to a protected endpoint. | 401 (Unauthorized) |
 | Making an authenticated to an endpoint I'm not authorized to access | N/A | 403 (Forbidden) |
@@ -246,7 +246,7 @@ The following table summarizes the HTTP status codes that should be used to info
 | Situation | Example | Status Code |
 | :-------- | :------ | :---------- |
 | An application error has prevented the request from completing. | A bug in the code that makes the service crash. | 500 (Internal Server Error) |
-| Server is unavailable to take on nre requests | Server is overloaded, or down for maintenance. | 503 (Service Unavailable) |
+| Server is unavailable to take on more requests | Server is overloaded, or down for maintenance. | 503 (Service Unavailable) |
 | Server is taking longer than expected to respond | Server is slow, for some reason | 504 (Gateway timeout)
 
 
@@ -258,7 +258,7 @@ The usability of an API is very much dependent on good payload design, as poorly
 
 An HTTP message body or payload is a message that contains the data exchanged in an HTTP request. Both HTTP requests and responses can contain a message body. The message body is encoded in one of the media types supported by HTTP, typically JSON.
 
-The HTTP specification allows us to include payloads in all HTTP methods, but it discourages their use in GET and DELETE requests. As this is not forbidden, you might find popular APIs (e.g., Elasticsearch) that sends information im the body of a GET request.
+The HTTP specification allows us to include payloads in all HTTP methods, but it discourages their use in GET and DELETE requests. As this is not forbidden, you might find popular APIs (e.g., Elasticsearch) that sends information in the body of a GET request.
 
 Regarding the response payloads, according to the specification, responses with a 1xx, 204 (No Content), and 304 (Not Modified) must not include a payload. All other responses must include a payload.
 
@@ -297,7 +297,7 @@ We will typically find two scenarios of GET request payloads:
 + When we are requested to return a list of resources (e.g., `GET /orders`)
 + When we are requested to return a specific singleton (e.g., `GET /orders/{order_id}`)
 
-The response to `GET /orders` must return a list of orders. We can either include a full representation of each order, or include a partial representation of each order. The first strategy gives the API client all the information in one request, but it may compromise the performance of the API when the items in the list are big, resulting in a large response payload.
+The response to `GET /orders` must return a list of orders. We can either include a full representation of each order, or include a partial representation of each order. The first strategy gives the API client all the information in one request, but it may compromise the performance of the API when the list of items is big, resulting in a large response payload.
 
 ```json
 {
@@ -361,13 +361,13 @@ For singleton endpoints (e.g., `GET /orders/{order_id}`), a full representation 
 
 URL query parameters are key-value parameters that we encode in the URL. Query parameters come after a question mark `?`. We can combine multiple query parameters by separating them with ampersands (`&`).
 
-It's a best practive for endpoints returning a list of resources to allow users to filter and paginate the results.
+It's a best practice for endpoints returning a list of resources to allow users to filter and paginate the results.
 
 For example, when using `GET /orders`, we may want to limit the results to only the five most recent orders, or to list only cancelled orders (e.g., `GET /orders?cancelled=true`).
 
 These sort of scenarios can be accomplished with URL query parmeters. URL query parameters should always be optional, and when appropriate, the server may assign default values for them (e.g., when paginating a large number of results).
 
-When returning a large number of results, it is a common practive to use a `page` and `per_page` combination of parameters:
+When returning a large number of results, it is a common practice to use a `page` and `per_page` combination of parameters:
 + `page` &mdash; represents the set of data to be retrieved
 + `per_page` &mdash; identifies the number of items we want to be included in each set.
 

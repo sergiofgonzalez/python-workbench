@@ -18,7 +18,7 @@ You can use:
 + the browser
 + HTTPie text web client
 + Requests sync web client package
-+ HTTPX sync/asycn web client package
++ HTTPX sync/async web client package
 
 ### Using the browser
 

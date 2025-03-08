@@ -20,19 +20,21 @@ Note that this principle does not necessarily mean that each microservice should
 
 The following diagram illustrates this idea in which only the corresponding service access their data directly, while the rest of the microservices do that by invoking the service.
 
+![DB per service](pics/db-per-service.png)
+
 
 ### Loose coupling principle
 
 Loose coupling states that we must design services with clear separation of concerns.
 
 This has two implications:
-+ Each service must be able to work independently from others. If you have a service that can't fulfill a single requiest without calling another service, they belong together.
-+ Each service mus be able to be updated without impacting other services. If changes to a service require updates to other services, there is tight-coupling between the services and they need to be redesigned.
++ Each service must be able to work independently from others. If you have a service that can't fulfill a single request without calling another service, they belong together.
++ Each service must be able to be updated without impacting other services. If changes to a service require updates to other services, there is tight-coupling between the services and they need to be redesigned.
 
 
 ### Single Responsibility Principle (SRP)
 
-A microservice should be design around a single business capability or subdomain.
+A microservice should be designed around a single business capability or subdomain.
 
 ## Service Decomposition by Business Capability
 
@@ -48,7 +50,7 @@ Taken as an example our CoffeeMesh project, we would get:
 ### Analyzing the business structure of CoffeeMesh
 
 + Customers can order different types of coffee-related products out of a catalogue managed by the **Products team**.
-+ Availabiliy of product and ingredients depends on the stock of ingredients at the time of order, as managed by the **Inventory team**.
++ Availability of product and ingredients depends on the stock of ingredients at the time of order, are managed by the **Inventory team**.
 + **Sales team** is in charge of improving the experience of of ordering and maximizing sales.
 + **Finance team** ensures that the company is profitable and looks after the financial infrastructure required to process customer payments.
 + Once a user places an order, the **Kitchen team** picks up its details to commence production.
@@ -61,7 +63,7 @@ Now, we map each business team to a microservice.
 | Microservice | Aligned Team | Responsibilities |
 | :----------- | :----------- | :--------------- |
 | Products | Products Team | Owns the product catalog data. The team uses this service to maintain the catalog, add new products, update existing ones, etc. |
-| Ingredients | Inventory Team | Owns data about stock of ingredients. The Ingredients team within the Products Team use this data to keep the ingredients db in sync with warehouse stocks. |
+| Ingredients | Inventory Team | Owns data about stock of ingredients. The Ingredients team is in charge of keeping the ingredients db in sync with warehouse stocks. |
 | Sales | Sales Team | Guides customers through the journey to place orders and keep track of them. It owns data about customer orders and lifecycle of each order. |
 | Finance | Finance Team | Implements the payment processors. Owns data about user payment details and payment history. The Finance Team uses this service to keep the company accounts up to date and to ensure payments work correctly. |
 | Kitchen | Kitchen Team | Sends orders to the kitchen systems and keeps track of its progress. It also monitors the performance of the kitchen system. |
@@ -87,7 +89,7 @@ When applied to the design of a microservices platform, DDD helps us define the 
 
 DDD is an approach to sw development that focuses on modeling the processes and flows of the business users. DDD offers an approach to software development that tries to reflect as accurately as possible the ideas and the language that businesses, or end-users of the software, use to refer to their processes and flows.
 
-To do so, DDD encourages the creation of a rigorous, model-based language that software developers can share with the users call *ubiquitous language*.
+To do so, DDD encourages the creation of a rigorous, model-based language that software developers can share with the users called *ubiquitous language*.
 
 First you need to identify the core domain of a business:
 + CoffeeMesh &mdash; deliver high-quality coffee to customers as quickly as possible regardless of their location.
@@ -102,7 +104,7 @@ The core domain gives you a definition of the problem space: describes what you 
 
 The solution consists of a model (set of abstractions that describe the domain and solves the problem).
 
-In practice, most problems require the collaboration of different models, with their own specific ubiquitious languages. the process of defining such models is called **strategic design**.
+In practice, most problems require the collaboration of different models, with their own specific ubiquitious languages. The process of defining such models is called **strategic design**.
 
 ### Applying strategic analysis to CoffeeMesh
 
@@ -113,11 +115,11 @@ In our case, we want to model the process of taking an order and delivering it t
 1. When the customer lands on the website, we show them the product catalog. Each product is marked as available or unavailable. The customer can filter the list by availability and sort it by price (ascending and descending).
 2. The customer selects products.
 3. The customer pays for their order.
-4. Once the customer has pais, we pass on the details of the order to the kitchen.
+4. Once the customer has paid, we pass on the details of the order to the kitchen.
 5. The kitchen picks up the order and produces it.
 6. The customer monitors progress on their order.
 7. Once the order is ready, we arrange its delivery.
-8. The customer tracks the delivery itinerary until it is delivered to its door.
+8. The customer tracks the delivery itinerary until it is delivered to their door.
 
 The following diagram is a rough user journey elaborating the same ideas:
 
@@ -131,7 +133,7 @@ The identified subdomains are:
 
 + **Products** &mdash; Tells us which products are available and which are not. To do so, the products subdomain needs to be able to track the amount of each product and ingredient in stock.
 
-+ **Orders** &mdash; Manages the lifecycle of each order. This subdomain owns data about the users' orders, and exposes an interface to manage orders and check their stattus. This subdomain also needs to take care of passing the order details to the kitchen once the payment is done. It also needs to allow the user to check the status of the order why it is being processed. Finally, it also needs to interact with the delivery system to arrange the delivery and expose the status of the delivery.
++ **Orders** &mdash; Manages the lifecycle of each order. This subdomain owns data about the users' orders, and exposes an interface to manage orders and check their status. This subdomain also needs to take care of passing the order details to the kitchen once the payment is done. It also needs to allow the user to check the status of the order while it is being processed. Finally, it also needs to interact with the delivery system to arrange the delivery and expose the status of the delivery.
 
 + **Payments** &mdash; Handles user payments. Contains all the logic needed for payment processing (card validation, integration with 3rd party payment systems). This subdomain owns all the data related to user payments.
 

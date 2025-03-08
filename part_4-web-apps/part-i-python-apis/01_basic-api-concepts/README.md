@@ -119,7 +119,7 @@ The following diagram illustrates this approach:
 
 | NOTE: |
 | :---- |
-| The Web Server Gateway Interface (WSGI) is a synchronous Python standard specification to connect application code to be servers in a synchronous fashion.<br>Because concurrency has become more important in recent years, the Python Asynchronous Server Gateway Interface (ASGI) specification was developed. Uvicorn, the request handler that FastAPI uses, is an implementation of ASGI. |
+| The Web Server Gateway Interface (WSGI) is a synchronous Python standard specification to connect application code to servers in a synchronous fashion.<br>Because concurrency has become more important in recent years, the Python Asynchronous Server Gateway Interface (ASGI) specification was developed. Uvicorn, the request handler that FastAPI uses, is an implementation of ASGI. |
 
 ### A few words about `pipenv`
 

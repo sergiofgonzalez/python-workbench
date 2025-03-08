@@ -75,7 +75,6 @@ paths:
         schema:
           type: string
           format: uuid
-
     get:
       summary: Returns the details of a specific order
       operationId: getOrder
@@ -180,7 +179,7 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
     UnprocessableEntity:
-      description: The payload constains invalid values.
+      description: The payload contains invalid values.
       content:
         application/json:
           schema:

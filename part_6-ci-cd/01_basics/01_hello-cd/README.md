@@ -112,7 +112,7 @@ This section collects the different definitions used in the different chapters:
 
 CD is all about getting to a state where:
 + you can safely deliver changes to your software at any time.
-+ delivering the software is as easy ad pushing a button.
++ delivering the software is as easy as pushing a button.
 
 ### Continuous Integration (CI)
 

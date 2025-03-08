@@ -20,7 +20,7 @@ Additionally, we'll go over the architectural layout required to keep our micros
 
 ## Hexagonal architectures for microservices
 
-Alistar Cockburn introduced in 2005 the concept of hexagonal architecture, also called the architecture of ports and adapters, as a way to help structure apps into loosely coupled components.
+Alistair Cockburn introduced in 2005 the concept of hexagonal architecture, also called the architecture of ports and adapters, as a way to help structure apps into loosely coupled components.
 
 ![Hexagonal arch](pics/hexagonal-arch.png)
 
@@ -108,7 +108,7 @@ Therefore, the order model will feature:
     + **Dispatched** &mdash; The order has been sent to the user.
     + **Delivered** &mdash; The order has been delivered to the user.
 + **Schedule ID** &mdash; The ID of the order in the Kitchen service. This ID is created by the Kitchen service after scheduling the order for production, and we'll use it to keep track of its progress in the kitchen.
-+ **Delivery ID** &mdash; The ID of the order in the delivery service. This ID is created by the delivery service after scheduling it for dispatch. You'll use it to keep track of its progress during delivery.
++ **Delivery ID** &mdash; The ID of the order in the Delivery service. This ID is created by the delivery service after scheduling it for dispatch. You'll use it to keep track of its progress during delivery.
 
 The item model is the one that keeps the information about the product selected by the user. As stated above, there will be a one-to-many relationship between Orders and Items (each order will have one or many items). The item should have the following attributes:
 
@@ -194,7 +194,7 @@ From our analysis, we know that the Orders service will allow users of the platf
 
 + Process payments &mdash; With the help of the payments service, the Order service will process the payment for an order. If the payment service confirms that the payment is successful, the Orders service will schedule the purchased order for production by interfacing with the Kitchen service.
 
-+ Update orders &mdash; Users can update their order at any to add or remove items from it. To confirm a change, a new payment must be processed with the help of the payments service.
++ Update orders &mdash; Users can update their order at any time to add or remove items from it. To confirm a change, a new payment must be processed with the help of the payments service.
 
 + Cancel orders &mdash; Users can cancel their orders anytime. Depending on the status of the order, the Orders service will interact with either the Kitchen or the Delivery service.
 
@@ -206,7 +206,7 @@ The core logic will be implemented in the `OrdersService` class, which can be de
 
 The best way to implement the business logic described above is through a single unified interface `OrdersService` implemented as a class in `orders/orders_service/orders_service.py`.
 
-While this class should be implemented as follows:
+While this class could be implemented as follows:
 
 ```python
 # DISCOURAGED!!!
@@ -334,7 +334,7 @@ class Order:
         }
 ```
 
-Finally, to build the integration between the Orders service and the Kitchen and Payments services without starting the real services we can take the OpenAPI specs for the Kitchen Service, and Payments service and build a mock server that will replicated the server behind the APIs, validating our requests and returning valid responses.
+Finally, to build the integration between the Orders service and the Kitchen and Payments services without starting the real services we can take the OpenAPI specs for the Kitchen Service, and Payments service and build a mock server that will replicate the server behind the APIs, validating our requests and returning valid responses.
 
 One such tool is Prism CLI &mdash; A Node.js based mock server. In order to start up the mock server, you just need to run:
 
@@ -370,7 +370,7 @@ Similarly, we can do with the Payments mock server, for which we have created a 
 npx @stoplight/prism-cli mock payments.yaml --port 3001
 ```
 
-To implement the integration with the different API servers we'll use the `requests`. In each API call, you must check tht the response contains the expected status code, and if it doesn't, you must raise an exception.
+To implement the integration with the different API servers we'll use the `requests`. In each API call, you must check that the response contains the expected status code, and if it doesn't, you must raise an exception.
 
 It is a common pattern to create a custom exception (e.g., `APIIntegrationError`). You can also create more exceptions to signal app specific errors such as `InvalidActionError` when the user tries to cancel an order that is already out for delivery, or an `OrderNotFoundError` when we receive a request to do something with an order that doesn't exist.
 
