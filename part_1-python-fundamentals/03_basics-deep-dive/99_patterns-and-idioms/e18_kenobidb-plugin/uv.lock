@@ -1,0 +1,23 @@
+version = 1
+revision = 1
+requires-python = ">=3.12"
+
+[[package]]
+name = "e18-kenobidb-plugin"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "kenobi" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "kenobi", specifier = ">=4.0" }]
+
+[[package]]
+name = "kenobi"
+version = "4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/95/7a/8c72348beeb088af129e984bd99682b941e75f56ee5516afe9c413484e4a/kenobi-4.0.tar.gz", hash = "sha256:be3edc8c8ef9b43bc530038fc0a9d408f8d72466a8fdb55dfbc2ba245054f87c", size = 5754 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/02/e0/f30163de2cd7c3cc03d2055b90998da84ba81df8db6e988f830c1ba5035b/kenobi-4.0-py3-none-any.whl", hash = "sha256:14fc97048ca51d5ea0ccbf8ef58e4c159c16c99e3a028d89a644d6373057cf24", size = 4551 },
+]

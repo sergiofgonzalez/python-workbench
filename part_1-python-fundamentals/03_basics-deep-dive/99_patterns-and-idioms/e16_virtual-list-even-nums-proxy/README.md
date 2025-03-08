@@ -1,0 +1,3 @@
+# Virtual list of even numbers with no Proxy
+
+In Node.js there's the concept of `Proxy` object that can be used to implement features such as operator overloading. Demonstrate that in Python, you don't need to use such an object to create a virtual list that contains all the even numbers. The resulting object should be used as a regular array (accessing its elements using `[]` as in `even_numbers[7]`, or even check the existence of a given number in the list using `in` as in `2 in even_numbers`).

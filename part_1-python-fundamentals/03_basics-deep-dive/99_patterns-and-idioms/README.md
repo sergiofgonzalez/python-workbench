@@ -1193,7 +1193,7 @@ This entity can be a **Service Locator**, a component which will serve a depende
 | You can find more on these components in Martin Fowler's blog: [Invesion of Control Containers and the Dependency Injection pattern](https://martinfowler.com/articles/injection.html). |
 
 
-### Exercises
+### Exercises on creational design patterns
 
 #### Exercise 13: [Color Console Factory](e13_color-console-factory/)
 
@@ -1341,10 +1341,456 @@ The recommended way to implement the **Proxy** design pattern in Python is to de
 | See [Proxy pattern](24_proxy-pattern/) for a runnable example illustrating the ideal way to implement the proxy pattern in Python. It must be noted that it's not always possible to follow this approach, as you might not be in control of the `RealSubject` definition. |
 
 
-### Exercises
+#### A comparison of the different proxying techniques
 
-#### Exercise 15: [SafeCalculator using ideal Proxy Pattern implementation]()
++ **Composition**: simple and safe, as it leaves the **subject** object untouched. The only drawback is that it might get a little tedious when you're proxying a complicated class with many methods.
+
++ **Object augmentation (*monkey patching*)**: It is succinct, but it is never a good idea to *mutate* the subject. Might be a good solution when the **subject** is under your control, and you only want to proxy a few methods.
+
++ **Recommended (inheritance)**: Might not be viable when the subject is not under your control. Can be useful if you can pass around the abstract interface for the **subject** instead of the real **subject** or the **proxy** object.
+
+
+#### Change Observer using Proxies
+
+Proxies are effective tools to create observable objects.
+
+The **Change Observer** pattern is a design pattern in which an object (**the subject**) notifies one or more observers of any state change in the object so that they can react to changes as soon as they occur.
+
+| NOTE: |
+| :---- |
+| Although very similar, the **Change Observer** pattern should not be confused with the **Observer** pattern discussed before. The latter is a more generic approach that adopts events to propagate information happening in the system. |
+
+Let's assume that we have an `Invoice` object for which we want to be notified of changes in its properties:
+
+```python
+class Invoice:
+    """Invoice class."""
+
+    def __init__(self, subtotal: float, discount: float, tax: float) -> None:
+        """Invoice instance initialization."""
+        self.subtotal = subtotal
+        self.discount = discount
+        self.tax = tax
+
+    def calculate_total(self) -> float:
+        """Calculate the total of the invoice."""
+        return self.subtotal - self.discount + self.tax
+```
+
+
+To create the **Change Observer** we need to create a **Proxy** of such object, in this case the `Invoice`. The initializer of the class should accept an `observer` function which we'll call when a change is detected. The only thing remaining to do is to override its setters to detect the changes.
+
+An explicit (and also long) implementation would be:
+
+```python
+class ObservableInvoice(Invoice):
+
+    def __init__(
+        self,
+        target_invoice: Invoice,
+        observer_fn: Callable[[str, Any, Any], Any],
+    ) -> None:
+        self._target_invoice = target_invoice
+        self._observer_fn = observer_fn
+
+    @property
+    def subtotal(self) -> float:
+        return self._target_invoice.subtotal
+
+    @subtotal.setter
+    def subtotal(self, value: float) -> None:
+        prev_value = self._target_invoice.subtotal
+        if value != prev_value:
+            self._target_invoice.subtotal = value
+            self._observer_fn("subtotal", prev_value, value)
+
+    @property
+    def discount(self) -> float:
+        return self._target_invoice.discount
+
+    @discount.setter
+    def discount(self, value: float) -> None:
+        prev_value = self._target_invoice.discount
+        if value != prev_value:
+            self._target_invoice.discount = value
+            self._observer_fn("discount", prev_value, value)
+
+    @property
+    def tax(self) -> float:
+        return self._target_invoice.discount
+
+    @tax.setter
+    def tax(self, value: float) -> None:
+        prev_value = self._target_invoice.tax
+        if value != prev_value:
+            self._target_invoice.tax = value
+            self._observer_fn("tax", prev_value, value)
+
+    def calculate_total(self) -> float:
+        return self._target_invoice.calculate_total()
+```
+
+Note that, as happens with **proxies** in Python, the implementation is quite verbose, but serves the purpose.
+
+Now, you can have a program like the following which detects changes in `Invoice` instances:
+
+```python
+from collections.abc import Callable
+
+from invoice import Invoice
+from invoice_change_observer import ObservableInvoice
+
+
+def print_change(property_name: str, prev_value: float, value: float) -> None:
+    """Observer function that simply prints the change in the terminal."""
+    print(f"Property {property_name!r} changed: {prev_value} => {value}")
+
+
+def get_observer_fn(invoice: Invoice) -> Callable[[str, float, float], None]:
+    """Return an observer function that closes on the observed invoice."""
+
+    def observer_fn(property_name: str, prev_value: float, value: float) -> None:
+        print(
+            f"TOTAL: {invoice.calculate_total()} "
+            f"({property_name} changed: {prev_value} => {value})",
+        )
+
+    return observer_fn
+
+
+def main() -> None:
+    """Application entry point."""
+    invoice = Invoice(subtotal=100, discount=10, tax=20)
+    total = invoice.calculate_total()
+    print(f"Starting total: {total}")
+
+    # Now the change observer piece
+    observable_invoice = ObservableInvoice(invoice, observer_fn=print_change)
+    observable_invoice.subtotal = 200
+    observable_invoice.discount = 20
+    observable_invoice.tax = 15
+    print(f"Final total: {observable_invoice.calculate_total()}")
+
+    # You can make it fancier with a fn that returns a closure on the invoice
+    # which we use as the observer function
+    another_observable_invoice = ObservableInvoice(
+        invoice,
+        observer_fn=get_observer_fn(invoice),
+    )
+    another_observable_invoice.subtotal = 210
+    another_observable_invoice.discount = 25
+    another_observable_invoice.tax = 20
+```
+
+| EXAMPLE: |
+| :------- |
+| See [Change Observer Pattern: concrete](25_change-observer-proxy/) for a runnable example. |
+
+### Decorator
+
+**Decorator** is a structural design pattern aimed to dynamically augment the behavior of an existing object.
+
+It's different from inheritance because not all instances of the class are augmented &mdash; the behavior will be applied only to the classes that you want augmented.
+
+![Decorator](pics/09_decorator.png)
+
+See how the **Decorator** object is extending the **Component** object by adding a method. The existing methods are typically delegated to the decorated object without further processing, although in some cases, they might also be intercepted and augmented with extra behaviors. In the diagram above, it is depicted how `method_a()` is intercepted and augmented, `method_b()` is directly delegated, and `method_c()` is added by the **Decorator**.
+
+#### Techniques for implementing Decorators
+
+Several techniques can be used to implement **decorators**. In the subsequent sections we will use our `StackCalculator` class which we will decorate augment it with a new method `add()`, and we will also intercept the existing method `divide()` to provide a different behavior.
+
+##### Composition
+
+Using composition, you can create a **decorator** following the same approach we used for the **proxy**.
+
+The **decorator** simply needs to define the new methods and delegate the existing ones to the **component**.
+
+```python
+class EnhancedCalculator:
+    """Aguments a StackCalculator with additional methods and behavior."""
+
+    def __init__(self, calculator: StackCalculator) -> None:
+        """Initialize an instance of an EnhancedCalculator."""
+        self._calculator = calculator
+
+    def add(self) -> float:
+        """Perform the addition: added method."""
+        addend2 = self._calculator.get_value()
+        addend1 = self._calculator.get_value()
+        result = addend1 + addend2
+        self._calculator.put_value(result)
+        return result
+
+    def divide(self) -> float | str:
+        """Perform the division: intercepted method."""
+        divisor = self._calculator.peek_value()
+        if divisor == 0:
+            return "NaN (attempt to divide by zero)"
+        return self._calculator.divide()
+
+    def put_value(self, value: float) -> None:
+        """Put a number into the internal stack: delegated method."""
+        self._calculator.put_value(value)
+
+...
+```
+
+
+| EXAMPLE: |
+| :------- |
+| See [Decorator: using composition](27_decorator-composition/) for a runnable example. |
+
+
+##### Object augmentation
+
+**Object decoration** can also be achieved using the **monkey patching** technique.
+
+This technique sacrifices the proverbial expressivity of Python, in favor of a more generic and succinct solution:
+
+```python
+
+class PatchedCalculator(ABC, StackCalculator):
+    """Interface of the decorated object."""
+
+    @abstractmethod
+    def add() -> float:
+        """Perform the addition."""
+
+    @abstractmethod
+    def divide() -> float | str:
+        """Perform the division."""
+
+
+def patched_calculator(calculator: StackCalculator) -> PatchedCalculator:
+    """Return a decorator of the StackCalculator."""
+    divide_original = calculator.divide
+
+    def patched_divide(self: StackCalculator) -> float | str:
+        """Perform division using a patched method."""
+        divisor = self.peek_value()
+        if divisor == 0:
+            return "NaN (attempt to divide by zero)"
+        return divide_original()
+
+    calculator.divide = patched_divide.__get__(calculator, StackCalculator)
+
+    def add(self: StackCalculator) -> float:
+        """Perform addition."""
+        addend2 = self.get_value()
+        addend1 = self.get_value()
+        result = addend1 + addend2
+        self.put_value(result)
+        return result
+
+    calculator.add = add.__get__(calculator, StackCalculator)
+
+    return calculator
+```
+
+#### Python Decorators
+
+Python provides built-in support to change, enhance, and alter the way a function or method works using **Python Decorators**.
+
+They are defined with the symbol `@`, followed by the decorator name right before the function/method definition, as in:
+
+```python
+@announce
+def some_fn():
+    ...
+```
+
+Behind the scenes, a **Python Decorator** is nothing more than a regular function that takes a function as a parameter, wraps the function in an inner function that performs the job associated to the **Python decorator**, and then returns it.
+
+The canonical example is the decorator that when applied to a function or method measures how much time it takes to execute.
+
+The *DX* of the **Python Decorators** is great, you just need to annotate the function with `@` followed by the name of the decorator function (`log_time` in this example):
+
+```python
+@log_time
+def some_fn(wait_seconds: float | None = None) -> float:
+    if not wait_seconds:
+        wait_seconds = random.uniform(0.5, 3)  # noqa: S311
+    time.sleep(wait_seconds)
+    return wait_seconds
+```
+
+And the implementation is also quite succinct:
+
+```python
+def log_time(fn: callable) -> callable:
+    """Print in the terminal how long it took to execute the function."""
+
+    def time_fn_exec(*args: any, **kwargs: any) -> any:
+        print(f"--- {fn.__name__} execution started")
+        start_ts = time.perf_counter()
+        result = fn(*args, **kwargs)
+        print(
+            f"*** {fn.__name__} "
+            f"execution took {time.perf_counter() - start_ts:.3f} sec",
+        )
+        return result
+
+    return time_fn_exec
+```
+
+The decorator `@log_time` is just a function that takes another function as a parameter (the function the decorator will be applied to), wraps the augmented behavior in an inner function, and returns this wrapper.
+
+| EXAMPLE: |
+| :------- |
+| See [Python Decorator: log execution time](29_python-decorator-timeit/) for a runnable example. |
+
+When using Python Decorators you need to respect the signature: the decorator must accept a function as an argument, and must return the function that will be invoked to augment the function behavior.
+
+As a result, creating a decorator that accepts additional arguments, as in `@log_time("my_label")`, requires wrapping the decorator in an outer function that accepts the extra arguments, and return the actual decorator from this outer function as seen below:
+
+```python
+def log_time(label: str | None = None) -> Callable:
+    """Python decorator accepting an argument label."""
+
+    def log_time_decorator(fn: Callable) -> Callable:
+        """Implement the Python decorator as per spec (accept fn, return fn)."""
+        nonlocal label
+
+        def wrapper(*args: any, **kwargs: any) -> any:
+            """Report invocation time."""
+            start = time.perf_counter()
+            result = fn(*args, **kwargs)
+            print(
+                f"{label}: {time.perf_counter() - start:.3f} seconds",
+            )
+            return result
+
+        if label is None:
+            label = fn.__name__
+        return wrapper
+
+    return log_time_decorator
+```
+
+Then in the code, you will be able to use the `@log_time("label")` decorator:
+
+```python
+@log_time()
+def some_fn(wait_seconds: float | None = None) -> float:
+    ...
+
+@log_time("custom label")
+def some_other_fn(wait_seconds: float | None = None) -> float:
+    ...
+```
+
+| NOTE: |
+| :---- |
+| When you invoke a decorator that accept parameters without supplying them (as in `@log_time()` you need to use `()`. Otherwise you will run into a runtime error. |
+
+Nnote that in the implementation we had to use `nonlocal label` to be able to change the value of the `label` variable defined in an outer scope. Alternatively, we could have used:
+
+```python
+print(
+    f"{label if label else fn.__name__}: {time.perf_counter() - start:.3f} seconds"
+            )
+```
+
+which doesn't require to change the value of `label`, and therefore, doesn't require us to use `nonlocal`.
+
+
+When decorating a function, it's docstring and other metadata will be lost unless you use `@functools.wraps()`. An example of how to use `@functools.wrap` is shown below:
+
+```python
+import functools
+import time
+
+
+def log_time(fn: callable) -> callable:
+    """Print in the terminal how long it took to execute the function."""
+
+    @functools.wraps(log_time)
+    def time_fn_exec(*args: any, **kwargs: any) -> any:
+        print(f"--- {fn.__name__} execution started")
+        start_ts = time.perf_counter()
+        result = fn(*args, **kwargs)
+        print(
+            f"*** {fn.__name__} "
+            f"execution took {time.perf_counter() - start_ts:.3f} sec",
+        )
+        return result
+
+    return time_fn_exec
+```
+
+Note that the metadata that is lost is the one affecting the function in which  `@log_time` is being applied.
+
+That is, when we don't apply `@functools.wraps` we get:
+
+```python
+@log_time
+def some_fn(wait_seconds: float | None = None) -> float:
+    """Wait for given seconds, or for a random amount of time if time not given."""
+
+@log_time
+def some_fn()
+    ...
+
+print(some_fn.__doc__) # -> None
+```
+
+When writing a decorator that accepts arguments, `@functools.wraps` must be applied to the innermost function:
+
+```python
+def log_time(label: str | None = None) -> callable:
+    """Log time and prints a custom label."""
+
+    def log_time_decorator(fn: callable) -> callable:
+        @functools.wraps(fn)
+        def wrapper(*args: any, **kwargs: any) -> any:
+            start = time.perf_counter()
+            result = fn(*args, **kwargs)
+            print(
+                f"{label if label else fn.__name__}: ",
+                f"{time.perf_counter() - start:.3f} seconds",
+            )
+            return result
+
+        return wrapper
+
+    return log_time_decorator
+```
+
+
+
+### Exercises on structural design patterns
+
+#### Exercise 15: [SafeCalculator using ideal Proxy Pattern implementation](e15_safe-calculator-proxy-oop/)
 
 Rewrite the [SafeCalculator](22_proxy-object-composition/) to use the approach described in [Proxy Pattern in Python: The recommended way](#proxy-pattern-in-python-the-recommended-way).
 
 
+#### Exercise 16: [Virtual list of even numbers](e16_virtual-list-even-nums-proxy/)
+
+In Node.js there's the concept of `Proxy` object that can be used to implement features such as operator overloading. Demonstrate that in Python, you don't need to use such an object to create a virtual list that contains all the even numbers. The resulting object should be used as a regular array (accessing its elements using `[]` as in `even_numbers[7]`, or even check the existence of a given number in the list using `in` as in `2 in even_numbers`).
+
+#### Exercise 17: [Proxying a file](e17_file-write-proxy/)
+
+Use the **Proxy** pattern to intercept the calls to write information to disk and add a print statement to understand what is being written.
+
+```python
+dst_filename = Path("outfiles") / "out_2.txt"
+with dst_filename.open("w") as f:
+    f_proxy = WriteProxy(f)
+    f_proxy.write("This is a line in a file.\n")
+    f_proxy.write("There are many lines like this one.\n")
+    f_proxy.write("But this is mine.\n")
+    f.write(
+        "This line will not show in the terminal, but will be written on file.\n"
+    )
+```
+
+
+### Exercise 18: [KenobiDB plugin]()
+
+KenobiDB is a document-based data store abstraction buil on top of `sqlite3`, offering a simple way to manage JSON-like data.
+
+We will build a plugin for this database that will allow us to receive notifications every time an object with a certain pattern is saved into the database.
+
+For example, if we subscribe to a pattern such as `{a: 1}`, we will receive notifications whenever objects such as `{a:1, b: 3}` or `{a: 1, c: x}` are saved.
