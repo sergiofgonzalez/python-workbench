@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "docschat"
+version = "0.1.0"
+description = ""
+authors = ["Sergio F. Gonzalez <sergio.f.gonzalez@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+streamlit = "^1.33.0"
+python-dotenv = "^1.0.1"
+langchain-openai = "^0.1.3"
+langchain = "^0.1.16"
+pypdf = "^4.2.0"
+docarray = "^0.40.0"
+loguru = "^0.7.2"
+langkit = {extras = ["all"], version = "^0.0.31"}
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
