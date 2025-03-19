@@ -208,3 +208,59 @@ User: Teach me about the ocean.
 
 User: Summarizes the text delimited by triple quotes in about 50 words. '''text to summarize'''
 
+## Choosing the optimal LLM for your specific needs
+
+Being a successful consumer of AI agents doesn't require an in-depth understanding of LLMs, it's helpful to be able to evaluate the specifications.
+
+Some fundamental dimensions to take into account:
+
+1. **Model Performance**
+
+    Determines how well a model performs given a certain benchmark such as answering SAT questions.
+    You should measure the performance in the context of the use case you're building. For example, if you're building a coding related use case, an LLM that performs well on code is essential.
+
+2. **Model Parameters/Model Size**
+
+    The number of billions of parameters of the model. Larger models perform better on general tasks as it is related to how well the model will be able to perform inference. A larger model will require more infrastructure to run.
+
+
+3. **Use Case/Model Type**
+
+    Determines the type of model and expected use case. This could be chat completions for a model such as ChatGPT, which is good for iterating and reasoning through a problem.
+    There are also models good for question/answer, and instruction-based.
+    In general, agent applications work well with chat completions models.
+
+
+4. **Training Input**
+
+    Specifies the material used to tran the model. This can change from everything found on the Internet to a specific domain Python code.
+
+5. **Training Method**
+
+    Specifies how the model is trained and/or fine-tuned. Models like ChatGPT are trained using reinforcement learning with human feedback.
+
+
+
+6. **Context Token Size**
+
+    Specifies how large the model's context size is in tokens. Larger context is important for verbose agent conversations.
+    A context window of about 4,000 tokens is generally enough for simple tasks. However, a large context window can be beneficial when using multiple agents that share a common context.
+
+7. **Model Speed/Model Deployment**
+
+    Denotes the speed of the model. OpenAI models marked Turbo are typically faster. For local LLMs speed is determined by the infrastructure in which they are hosted.
+    When you're interacting with users, real-time speed might be required.
+
+
+8. **Model Cost**
+
+    Could represent the price of the service or the cost to host and run a model on your infrastructure.
+
+
+## Exercises
+
+### Exercise 1: Consuming LLMs
+
+Create a program that uses the same prompt with at least two different LLMs and compare the results.
+
+See [e01: Consuming LLMs](e01-comparing-llms/)
