@@ -1,0 +1,22 @@
+[project]
+name = "01-describe-image-tool"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "openai>=1.66.5",
+    "python-dotenv>=1.0.1",
+    "requests>=2.32.3",
+]
+
+[tool.ruff]
+# Set the maximum line length to 80
+# line-length = 80
+
+ignore = [
+  "T201", # Allow use of print statements
+  "D200", # One-liner docstring should fit within a single line
+]
+
+select = ["ALL"]
