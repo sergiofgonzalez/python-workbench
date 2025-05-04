@@ -165,3 +165,6 @@ cython_debug/
 
 # private keys and secrets
 *.pem
+
+# draw.io backups
+.$diagrams.drawio.bkp
