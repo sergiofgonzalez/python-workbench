@@ -11,6 +11,22 @@ Setting up shop with Python and generalistic projects
 
 Math related Python projects
 
+
 ## [Part 3: ML and AI](part_3-ml-and-ai/README.md)
 
+ML, AI and GenAI related projects and notes
+
+
 ## [Part 4: Web Apps](part_4-web-apps/README.md)
+
+Python Web applications
+
+
+## [Part 5: Misc packages](part_5-misc/README.md)
+
+Exploring notable packages
+
+
+## [Part 6: CI/CD stuff](part_6-ci-cd/)
+
+A few notes on CI/CD
