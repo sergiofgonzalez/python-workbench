@@ -1,0 +1,17 @@
+[project]
+name = "03-tuples-sets-dicts"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.ruff.lint]
+
+ignore = [
+  "D202", # Allow blank lines after function docstring
+  "S101", # Allow assert statements
+  "T201", # Allow print statements
+]
+
+select = ["ALL"]
