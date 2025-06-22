@@ -2,9 +2,9 @@
 > first steps and getting up to speed with Python
 
 
-## [00: First steps: Installing Python and intro to conda virtual environments](00_install-first-steps.ipynb)
+## [00: First steps: Setting up Python and the runtime for the notebooks](00_install-first-steps.ipynb)
 
-Some notes on how to install a miniconda, activate the base environment to enable an environment in which you can start programming Python projects and notebooks.
+Some notes on how to install [uv](https://docs.astral.sh/uv) and create the runtime for the notebooks on this section.
 
 ## [01: Basic Python workout](01_python-workout.ipynb)
 
