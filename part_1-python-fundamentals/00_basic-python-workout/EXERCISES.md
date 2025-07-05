@@ -1106,4 +1106,184 @@ Create a 4-tuple that is used to hold int, int, float, string.
 
 ## 10: Files
 
+### 131: building paths with `pathlib`
 
+The `/` is overloaded in pathlib to allow you build paths in a succinct and intuitive way.
+
+Create the file path `/path/to/file.ext` using this operator by creating a path `/path` and then adding the other components.
+
+### 132: renaming files
+
+Create a simple file renaming program that given a path, a prefix pattern, and a wildcard of files, scans that path and copies and renames all the files matching the wildcard using the rule:
+
+```
+{prefix_pattern}_{counter}.{original extension}
+```
+
+on an output directory.
+
+For example, if you have a directory with the files:
+
+```
+orig/diagram.png
+orig/IMG_1642.jpg
+orig/IMG_4598.jpg
+orig/IMG_1763.jpg
+orig/README.md
+```
+
+and you set `prefix_pattern =  "photo"`, `wildcard = IMG*.jpg`, `orig_path = orig/`, `out_path = out/`
+
+the program should renames the files into:
+
+```
+out/photo_001.jpg
+out/photo_002.jpg
+out/photo_003.jpg
+```
+
+by using `photo` as the `out_prefix_pattern`.
+
+HINT: use the `glob()` method to scan a given directory for files matching a pattern. Use `shutil` to copy a file from a directory to another.
+
+## 11: The `with` statement
+
+### 133: using `with` to control file exceptions
+
+The `with` statement is used in exception handling code to simplify the management of resources such as files and database connections, so that they are correctly closed in error situations.
+
+Consider a block of code that opens a file for writing, writes a string into that file, and then closes the file.
+
+Write three different snippets:
+
+1. Don't use any exception control. Explain why the approach is weak.
+
+2. Use try/catch/finally to solve all the problems of the first approach.
+
+3. Use `with` and discuss the functionality and readability of this approach.
+
+### 134: providing support to `with` in custom classes
+
+Write a simple class `MessageWriter` that supports the following syntax:
+
+```python
+with MessageWriter("filename") as xfile:
+    xfile.write(str)
+```
+
+When using the previous approach, `MessageWriter` should write the given string to a file, doing proper resource management with the file.
+
+HINT: To provide support to `with` in a custom class, the class will have to implement the magic methods `__enter__(self)` and `__exit__(self, exception_type, exception_value, traceback)`.
+
+## 12: Interacting with the underlying OS
+
+### 135: exiting a program with `sys.exit()`
+
+Create a program that simulates the rolling of a dice and reports the number of consecutive times you obtain an even number. When an odd number is found the program should finish using `sys.exit()`.
+
+NOTE: the `quit()` is similar to `sys.exit()`, but `sys.exit()` is preferred. For example, `quit()` function does not work well on notebook cells.
+
+### 136: exiting a program by raising a `SystemExit`
+
+You can raise a `SystemExit` exception to terminate a running program, and it is more portable than `quit()` as it works on notebook cells tool.
+
+Create a program that simulates the rolling of a dice and reports the number of consecutive times you obtain an even number. When an odd number is found the program should finish using a `SystemExit`.
+
+## 13: Date and Time
+
+### 137: basics of a datetime object
+
+The `datetime` module contains three primary types of objects:
++ `date`
++ `time`
++ `datetime`
+
+Arithmetic operations for these objects are only supported within the same data type, but it is easy to convert from one to the other.
+
+1. Create a variable that holds today's date.
+2. Create a variable that holds current time.
+3. Create a variable that holds the first day of 2025.
+4. Create a variable that holds noon's time.
+5. Create a variable tha holds current datetime.
+6. Create a variable that holds the datetime `1974-02-05T14:05:48`
+7. Try to subtract noon from today's date. What exception do you get?
+8. Convert a date to a datetime using `datetime()`.
+9. Combine a date and a time using `datetime.combine()`.
+
+### 138: parsing a string into a timezone-aware datetime object
+
+Python can parse a string representing a datetime into a `datetime` object using `datetime.strptime()`. Use this function to parse:
+
+1. 1974-02-05T14:05:18
+2. 17/05/2008 23:15:47
+
+| HINT: |
+| :---- |
+| You will need to provide the format to `strptime` (see https://docs.python.org/3/library/datetime.html#datetime.datetime.isoformat) for examples. |
+
+### 139: constructing timezone-aware datetime objects
+
+A `datetime` object is considered naive if it is unaware of the timezone information.
+
+To make it timezone aware, you have to provide the UTC offset and timezone abbreviation as a function of date and time.
+
+Build a timezone-aware datetime object by:
+1. Defining a `datetime` object and passing the `tzinfo` information set to your timezone. You will have to use the `timezone` object before that.
+
+2. Repeat the same exercise giving a name to the `timezone` and use `dt.tzname()` to retrieve it.
+
+### 140: computing time differences
+
+Time differences are computed using the `timedelta` function included in `datetime` package.
+
+Compute:
+1. The difference between now and `1974-02-05` (no time).
+2. The number of days between those dates.
+3. The number of seconds between those dates.
+4. Define a function `get_date_n_days_after_today` that returns the date resulting from adding `n` days after today's date.
+5. Define a function `get_date_n_days_before_today` that returns the date resulting from subtracting `n` days before today's date.
+
+## 14: More on operators
+
+### 141: falsy values and short-circuiting
+
+You can use `and` and `or` boolean operators to create expressions in Python.
+
++ `or` can be used in an expression to return the value of the first parameter if it is not *falsy*, and return the second if it is. This can become useful in expressions to obtain a default value.
+
++ `and` in an expression only evaluates the second argument if the first one is true. As a result you can use `x and y` as a shortcut for `if x if False then x else y`.
+
+Create a snippet that prompts the user for his/her name. Using an `or` expression, assign the value `"stranger"` if no value is provided, and greet the user.
+
+Create another snippet that uses `and` expression between two variables `x` and `y` and check what happens when you assign values such as `True` and `False`, `1` and `0`, `"some"` and `""`.
+
+### 142: is operator
+
+`is` is the identity operator, returning `True` if and only if two objects are the same object.
+
+1. Create two strings with values `"hello"` and `"hello"`. Compare them with `==` and `is`.
+
+2. Create two numbers with values `5` and `5`. Compare them with `==` and `is`.
+
+3. Create a boolean variable `True`. Compare it with `True` using `==` and `is`.
+
+4. Create a simple `Person` class and implement `__eq__`. Create two identical instances of the `Person` class (e.g., `Person("Jason", 53)`) and compare them with `is` and `==`.
+
+### 143: in operator
+
+`in` is the membership operator, returning `True` if a value is contained in a sequence.
+
+1. Create a list and use the `in` operator to check if a given value is in the list.
+2. Create a dictionary and use the `in` operator to check if a given key-value pair is in the list (if possible)
+
+### 144: the ternary operator
+
+The syntax for the ternary operator in Python is:
+
+```python
+result_if_true if condition else result_if_false
+```
+
+Use the ternary operator to create an expression that returns `True` when passed a number over 18 and wrap it in a function called `is_adult`. Can you use an `and` expression to obtain the same result?
+
+## 15: More on strings
