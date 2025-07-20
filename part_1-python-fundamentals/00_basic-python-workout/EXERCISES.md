@@ -1255,7 +1255,7 @@ You can use `and` and `or` boolean operators to create expressions in Python.
 
 Create a snippet that prompts the user for his/her name. Using an `or` expression, assign the value `"stranger"` if no value is provided, and greet the user.
 
-Create another snippet that uses `and` expression between two variables `x` and `y` and check what happens when you assign values such as `True` and `False`, `1` and `0`, `"some"` and `""`.
+Create another snippet that uses `and` expression between two variables `x` and `y` and check what happens when you assign values such as `True` and `False`, `5` and `0`, `"some"` and `""`.
 
 ### 142: is operator
 
@@ -1267,14 +1267,16 @@ Create another snippet that uses `and` expression between two variables `x` and 
 
 3. Create a boolean variable `True`. Compare it with `True` using `==` and `is`.
 
-4. Create a simple `Person` class and implement `__eq__`. Create two identical instances of the `Person` class (e.g., `Person("Jason", 53)`) and compare them with `is` and `==`.
+4. Create a simple `Person` class and implement `__eq__`. Create two identical instances of the `Person` class (e.g., `Person("Jason", 53)`) and compare them with `is` and `==`. What is the result if you remove the implementation of `__eq__()`?
+
+5. Create two lists with the items `[1, 2, 3]`. Compare them with `==` and `is`.
 
 ### 143: in operator
 
 `in` is the membership operator, returning `True` if a value is contained in a sequence.
 
 1. Create a list and use the `in` operator to check if a given value is in the list.
-2. Create a dictionary and use the `in` operator to check if a given key-value pair is in the list (if possible)
+2. Create a dictionary and use the `in` operator to check if a given key is in the list of keys of the dictionary.
 
 ### 144: the ternary operator
 
@@ -1284,6 +1286,318 @@ The syntax for the ternary operator in Python is:
 result_if_true if condition else result_if_false
 ```
 
-Use the ternary operator to create an expression that returns `True` when passed a number over 18 and wrap it in a function called `is_adult`. Can you use an `and` expression to obtain the same result?
+Use the ternary operator to create an expression that returns `True` when passed a number over 18 and wrap it in a function called `is_adult`. Can you use another simpler expression to obtain the same result? Demonstrate you can defining an `is_adult2()` function.
 
 ## 15: More on strings
+
+### 145: a bunch of string methods
+
+Strings has a bunch of built-in methods that operate on the same way &mdash; they are applied to an string instance and return either a new immutable string without modifying the original, a boolean (`is*()` methods), an index (`find()`), or a list of strings (`split()`):
+
+| String Method | Description |
+|---------------|-------------|
+| `isalpha()` | Returns true if the string contains only chars and is not empty |
+| `isalnum()` | True if the string contains characters or digits and is not empty |
+| `isdecimal()` | True if a string contains digits and is not empty |
+| `lower()` | Returns a lowercase version of a string |
+| `islower()` | True if a string is lowercase |
+| `upper()` | Returns an uppercase version of a string |
+| `isupper()` | True if a string is uppercase |
+| `title()` | Gets a capitalized version of a string |
+| `startswith()` | Checks if a string starts with a specific substring |
+| `endswith()` | Checks if a string ends with a specific string |
+| `replace()` | Replaces a part of a string |
+| `split()` | Splits a string on a specific character |
+| `strip()` | Trims whitespace characters from a string |
+| `join()` | Joins strings |
+| `find()` | Finds the position of a substring |
+
+### 146: `len()` and `in` in strings
+
+The built-in function `len()` and the operator `in` can be used in strings.
+
++ Built a simple program that calculates the length of a "regular" string and the length of a string that contain emojis different emojis such as 😱 and 🛩️.
+
++ Built a simple program that illustrate the result of `"son" in "Jason Isaacs"`. Use it with a string with emojis.
+
+
+### 147: escaping characters within a string
+
+Work out how to output the f-string `""{name}" is an actor"`, that is, the name of the actor must be enclosed in double quotes.
+
+### 148: indexing and slicing
+
+Individual characters or sets of characters within a string can be accessed like elements in a list.
+
+Predict the results of the following operations:
+
+```python
+name = "foobar"
+name[0]       # f
+name[1]       # o
+name[-1]      # r
+name[-2]      # a
+name[0:2]     # fo
+name[3:]      # bar
+name[:2]      # fo
+name[1:-1]    # ooba
+```
+
+### 149: using `isalnum()` to check whether strings represent alphanumeric values
+
+Check the behavior of `isalnum()` with the strings `"123@!"` and `"123asdf"`.
+
+### 150: using `isalpha()` to check if a string contains only letters
+
+Check the behavior of `isalpha()` with the string `"Homework"` and `"CS101"`.
+
+### 151: using `isnumeric()` to check if a string contain numbers only
+
+Build a program that prompts your age and computes the year you were born. Use `isnumeric()` to validate the user enters a valid age.
+
+Check the behavior of `isnumeric()` with decimal, numbers in scientific notation, and negative numbers.
+
+### 152: casting strings to numbers
+
+You can use `float("string")` and `int("string")` to cast a string into a floating-point number or an integer. When the casting fails, you'll get a `ValueError`.
+
+Build a program that prompts the user for a number and casts it into a number. Use try-except-else block to handle the exceptions correctly.
+
+### 153: concatenating f-strings into a single string
+
+Given the following dictionary describing font related setting:
+
+```python
+settings = {
+    "font_size": "large",
+    "font": "Arial",
+    "color": "Black",
+    "align": "center"
+}
+```
+
+Build the following string using f-strings:
+
+```
+font-size=large, font=Arial, color=Black, align=center
+```
+
+## 16: More on booleans
+
+###  154: boolean coalescing rules
+
+The `bool` type can have the values `True` and `False`.
+
+There are a few coalescing rules for non-boolean types to be aware of:
++ numbers are always `True` except for number `0`.
++ strings are `False` only when empty.
++ lists, tuples, sets, and dictionaries are `False` only when empty.
+
+You can check if a given variable is bool using `isinstance(var, bool)`.
+
+Create a program illustrating the validation rules explained above.
+
+### 155: `any` and `all`
+
+Python defines the following built-in functions that receive an iterable:
++ `any()` returns `True` if any of the elements of the iterable is `True`.
++ `all()` returns `True` if all of the elements of the iterable are `True`.
+
+Create a simple program that illustrates the behavior of `any` and `all`.
+
+## 17: enums
+
+### 156: Hello, enums
+
+Enums are readable names bound to constant values.
+
+Create an enum `State` with the values `DISABLED`, which should be 0, and `ENABLED` which should be 1.
+
+Then, create a piece of code that refers to the enum using:
++ the defined values (as in `State.ENABLED`).
++ the given value (as in `State(1)`).
++ the defined value using the dictionary syntax (as in `State["ENABLED"]`).
+
+Demonstrate how can you access the value given to the constant using `.value`.
+Use `list` to obtain the list of available values, and `len` to obtain the count of the values.
+
+### 157: emulating constants with enums
+
+Python has no language construct to enforce that a variable should have a constant value, but you can emulate a constant with `Enum`.
+
+Create a program that define an `Enum` named `Constants` with two constants `WIDTH` with value 1024 and `HEIGHT` with value 768.
+
++ Use `print()` to print the value of the constants.
++ Confirm that you cannot change the value assigned to `WIDTH` or `HEIGHT`.
++ How would you rate the DX when compared to the other alternative (using naming conventions such as defining variables in all caps `WIDTH = 1024`).
+
+## 18: Reading user input
+
+### 158: using `input()` and `getpass()`
+
+Define a program which features an internal vault with usernames and passwords. In the program ask the user for their username and password and keeps asking until both are correct, or the max number of attempts is reach (in which case the user should be in locked status).
+
+## 19: More on functions
+
+### 159: by_ref_always
+
+In Python, arguments are always passed by reference, which means that side-effects within the function will be visible outside.
+
+However, some Python objects are immutable, so it will feel that those objects are passed by value instead.
+
+Create a program the changes the value of a number, a string, a tuple, a list, and a custom `Person` class that you create. Within the function, and in the outer scope print the value and the memory.
+
+### 160: returning multiple values
+
+Python can return multiple values by explicitly returning a tuple, or by using the syntax `arg1, arg2, arg3`.
+
+Create a function that returns three arguments and unpack them as individual arguments within the function.
+
+### 161: nested function and `nonlocal`
+
+Python allows functions defined within function. A variable defined in the outer function will be available for reading in the nested function, but to modify a variable defined in the outer function you will have to use the keyword `nonlocal`.
+
+Define a function `count()` which defines a variable count initialized to 0. Define a nested function increment which increments the value of `count` when invoked. Return this function and use it in `main()`.
+
+### 162: more on `*` in functions
+
+Python allows you to define functions with default arguments, so that if the client does not provide it, it will take the default value.
+
+For example, you can do:
+
+```python
+numbers.sort() # using default args
+numbers.sort(reverse=True) # passing an argument
+```
+
+It's common for this functions to use signatures such as:
+
+```python
+sort(*, key=None, reverse=False)
+```
+
+The `*` in the method signature dictates that all the arguments following the asterisk should be named, that is, cannot be positional as in `sort(False)`.
+
+1. Define a list of numbers and use the `sort()` method with and without parameters. Confirm that you cannot use positional arguments.
+
+2. Create a `Task` class with a constructor that takes the title, description, and urgency of the task. Define `complete_task()` method in the program (outside the class), that takes the task to complete and a note with a default value `""`. Use the `*` to force that the note should not be sent as positional. This function should set the task status to `"completed", and add a note to the task. Create a task, complete it, and print its contents including the note.
+
+
+| NOTE: |
+| :---- |
+| When we define functions, we refer to the variables specified in the function head as *parameters*. When we call functions, we refer to the variables we use as arguments.
+
+> Parameters are the variables used in a function definition; arguments are the variables used in a function's invocation. |
+
+
+### 163: gotchas when setting default arguments for mutable types
+
+Create a Task class with the fields title, description, and urgency. Then define a standalone function `complete_task()` that accepts the task to complete, and a `group` argument. Give the default value `[]` to this group, with the intention of creating an empty list when none is given.
+
+Within the function, set the task status to completed, add the task title to the group, and return the group.
+
+Then, in the `main()` function, create three tasks `Homework`, `Videogames`, `Watch Movies`. Create a list called `boring_tasks` initialized to the empty list.
+Then invoke `complete_task()` for `Homework` passing the `boring_tasks` list. Print the result of completing the task (which should be the group with the task title added to `boring_tasks`).
+
+Then invoke `complete_task()` for `Videogames` without passing a list. Print the result of completing the task. What is the result?
+
+Invoke again `complete_task()` for `Watch Movies` without passing a list. Print the result of completing the task. What is the result?
+
+HINT: use `id()` to check the memory addresses of the results and try to explain why this happens.
+
+How would you fix it? What is the recommendation when you want to have this behavior for mutable types? Rewrite the program to make it work differently.
+
+
+### 164: partial functions
+
+We often define multiple parameters in a function so that it can handle different forms of input to derive the needed result for different scenarios.
+
+Define a function `run_stats_model(dataset, model, output_path)` that return certain calculated statistics.
+
+The function accepts three arguments to make it sufficiently generic:
+
+```python
+run_stats_model(dataset_a1, "model_a", "project_a/stats/")
+run_stats_model(dataset_a2, "model_a", "project_a/stats/")
+run_stats_model(dataset_b1, "model_b", "project_b/stats/")
+run_stats_model(dataset_b2, "model_b", "project_b/stats/")
+```
+
+However, this makes the function quite verbose and complicates the DX.
+
+A poor man's solution is defining a function such as:
+
+```python
+def run_stats_model_a(dataset):
+  results = run_stats_model(dataset, "model_a", "project_a/stats")
+  return results
+```
+
+However, there's a more pythonic way using the `partial()` function from `functools`.
+
+Use both approaches in an example.
+
+### 165: putting a default value where there isn't one
+
+`partial` can be very useful when you need to set a default value on a function where there isn't one.
+
+Using `partial`, define a function `square` which wraps the power function `pow`. Test the results.
+
+
+### 166: cache and memoization using `functools`
+
+The `@cache` decorator from `functools` lets you implement memoization very easily.
+
+Define a function that returns the fibonacci sequence for given number (e.g., `fibonacci(n)`). Using perf counters, calculate the time it takes to generate the first 40 fibonacci numbers.
+
+Reimplement the function, this time using the `@cache` anotation from `functools`. What is the time difference.
+
+### 167: function overloading with `@singledispatch`
+
+While Python doesn't allow function overloading, the `@singledispatch` decorator from `functools` allow to define a set of functions (variants in Python parlance) for one main function to handle different types of arguments.
+
+Define a function `process(data)` that:
++ prints the data if the argument passed is not str, int, or list
++ announces the type of data received otherwise
+
+### 168: using `*_` in functions
+
+In Python, you use `*_` in a function definition to ignore positional parameters. It is typically used when a function needs to conform with certain specification, but you don't intend to use the arguments passed in the function implementation.
+
+Create a function `foo(*_)` and invoke it without arguments, with one positional argument, and with several positional arguments. Try to invoke the function with keyword argument.
+
+### 169: using `...`
+
+The `Ellipsis` object (or `...`) is a built-in constant that is useful in many different circumstances:
+
+It can be used in function definitions as a placeholder (empty implementation):
+
+```python
+def fn_stub():
+    ... # will implement later
+```
+
+In type hints, it can be used to announce that the object can contain an arbitrary number of elements:
+
+```python
+numbers: tuple[int, ...]
+```
+
+It can also be used to make the function specification more flexible, as in:
+
+```python
+def fn(a: int, b: int, sum: Callable[..., int])
+```
+
+It can also be used to provide a value to required positional arguments, when you don't have a value for them (however, the use of `*_` and `_` is more common).
+
+1. Define a function `fn_stub` and use ellipsis to give it an empty implementation. Does it compile?
+
+2. Define a tuple that can contain a variable number of ints. Confirm that it lets you create a tuple with 0, 1, 2, numbers, but that you cannot store a string on the tuple.
+
+3. Define the function `def fn(a: int, b: int, sum: Callable[..., int])` and invoke it. What is the first parameter passed to sum?
+
+4. Define a function `fn(a, b, c, *args, **kwargs)` that prints the values of their arguments and keyword-arguments. Then:
+  1. Invoke the function with fully specified positional, a few variable positional, and a few keyword args.
+  2. Try to invoke the function without passing the positional arguments a, b, c.
+  3. Invoke the function without passing the required positional parameters with different techniques (using `*_`, `_`, and `...`).
