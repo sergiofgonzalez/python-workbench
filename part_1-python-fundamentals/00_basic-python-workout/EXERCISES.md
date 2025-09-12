@@ -1556,8 +1556,8 @@ Reimplement the function, this time using the `@cache` anotation from `functools
 
 While Python doesn't allow function overloading, the `@singledispatch` decorator from `functools` allow to define a set of functions (variants in Python parlance) for one main function to handle different types of arguments.
 
-Define a function `process(data)` that:
-+ prints the data if the argument passed is not str, int, or list
+Define an overloaded function `process(data)` that:
++ prints the data if the argument passed is str, int, or list
 + announces the type of data received otherwise
 
 ### 168: using `*_` in functions
@@ -1589,15 +1589,753 @@ It can also be used to make the function specification more flexible, as in:
 def fn(a: int, b: int, sum: Callable[..., int])
 ```
 
-It can also be used to provide a value to required positional arguments, when you don't have a value for them (however, the use of `*_` and `_` is more common).
-
 1. Define a function `fn_stub` and use ellipsis to give it an empty implementation. Does it compile?
 
 2. Define a tuple that can contain a variable number of ints. Confirm that it lets you create a tuple with 0, 1, 2, numbers, but that you cannot store a string on the tuple.
 
 3. Define the function `def fn(a: int, b: int, sum: Callable[..., int])` and invoke it. What is the first parameter passed to sum?
 
-4. Define a function `fn(a, b, c, *args, **kwargs)` that prints the values of their arguments and keyword-arguments. Then:
-  1. Invoke the function with fully specified positional, a few variable positional, and a few keyword args.
-  2. Try to invoke the function without passing the positional arguments a, b, c.
-  3. Invoke the function without passing the required positional parameters with different techniques (using `*_`, `_`, and `...`).
+### 20: More on loops
+
+### 170: range in loops
+
+Create a range that gives you the numbers from 0 to 100 (excluded) in steps of 10. Use a loop to print the results.
+
+### 171: enumerate in loops
+
+Create a range to return the numbers from 50 to 55 (excluded). Use a loop that prints:
+```
+0: 50
+1: 51
+2: 52
+3: 53
+4: 54
+```
+
+### 172: break and continue
+
+The statements `break` and `continue` work as in other programming languages:
+
++ `break` &mdash; steps out of the current loop
++ `continue` &mdash; stops current iteration in the loop and goes to the next one
+
+Given the list `[1, 2, 3, 4, 5]`, create a loop that:
++ if the item is divisible by 3, skips to the next iteration
++ if the item is 4, breaks out of the loop
++ otherwise prints the number that is being processed
+
+## 20: Variable scope rule in Python
+
+### 173: global variables
+
+When you declare a variable outside of any function in Python, the variable will be visible to any code after the declaration.
+
+This is called a global variable.
+
+A global variable in Python will be visible without requiring any additional keyword, but you won't be able to modify the variable value directly in any of the functions of your code.
+If you want to modify the variable of a global variable within the scope of a function, you need to use the `global` keyword as a sort of *variable declaration* within your function.
+
+When you define a variable with the same name as a global name within a function, this new variable will hide the global variable (shadow).
+
+Create a program that defines a global variable `name`.
+
+1. Read the global variable value outside of any function.
+2. Change the global variable value outside of any function.
+3. Read the global variable value within the `main()` function.
+4. Try to change the value of the global variable within the `main()` function.
+5. Define a function `update_global()` that updates the value of the global variable using the `global` keyword. Invoke the function from `main()` and check that it works as expected.
+
+### 174: nonlocal
+
+Similarly to the `global` keyword, the `nonlocal` keyword can be used to modify the value of a variable in scope, but that was defined in a different (outer) scope.
+
+Define a function `say_hello()` that:
+1. Defines a variable `name` and assigns it the value "Charlize".
+2. Defines an inner function `update_name()` that changes the value of `name` by suffixing it with " Theron" and returns the modified `name`.
+3. Invokes `prepare_message()` and prints what the function returns.
+
+Invoke the `say_hello()` function from `main()`.
+
+## 21: Decorators
+
+### 175: Hello, decorators
+
+Decorators are a way to change, enhance, and alter the way a function or a method works.
+
+They are defined with the symbol `@`, followed by the decorator name. It should be used right before the function/method definition it is applied to, as in:
+
+```python
+@logtime
+def greet_me():
+    print("Hello to you!")
+```
+
+Behind the scenes, a decorator is a plain function that:
+1. Takes another function as argument and returns a function
+2. Typically, the returned function is an inner function that performs the job associated to the decorator and invokes the passed function when appropriate.
+
+For example:
+
+```python
+def logtime(func):
+    def wrapper():
+        # ... pre-decorator logic here ...
+        ret_val = func()
+        # ... post-decorator logic here ...
+        return ret_val
+    return wrapper
+```
+
+As a basic example, create a decorator `@announce` that logs in the terminal that the function/method it is applied to has been called.
+
+HINT: use the dunder method `__name__` to get the function name.
+
+Define a simple function `say_hello()`, decorate it with `@announce` and check that it works as expected.
+
+Then define a function `greet(name: str)` and try to use the `@announce` decorator on it. What error do you get?
+
+### 176: hello decorators for functions with parameters
+
+Decorators can also be applied to functions that accepts parameters. The Python runtime will do the necessary to supply the wrapper function of a decorator with the `*args` and `**kwargs` used when invoking the function, so that you can use it in the wrapper as needed.
+
+That is:
+
+```python
+def logtime(func):
+    def wrapper(*args, **kwargs):
+        # ... pre-decorator logic here ...
+        ret_val = func(*args, **kwargs)
+        # ... post-decorator logic here ...
+        return ret_val
+    return wrapper
+```
+
+As a basic example, create a decorator `@announce` that logs in the terminal that the function/method it is applied to has been called.
+
+HINT: use the dunder method `__name__` to get the function name.
+
+Define a simple function `say_hello()`, decorate it with `@announce` and check that it works as expected.
+
+Then define a function `greet(name: str)` and try to use the `@announce` decorator on it and check that it works.
+
+Finally, define a function `get_greeting(name: str, age: int)` and check that you can also use the decorator `@announce` on it.
+
+
+| NOTE (arguments vs. parameters): |
+| :---- |
+| In Python, parameters are the placeholders defined in the function definition. Arguments are the actual values passed when invoking the function. |
+
+
+### 177: Checking a function's execution time with a decorator
+
+Define a decorator `@logtime` the tracks and displays the execution time it is applied to.
+
+HINTS:
++ use `time.perf_counter()` to calculate the time a function has taken.
++ define the inner function as receiving `*args` and `**kwargs` and make sure you invoke the function with those.
+
+Then define a program with a couple of functions:
++ `run_with_random_delay()`, which simulates a workload by calculating a random delay between 1 and 5 and then invoking `time.sleep()` with that value. The function must return the delay.
++ `run_with_delay(min_wait, max_wait, *, label: str=None, verbose=False)`, which simulates a workload by calculating a random delay between min_wait and max_wait, and optionally printing the label and some additional details if verbose is True.
+
+Test the program execution to understand how `*args` and `**kwargs` are being passed to the inner function of the decorator.
+
+### 178: a generic monitor decorator
+
+Create a decorator `@monitor` which announces the function it is applied to.
+That is:
++ Should print: ">>> <function name> invoked", before the function has been executed
++ Should print: ">>> <function name> complete", after the function has been executed
++ Should return the value of executing the function it has been applied to
+
+Validate the `@monitor` can be used for functions that receive no parameters, and functions that receive all kind of parameters.
+
+Test it with:
++ `run_with_random_delay()`, which simulates a workload by calculating a random delay between 1 and 5 and then invoking `time.sleep()` with that value. The function must return the delay.
++ `run_with_delay(min_wait, max_wait, *, label: str=None, verbose=False)`, which simulates a workload by calculating a random delay between min_wait and max_wait, and optionally printing the label and some additional details if verbose is True.
+
+### 179: decorator with arguments
+
+Because the decorator signature is fixed:
++ receives the function is applied to
++ returns the function it has to be executed instead of the function it is applied to.
+
+You need to use a workaround to define a decorator that accepts arguments. This workaround consists of wrapping the decorator into another function that accepts an argument.
+
+It's better visualized using code:
+
+```python
+def decorator_with_args(arg1, arg2, arg3):
+    def regular_decorator(func):
+        def wrapper(*args, **kwargs):
+            # ... pre-decorator logic here using arg1, arg2, arg3...
+            ret_val = func(*args, **kwargs) # can use arg1, arg2, arg3 in invocation too
+            # ... post-decorator logic here using arg1, arg2, arg3...
+
+        return wrapper
+    return regular_decorator
+
+@decorator_with_args(val1, val2, val3)
+def fn():
+    # ... function implementation ...
+```
+
+Create a `@monitor(label: str | None)` decorator that allows for passing an optional label.
+
+### 180: Preserving the decorated function's metadata in an parameter-less decorator
+
+When decorating a function, it's docstring (and other metadata) will be lost:
+
+Define a naive decorator `@monitor` that announces the function it has been applied to. Then define two functions `say_hi()` and `say_hello()` and decorate the latter with `@monitor`. Then print in the console the properties `__doc__` and `__name__` of both functions.
+
+Define a 2nd version of `@monitor` that uses `@functools.wraps(func)` in the wrapper function (the one that actually invokes the function).
+
+### 181: Preserving the decorated function's metadata in a decorator with parameters
+
+Create a decorator `@monitor(msg)` that announces the function it has been applied and accepts as argument a custom label that will be used when supplied.
+
+Make sure that you use `@functools.wraps(func)` to ensure that the function's metadata is not lost.
+
+## 22: Introspection/Reflection
+
+### 182: hello, type
+
+You can use `type()` to get the type of an object.
+
+Create a program that defines a simple class `Person`. Define in the program an integer variable, a string variable, and a tuple and apply `type()` to each of them printing the results.
+
+### 183: hello, dir
+
+The `dir()` global function provides all the methods and attributes of an object.
+Define a string variable and print the result of using `dir()` on that variable.
+
+## 23: More on exceptions
+
+### 184: try-except block
+
+A somewhat complete form of a try-except block looks like the following:
+
+```python
+try:
+    # block of code that might raise exception
+except ExceptionType_1 [as exc1]:
+    # ExceptionType_1 error handler,
+    # optionally using exc1 as var containing the exception
+except ExceptionType_2 [as exc2]:
+    # ExceptionType_2 error handler,
+    # optionally using exc2 as var containing the exception
+...
+except ExceptionType_N [as excN]:
+    # ExceptionType_N error handler,
+    # optionally using excN as var containing the exception
+else:
+    # code to run if no exception raised
+finally:
+    # code to run no matter whether exception raised or not
+```
+
+Create a `divide(dividend, divisor)` function that correctly deals with:
++ arguments passed not being numbers
++ divisor is zero
+
+Make sure that you implement logic in the `else` and `finally` sections.
+
+### 185: hello, raise
+
+Exceptions are thrown using the `raise` statement.
+
+```python
+raise Exc_Type("reason")
+```
+
+Create a simple program that:
++ raises a generic `Exception` exception with the reason "A general exception has been raised" and catch it immediately after, printing the contents of the exception.
++ raises a generic `TypeError` exception with the reason "It was the wrong type" and catch it immediately after, printing the contents of the exception. Use `Exception` as the type you use to catch it. Is there a way to get the type of the exception in the except block? (HINT: try using `type()`)
+
+### 186: hello, custom exceptions
+
+You can easily create your own exception classes by extending the `Exception` class.
+
+Create a custom exception `MyCustomError` (it is customary to suffix the custom exceptions with *Error*). Confirm that you can raise a exception of this type using a reason and check that you can catch it using a `Exception`.
+
+### 187: handling multiple exceptions in a single except clause
+
+You can create a except block that handles different types of exceptions using the syntax:
+
+```python
+except (Exc_Type1, Exc_Type2):
+    ...
+```
+
+Create a function `process_task(text)` that receives a string as argument. The string contains a title and an urgency separated by comma, as in:
+
+```
+Do homework,1
+```
+
+In the implementation, split the string by comma to get the title and urgency of the task. Then, convert the urgency to an int and then assign the title and urgency as attributes to a `pending_task` variable of type string that you will return (this will fail!).
+
+Create a except block that catches both `AttributeError` and `NameError`. Confirm that the except block catches both types of errors by sending both a non numeric urgency, and a numeric one (so that it fails with `AttributeError`).
+
+### 188: custom messages in built-in exceptions
+
+Exceptions allow you to pass custom messages to built-in exceptions such as `ValueError`.
+
+Create a `NamedTuple` class named `Task` with fields title and urgency:
+
+```python
+from typing import NamedTuple
+
+class Task(NamedTuple):
+  title: str
+  urgency: int
+```
+
+Then create a `process_task_str()` function that takes a string containing the title and urgency separated by commas as in:
+
+```
+Do homework,1
+```
+
+In that function you should:
+
++ Get the title and urgency from the string by splitting by comma.
++ Try to convert the urgency to an int. If the conversion fails, you should raise a `ValueError` with the custom message `f"Incorrect value for urgency: {urgency_str!r}"`
++ If the conversion works correctly, the corresponding task should be created and returned.
+
+Then, in your main program try invoke that function a task with the data `"Laundry,#3"` in a try-block catching the `ValueError` exception and printing the exception using `print(f"{e}")`, `print(e)`, `print(type(e))`, and `print(type(e).__name__)`.
+
+### 189: exceptions hierarchy and reusing existing exception classes
+
+The following diagram details the most common exceptions in Python:
+
+![Exception hierarchy](pics/exceptions-hierarchy.png)
+
+As a rule of thumb, you shouldn't inherit from `BaseException` to avoid catching system-exiting exceptions such as `SystemExit` or `KeyboardInterrupt`.
+
+Instead, when creating your custom exceptions, you should inherit from `Exception`.
+
+It is also recommended to use the existing class hierarchy instead of creating your own custom classes, as the former will be familiar to Python developers. If necessary, you can supply your own custom message for clarity.
+
+Create a simple `Task` class that can be initialized with a title argument. Within the initializer, check that the type of the argument is a string, and if it's not, raise a `TypeError` exception with a custom message `"Please instantiate Task providing a string as its title"`.
+
+Then in the main program, try to instantiate a `Task` with a title of a different type and in the except block print the exception to confirm the error can be clearly identified.
+
+### 190: custom exception hierarchy
+
+When creating custom exceptions, it is recommended to start simple with a custom base class that does nothing such as:
+
+```python
+class MyCustomError(Exception):
+    pass
+```
+
+And then, create a custom hierarchy from it by inheriting from that one, in which we add additional functionality such as initializers, `__str__` methods, etc.
+
+Create a custom base class `MyCustomError` and a `MyFileExtensionError` that inherits from it. In the implementation of the subclassed exception include an initializer that receives a filepath. In the implementation of the initializer invoke the initializer of the superclass, and set an attribute of `MyFileExtensionError` to the received argument.
+
+Define also a `__str__` method that reports the message `f"The file {self.filepath!r} is not a valid CSV file"`.
+
+In the main program, raise a `MyFileExtensionError` passing the path `"log.txt"` within a try block and print the caught exception and its type. Confirm that you get the expected exception description.
+
+### 191: more on operator overloading
+
+Python allows you to implement operator overloading by simply overloading the following methods in your custom class:
+
++ `__eq__()` for `==` (equality)
++ `__ne__()` for `!=` (inequality)
++ `__lt__()` for `<` (less than comparisons)
++ `__le__()` for `<=` (less than or equal comparisons)
++ `__gt__()` for `>` (greater than comparisons)
++ `__ge__()` for `>=` (greater than or equal comparisons)
++ `__add__()` for `+` (addition)
++ `__sub__()` for `-` (subtraction)
++ `__mul__()` for `*` (multiplication, class instance on the left-hand side)
++ `__rmul__()` for `*` (multiplication, class instance on the right-hand side)
++ `__truediv__()` for `==` (division)
++ `__floordiv__()` for `//` (integer division)
++ `__mod__()` for `%` (modulus)
++ `__rshift_()` for `>>` (right shift)
++ `__lshift__()` for `<<` (left shift)
++ `__and__()` for `&` (binary and)
++ `__or__()` for `|` (binary or)
++ `__xor__()` for `^` (binary xor)
+
+Create an `Amount` class that accepts an amount and a currency to construct it. Use operator overloading to allow comparing two instances of the amount class with the `>` operator and test it in the main function.
+
+You can use a naive implementation, assuming you can only compare instances of Amount when the currency is the same.
+
+### 191: hello, collection functions
+
+Python provides a group of global functions for collections:
+
++ `sum` &mdash; returns the sum of the elements of a collection
++ `min` / `max` &mdash; returns the min/max element of a collection
++ `sorted` &mdash; returns a sorted collection from a given one, without mutating the original one.
++ `reversed` &mdash; returns the reversed collection from a given one, without mutating the original one.
+
+Create a collection of 10 random integers, print it, and apply the functions above printing the results.
+
+HINT: you might need to use `list()` to materialize the results when those are lazily-evaluated.
+
+### 192: hello, CLI args
+
+Create a simple CLI program that can be invoked as:
+
+```bash
+python my-script.py arg1 arg2 arg3
+```
+
+In the script implementation, confirm that you've received three arguments and print the values received.
+
+### 193: CLI tools with argparse
+
+Create a CLI script that returns a greeting and relies on `argparse` with the following functionality:
+
++ when invoked without parameters or with `--help`/`-h` returns `"This script returns a greeting"`.
++ it has a required argument `-n`/`--name` which is the person's name to greet. The value of the argument should be bound to the `name` variable in your script.
++ it has an optional argument `-t`/`--type` which selects the type of greeting to use between `"formal"`, `"informal"`, and `"friendly"`. It should be bound to a `type` variable.
+
+In the implementation, the script should check the type of greeting to use (if any, otherwise the friendly greeting should be used as the default value for the type), and then print it.
+
+### 194: hello, re module
+
+Python's `re` module provides all the features related to regular expressions. The module supports two *invocation flavors*: OOP and the functional approach.
+
+When using the OOP approach, you first create a `Pattern` object by compiling a string pattern describing the regular expression to use. Then, you use the pattern object to search occurrences that match the pattern, split a string by the pattern, etc.
+
+When using the functional style call, you directly pass the regular expression and the string in the same invocation.
+
+OOP is more verbose, but it's more appropriate when you reuse the same `Pattern` object multiple times, as the compilation can be cached.
+
+Create a program that illustrates how to use the OOP and functional style call for the `re` module by:
+1. OOP
+  1. Create a pattern by invoking `re.compile()` passing the string `"do"` as the regex string.
+  2. Print the contents of the resulting `Pattern` and its type (HINT: use `type().__name__`).
+  3. Apply the call `search("do homework")` on the pattern printing the results.
+  4. Apply the call `findall("don't do that")` printing the results.
+2. Functional
+  1. Apply the call `re.search(regex_str, str)` to mimic 1.3 behavior printing the results.
+  2. Apply the call `re.findall(regex_str, str)` to mimic 1.4 behavior printing the results.
+
+
+### 195: hello splitting messy data with regex
+
+Given the string `"field1,field2;field3;field4_field5"`, use the `re` package to split the different fields by following these instructions:
+
+1. Create a regex pattern by invoking `re.compile(<regex_pattern>)`. HINT: use a raw string `r"..."` to specify the pattern.
+2. Invoke the `split()` method on the pattern.
+3. Print the results.
+
+### 196: hello, raw strings for regex patterns
+
+To create regex patterns, we often need to use raw strings as in `r"pattern"`.
+
+This is needed because the way in which you identify digits (`\d`) or words (`\w`) clashes with Python's syntax for escaping characters in regular strings (e.g., `\t` for tabs, `\n` for newline characters, `\\` for backslash).
+
+If using regular strings, specifying regex patterns becomes even more difficult to read. However, when using raw strings there's no need to escape the backslash characters, thus simplifying their specification.
+
+Create a program that illustrates what is the text that you need to use in a regex expression string to search for matches of `\task` in a text string.
+
+### 197: hello, regex boundary anchors
+
+The boundary anchors let you specify whether a string begins or ends with a particular string pattern:
+
+| Regex | Construct | Description |
+| :---- | :-------- | :---------- |
+| ^foo | Boundary anchor | Starts with "foo" |
+| bar$ | Boundary anchors | Ends with "bar" |
+| ^foo bar$ | Boundary anchors | Starts and ends with "foo bar" |
+
+Create a program that uses `re`'s functional style call `search` on the following regex patterns and text strings:
+
+1. Search for "^hi" in "hi, Python!"
+2. Search for "task$" in "do the task"
+3. Search for "^hi task$" in "hi task"
+4. Search for "^hi task$" in "hi Python task"
+
+### 198: hello, regex Quantifiers
+
+Quantifiers are used when you need to search for a pattern appearing a certain number of times:
+
+| Regex | Construct | Description |
+| :---- | :-------- | :---------- |
+| hi? | Quantifiers | "h" followed by zero or one "i" |
+| hi* | Quantifiers | "h" followed by zero or more "i" |
+| hi+ | Quantifiers | "h" followed by one or more "i" |
+| hi{3} | Quantifiers | "h" followed by three "i" (i.e., "iii") |
+| hi{1,3} | Quantifiers | "h" followed by one, two, or three "i" (i.e., "i", "ii", or "iii") |
+| hi{2,} | Quantifiers | "h" followed by 2 or more "i" (i.e., "ii", "iii", "iiii", ...) |
+| ^foo | Boundary anchor | Starts with "foo" |
+| bar$ | Boundary anchors | Ends with "bar" |
+| ^foo bar$ | Boundary anchors | Starts and ends with "foo bar" |
+
+The metacharacters `?`, `*`, and `+` are *greedy*, meaning that the regex engine will try to match the longest sequence whenever possible. It is possible to disable the greedy behavior by adding the metacharacter `?` to the quantifier (e.g., `hi+?` for "h" followed by "i" one or more times disabling the greedy behavior).
+
+Given the test string: "h hi hii hiii hiiii"
+use the functional style version of `findall` to check the outcome of using the function against the following regex patterns: "hi?", "hi*", "hi+", "hi{3}", "hi{2,3}", "hi{2,}", "hi??", "hi*?", "hi+?", "hi{2,}?"
+
+Print a report by creating a for loop that applies `findall` for each regex pattern in the following format:
+
+```
+<regex_pattern_1> ==> <result of invoking findall>
+<regex_pattern_2> ==> <result of invoking findall>
+...
+<regex_pattern_n> ==> <result of invoking findall>
+```
+
+Note that the arrow should be aligned in all the invocations.
+
+### 199: hello, regex character classes and sets
+
+The following table lists the most common character sets supported in Python. Note that the table is not exhaustive (i.e., there are more):
+
+| Regex | Construct | Description |
+| :---- | :-------- | :---------- |
+| \d | character set | any decimal digit |
+| \D | character set | any character that is not a decimal digit |
+| \s | character set | any whitespace character including space, \t, \n, \r, \f, \v |
+| \S | character set | any character that isn't a whitespace |
+| \w | character set | any word character (alphanumeric plus underscore) |
+| \W | character set | any character that is not a word character |
+| . | character set | any character except for newline |
+| [abc] | character set | any of "a", "b", or "c" |
+| [a-z] | character set | any character in the range "a" to "z" |
+| [a-zA-Z0-9] | character set | any character in the ranges "a" to "z", "A" to "Z", or "0" to "9" |
+| ^foo | Boundary anchor | Starts with "foo" |
+| bar$ | Boundary anchors | Ends with "bar" |
+| ^foo bar$ | Boundary anchors | Starts and ends with "foo bar" |
+| hi? | Quantifiers | "h" followed by zero or one "i" |
+| hi* | Quantifiers | "h" followed by zero or more "i" |
+| hi+ | Quantifiers | "h" followed by one or more "i" |
+| hi{3} | Quantifiers | "h" followed by three "i" (i.e., "iii") |
+| hi{1,3} | Quantifiers | "h" followed by one, two, or three "i" (i.e., "i", "ii", or "iii") |
+| hi{2,} | Quantifiers | "h" followed by 2 or more "i" (i.e., "ii", "iii", "iiii", ...) |
+
+Given the test string: "#1$wm_ M\t"
+use the functional style version of `findall` to check the outcome of using the function against the following regex patterns: "\d", "\D", "\s", "\S", "\w", "\W", ".", "[lmn]"
+
+Print a report by creating a for loop that applies `findall` for each regex pattern in the following format:
+
+```
+<regex_pattern_1> ==> <result of invoking findall>
+<regex_pattern_2> ==> <result of invoking findall>
+...
+<regex_pattern_n> ==> <result of invoking findall>
+```
+
+Note that the arrow should be aligned in all the invocations.
+
+### 200: hello, logical operators
+
+The following table lists the logical operators:
+
+| Regex | Construct | Description |
+| :---- | :-------- | :---------- |
+| a \| b | logical operation | "a" or "b" |
+| (abc) | logical operation | "abc" as a group |
+| [^a] | logical operation | any character other than "a" |
+| ^foo | Boundary anchor | Starts with "foo" |
+| bar$ | Boundary anchors | Ends with "bar" |
+| ^foo bar$ | Boundary anchors | Starts and ends with "foo bar" |
+| \d | character set | any decimal digit |
+| \D | character set | any character that is not a decimal digit |
+| \s | character set | any whitespace character including space, \t, \n, \r, \f, \v |
+| \S | character set | any character that isn't a whitespace |
+| \w | character set | any word character (alphanumeric plus underscore) |
+| \W | character set | any character that is not a word character |
+| . | character set | any character except for newline |
+| [abc] | character set | any of "a", "b", or "c" |
+| [a-z] | character set | any character in the range "a" to "z" |
+| [a-zA-Z0-9] | character set | any character in the ranges "a" to "z", "A" to "Z", or "0" to "9" |
+| hi? | Quantifiers | "h" followed by zero or one "i" |
+| hi* | Quantifiers | "h" followed by zero or more "i" |
+| hi+ | Quantifiers | "h" followed by one or more "i" |
+| hi{3} | Quantifiers | "h" followed by three "i" (i.e., "iii") |
+| hi{1,3} | Quantifiers | "h" followed by one, two, or three "i" (i.e., "i", "ii", or "iii") |
+| hi{2,} | Quantifiers | "h" followed by 2 or more "i" (i.e., "ii", "iii", "iiii", ...) |
+
+Create a program that uses the functional style `findall` to test:
+
+1. The pattern "a|b" with the test string "a c d d b ab"
+2. The pattern "a|b" with the test string "c d d b"
+3. The pattern "(abc)" with the test string "ab bc abc ac"
+4. The pattern "[^a]" with the test string "abcde"
+
+### 201: hello, match objects
+
+To understand the `Match` object we need to introduce the `match()` and `search()` methods  used for pattern searching:
++ `match()` is useful for finding the pattern at the beginning of a string
++ `search()` scans the string from the beginning of the string until it finds a match (if any)
+
+Both methods return a `Match` object, which evaluates to True if a match is identified in the string:
+
+```python
+match = re.match("pattern", "string to match") # search can be used as well
+if match:
+    # ... logic if match found ...
+else:
+    print("No matches found")
+```
+
+A `Match` instance can have multiple groups, which can be obtained using:
++ `match.groups()` &mdash; return a tuple with all the groups matched
++ `match.group()` &mdash; return the entire match object (identical to `match.group(0)`)
++ `match.group(0)` &mdash; return the entire match object
++ `match.group(1)` &mdash; return the first element from the match
++ `match.group(2)` &mdash; return the second element from the match
+
+A `Match` instance, and the corresponding groups also feature a span object with information about the starting and end index of the corresponding match and group. You can access the spans with the `span(n)` method:
++ `span()` &mdash; return the span for the entire match object (identical to `match.span(0)`)
++ `span(0)` &mdash; return the span for the entire match object
++ `span(1)` &mdash; return the span for the first element from the match
++ `span(2)` &mdash; return the span for the second element from the match
+
+The `Span` instance exposes the methods `start()` and `end()` that return the index of the first and last element of the match.
+
+
+1. Create a snippet that searches for the group of a word character followed by a digit occurring one or more times in the string "xyza2b1c3dd". Try to anticipate the results of the match and then confirm using `match.groups()`, `match.group(n)`, `match.spans()`, `match.group()`, `match.span()`. Then print the start and end of the matched string.
+
+2. Given the string "Homework, urgent; today", which identifies a task name, its priority, and the due date, create the regex pattern that matches the task name and priority as different groups. Then use `groups()`, `group()`, `group(0)`, `group(1)`, and `group(2)` to understand the result of invoking those methods. Try to anticipate the results.
+
+3. Repeat the exercise above with `spans()`, `span()`, `span(0)`, `span(1)`, and `span(2)`.
+
+### 202: hello, search
+
+`search()` returns a `Match` if a match is found anywhere in the string.
+
+1. Given the string "ab12xy34st4ou" invoke search to match one or more several consecutive digits. Try to anticipate the results.
+2. Given the string "abxy" invoke search to match one or more several consecutive digits. Try to anticipate the results.
+
+### 203: hello, match
+
+`match()` returns a `Match` only if a match is found at the beginning of the string.
+
+1. Given the string "ab12xy" use `match()` to find one or more consecutive digits. Try to anticipate the results.
+2. Given the string "12abxy" use `match()` to find one or more consecutive digits. Try to anticipate the results.
+
+### 204: hello, findall
+
+`findall()` returns a list of strings that match the pattern. When the given regex pattern has multiple groups, the item returned is a tuple.
+
+Note that `findall()` has a particular way of capturing groups. `findall()` returns only the captured groups and not the full match.
+
+1. Given the string "hi hey hello", use `findall()` to match the following sequence of characters:
+  1. h
+  2. followed by i or e, Don't use groups!
+  3. followed by any word character
+
+1. Given the string "Hey hello", use `findall()` to match the following:
+  1. h or H, as a group
+  2. followed by i or e, as a second group
+
+### 205: hello, finditer
+
+`finditer()` returns an iterator that yields `Match` objects.
+
+Given the string "hi Hey Hello", use `finditer()` to match the following sequence of characters:
+  1. h or H, as a group
+  2. i or e, as a second group
+
+Use the iterator to understand the results.
+
+### 206: hello, split
+
+`split()` splits a string by the given regex pattern.
+
+Given the string "a1b2c3d4e", use `split()` to split it by the sequence of one or more digits and print the results.
+
+### 207: hello, sub
+
+`sub()` creates a string by replacing the matched string with the given replacement.
+
+Given the string "123,456_789", use `sub()` to replace any non-digit character by the character "-".
+
+### 208: extracting delimited data from one line
+
+Given the string "fld1_,fld2__,fld3,,__fld4_,_fld5", use the `re` module to extract the data, so that the result is the following list: ["fld1", "fld2", "fld3", "fld4", "fld5"].
+
+### 209: extracting data from multiple lines
+
+Suppose that we have the following text that contains multiple valid records, along with invalid records with random data, mimicking what you'd get out of a DB log after a crash:
+
+```
+101, Homework; Complete physics and math
+some random nonsense
+102, Laundry; Wash all the clothes today
+54, random; record
+103, Museum; All about Egypt
+1234, random; record
+Another random record
+```
+
+1. Write a regex pattern that identifies the valid records and tells them apart from the invalid ones.
+2. Use that regex pattern to create a snippet that prints the matched and non-matched records. For the matched ones, the individual fields task id, task title, and task description must be identified (HINT: use groups). The report should be correctly formatted as shown below:
+    ```
+    Matched:  task_id='task_id', task_title='task_title', task description='task_description'
+    No Match: <invalid record>
+    ```
+3. Enhance the previous snippet so that you return a list of Task NamedTuples.
+
+### 210: hello, named groups
+
+Textual information provides more semantics than raw regular expressions.
+
+Python supports the syntax:
+
+```python
+?P<group_name>pattern
+```
+
+to give a name to a pattern group.
+
+When doing so, you will be able to use `match.group(<group_name>)` instead of its index, which will improve your code's readability.
+
+Suppose that we have the following text that contains multiple valid records, along with invalid records with random data, mimicking what you'd get out of a DB log after a crash:
+
+```
+101, Homework; Complete physics and math
+some random nonsense
+102, Laundry; Wash all the clothes today
+54, random; record
+103, Museum; All about Egypt
+1234, random; record
+Another random record
+```
+
+1. Write a regex pattern that identifies the valid records and tells them apart from the invalid ones using named groups.
+2. Use that regex pattern to create a snippet that prints the matched and non-matched records. For the matched ones, the individual fields task id, task title, and task description must be identified (HINT: use named groups). The report should be correctly formatted as shown below:
+    ```
+    Matched:  task_id, task_title, task description
+    No Match: <invalid record>
+    ```
+3. Enhance the previous snippet so that you return a list of Task NamedTuples, leveraging named groups.
+
+### 211: using groupdict with regular expressions with group names
+
+The `groupdict()` method allows you to create a dictionary with the named groups.
+
+Suppose that we have the following text that contains multiple valid records, along with invalid records with random data, mimicking what you'd get out of a DB log after a crash:
+
+```
+101, Homework; Complete physics and math
+some random nonsense
+102, Laundry; Wash all the clothes today
+54, random; record
+103, Museum; All about Egypt
+1234, random; record
+Another random record
+```
+
+1. Write a regex pattern that identifies the valid records and tells them apart from the invalid ones using named groups.
+2. Use that regex pattern to create a snippet that prints the matched and non-matched records. For the matched ones, the individual fields task id, task title, and task description must be identified (HINT: use named groups). The report should be correctly formatted as shown below:
+    ```
+    Matched:  task_id, task_title, task description
+    No Match: <invalid record>
+    ```
+3. Enhance the previous snippet so that you return a list of dicts, leveraging named groups and `groupdict()`.
+
+4. Enhance the previous snippet to create corresponding `Task` instances as NamedTuples.
+
+### 212: lists vs. tuples
+

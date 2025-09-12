@@ -1,0 +1,20 @@
+[project]
+name = "05-chat-app"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "azure-ai-projects>=1.0.0b12",
+    "azure-identity>=1.23.1",
+    "openai>=1.97.1",
+    "python-dotenv>=1.1.1",
+]
+
+[tool.ruff.lint]
+
+ignore = [
+  "T201", # Allow print statements
+]
+
+select = ["ALL"]

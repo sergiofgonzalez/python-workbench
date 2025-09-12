@@ -193,6 +193,18 @@ To create a particular virtual environment with a specific Python version you ca
 uv venv --python 3.12.5
 ```
 
+To upgrade a particular Python version type:
+
+```bash
+uv python upgrade 3.13
+```
+
+You can also update all installed Python versions doing
+
+```bash
+uv python upgrade
+```
+
 #### Features
 
 uv's interface is broken down into sections the provides the essential features for Python development.
