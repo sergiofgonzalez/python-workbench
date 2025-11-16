@@ -30,3 +30,7 @@ Exploring notable packages
 ## [Part 6: CI/CD stuff](part_6-ci-cd/)
 
 A few notes on CI/CD
+
+## [Part 7: Cloud](part_7-cloud/)
+
+A few notes on CI/CD

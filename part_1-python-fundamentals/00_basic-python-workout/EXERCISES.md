@@ -83,6 +83,10 @@ Use the statement `print(f"Hello to {jack!r} who turns {jack_value} today!")` to
 
 Get the results using negative indexes, and then repeat the exercise using `*_` to ignore the first elements.
 
+| NOTE: |
+| :---- |
+| `!r` is used to quote the contents of a variable, and it is known as a *conversion flag*. |
+
 ### 031: more on using the star `*` expression when unpacking
 
 Consider the following list that contains the scores of a gymnastics event for a player. The scores are sorted in ascending order: `[6.1, 6.5, 6.8, 7.1, 7.3, 7.6, 8.2, 8.9]`.
@@ -620,6 +624,10 @@ Vacuum: {130.68}
 + Define the variable `x = 57` and print it with the special identifier `!r`
 + Define the variable `"hello"` and print it with the special identifier `!r`
 + Define a function and print the result of invoking the function using the special identifier `=`
+
+| NOTE: |
+| :---- |
+| `!r` is used to quote the contents of a variable, and it is known as a *conversion flag*. |
 
 ## 06: Functions
 
@@ -2338,4 +2346,1796 @@ Another random record
 4. Enhance the previous snippet to create corresponding `Task` instances as NamedTuples.
 
 ### 212: lists vs. tuples
+
+Lists are mutable while tuple are immutable. As a result, lists allow you to append new items at the end of a list, insert items into the middle of the list, change items, and remove items.
+
+1. Create a list with the numbers 0 through 3.
+2. Insert the number -1 as the first element of the list.
+3. Insert the number 4 at the end of the list
+4. Extend the list with the numbers 5, 6, 7.
+5. Remove the number -1 from the list.
+6. Try to remove the number 8 from the list.
+7. Remove the number 5 from the list.
+8. Remove the number in the 5th index (counting from 0) from the list.
+9. Create a tuple with the numbers 1 through 3
+10. Try to change the first element of the tuple to the number 2.
+11. Create a tuple with the elements [1, 2, 3] and ["b", "c"].
+12. Update the first tuple element to append the number 4 and the second element to insert "a" as the first element. Why did the system let you do that?
+
+### 213: sorting list with a custom function
+
+1. Given the list of strings containing "Jennifer", "Idris", "Jason", "Florence", "Kenneth", use the built-in methods to sort the list inline in ascending and in descending order.
+
+2. Then create the list `[3, 1, 2, "John", ["c", "a"], ["a", "b"]]` and try to use the same built-in method to sort the list. Explain what happens.
+
+3. Use the same built-in method but this time providing a custom function for the sorting strategy that consists of applying the `str()` function.
+
+4. Then, create a list of dicts:
+
+```python
+[
+   {'title': 'Laundry', 'desc': 'Wash clothes', 'urgency': 3},
+   {'title': 'Homework', 'desc': 'Physics + Math', 'urgency': 5},
+   {'title': 'Museum', 'desc': 'Egyptian things', 'urgency': 2}
+]
+```
+
+5. Use the same approach as before to sort the list by urgency.
+
+6. Repeat the exercise above but using a lambda when specifying the custom sorting function.
+
+### 214: ways of representing data in Python
+
+The same domain model can be represented in many different ways in Python using:
++ lists
++ tuples
++ dictionaries
++ classes
+
+These approaches have both strengths and weaknesses, but even the simplest approach (e.g., use a list to represent a domain model entity) might be appropriate in certain scenarios:
+
++ Lists
+  + mutable, so it might not work well for scenarios on which the data should not be changed.
+  + should not hold heterogenous data
+  + do not contain additional metadata, so you need to unpacking/indexing to access the individual elements
+
++ Tuples
+  + immutable
+  + do not contain additional metadata, so you need unpacking/indexing to access the individual elements
+
++ Dictionaries
+  + mutable
+  + contain metadata, so you can access elements by name, but don't support dot access as in `my_dict.field`, so access can fail at runtime if the key name is not specified correctly.
+
++ Classes
+  + more verbose approach
+  + support dot access as in `my_dict.field`
+
+
+Given the domain model entity represented by a Task title, Task description, and urgency, with sample values "Laundry", "Wash clothes", 3, represent the entity using the four options described above.
+
+### 215: legacy named tuples
+
+Legacy named tuples `namedtuple` are available from the `collections` package. They have recently been superseded by the `NamedTuple` class from the `typing` module, but it's interesting to know about them just in case you bump into them.
+
+A named tuple let you define tuples whose elements had names associated with them. The way to create them was a bit special:
+
+```python
+from collections import namedtuple
+
+MyNamedTupleType = namedtuple("MyNamedTupleType", "fld1 fld2 fld3")
+# Alternatively, you can use a list to defined the fields ["fld1", "fld2", "fld3"]
+
+my_named_tuple_instance = MyNamedTupleType(fld1_val, fld2_val, fld3_val)
+assert my_named_tuple_instance.fld1 == fld1_val
+assert my_named_tuple_instance.fld2 == fld2_val
+assert my_named_tuple_instance.fld3 == fld3_val
+```
+
+Given the following data:
+
+```
+Laundry,Wash clothes,3
+Homework,Physics + Math,5
+Museum,Epyptian things,2
+```
+
+Create a program that loads that data into a `namedtuple` and prints a report once loaded.
+
+### 216: NamedTuples
+
+Modern named tuples `NamedTuple` are available from the `typings` package. `NamedTuple` is a base class that you can subclass to adapt to your own requirements.
+
+
+```python
+from typing import NamedTuple
+
+class MyNamedTupleType(NamedTuple):
+    fld1: type1
+    fld2: type2
+    fld3: type3
+
+my_named_tuple_instance = MyNamedTupleType(fld1_val, fld2_val, fld3_val)
+assert my_named_tuple_instance.fld1 == fld1_val
+assert my_named_tuple_instance.fld2 == fld2_val
+assert my_named_tuple_instance.fld3 == fld3_val
+```
+
+Given the following data:
+
+```
+Laundry,Wash clothes,3
+Homework,Physics + Math,5
+Museum,Epyptian things,2
+```
+
+Create a program that loads that data into a `NamedTuple` and prints a report once loaded.
+
+### 217: Dictionaries
+
+Given the following data:
+
+```
+Laundry,Wash clothes,3
+Homework,Physics + Math,5
+Museum,Epyptian things,2
+```
+
+Create a program that loads that data into a dictionary and prints a report once loaded.
+
+Create a dictionary `urgencies` in which the keys are the task titles and the values are the urgencies.
+
+Confirm that the `keys`, `values`, and `items` methods provide dynamic views over the dictionary items by modifying the underlying dictionary and checking the methods againg.
+
+Try to access an item that doesn't exist in the dictionary (e.g., urgencies["Gardening"]). What is the error that you get?
+
+Use `in` and `get` options to prevent getting the exception.
+
+Note: using `in` is not considered very Pythonic.
+
+### 218: hello, kwargs!
+
+`kwargs` is a naming convention used in functions that can receive a variable number of keyword arguments.
+
+Write a program that declares a function with the signature:
+
+```python
+def my_function(pos_arg0, pos_arg1, **kwargs):
+```
+
+Within the function, unpack the optional keyword arguments "kwarg0", "kwarg1", and "kwarg2".
+
+Then, in main(), invoke the function passing:
+
++ my_function(1, "a")
++ my_function(1, "a", kwarg0=5)
++ my_function(1, "a", kwarg0=5, kwarg2="red")
++ my_function(1, "a", **my_dict), where my dict includes values for "kwarg0" and "kwarg2"
++ my_function(1, "a", **my_dict), where my dict includes values for "kwarg0", "kwarg1" and "kwarg2"
+
+### 219: hello, setdefault
+
+The `setdefault(key, default_val)` is a dictionary method that works like a smart *get or create* operation:
+
++ If the key already exists in the dictionary, it simply returns the existing value without changing anything.
+
++ If the key doesn't exist, it creates the key with the default value you provided and then returns that new value.
+
+It's useful when you're building a dictionary incrementally, as you don't have to check if the key exists before trying to use it.
+
+| NOTE: |
+| :---- |
+| As you can see, the name is confusing, and its behavior is weird as it is mixing the `set` and `get` behaviors, so its use is discouraged. |
+
+Define a dictionary `tasks` with the values:
++ Laundry, 3
++ Homework, 5
++ Museum, 2
+
+Illustrate the behavior of `tasks.setdefault(key, default_val)` when:
+1. the key is exists and a 0 is given as default value.
+
+2. the key does not exist and 0 is given as default value.
+
+
+### 220: hashable types for Dictionaries and Sets
+
+Lists and tuples have no restrictions regarding the data types that can be saved in them.
+
+But for dictionary keys and set items you need to use hashable objects. That happens because both sets and dicts share the same underlying storage mechanism: a hash table.
+
+1. Try to create a dictionary whose key is the list `[0, 2]` (a list) and check what happens.
+
+2. Try to create a set with the item `{"a": 0}` (a dict) and check what happens.
+
+### 221: hello, hash
+
+Python comes with an OOB hasher.
+
+Create a program that creates the hash of a string, a number, a list, a tuple, a dictionary, a set, and a custom class.
+
+What's the exception you get when you try to apply it to a non-hashable type?
+
+### 222: hello, Hashable to check if type is hashable
+
+Lists, dictionaries, and sets are not hashable because they're mutable. A hash function needs to compute a value that remains constant for the same object. This value, called *the hash*, will be different for a mutable object therefore making that requirement impossible to fulfill.
+
+The `Hashable` class can be used to check whether a given object is hashable. You can use `isinstance(obj, Hashable)` to check if a given object is hashable or not.
+
+Create a function `check_hashability()` that checks if the following objects are hashable:
++ a dictionary
++ a list
++ a set
++ a number
++ a string
++ a tuple
++ a boolean variable
++ the boolean constant `True`
++ the value `None`
++ an instance of a custom `Person` class
+
+Create a report like the following showing the type passed and whether it is Hashable or not:
+
+Data Type            | Hashable
+(type)               | True or false
+...
+
+### 223: strings are hashable and not mutable
+
+As seen in the previous exercises, strings are hashable. This is because strings in Python are not mutable. If you need to change a string you can use the `replace` method which returns a new instance of the string.
+
+1. Create a string `Hello, world!` and try to change the first character into a lowercase `h`. What exception type do you get?
+
+2. Use `str.replace()` to make the change and confirm that you get a completely new string. (HINT: use `id()`)
+
+
+### 224: perf tests on lookups for sets and lists
+
+3. Create a snippet that uses `timeit` that demonstrates that lookups on sets stay constant, while lookups on lists grow as the number of elements grows. To do so, you should:
+    1. import the `timeit` module.
+    2. Create a *foreach* loop that gets the values 10, 100, 1000, 10000, 100000 on each iteration (the count).
+    3. In each iteration define:
+        1. A string `setup_str_set` and `setup_str_list` that creates a numbers_set and a numbers_list respectively with the numbers from 0 to the count - 1 value received in the iteration.
+        2. A string `stmt_set_check` that gets a random integer between 0 to the count -1 value received in each iteration and checks whether it's found in the set.
+        3. A string `stmt_lst_check` that gets a random integer between 0 and the count value - 1 and checks whether it's found in the list.
+        4. A variable `t_set` that holds the returned value resulting from invoking `timeit` using `stmt_set_check` and `setup_str_set` as the setup code. `timeit` should be configured for 10000 iterations.
+        5. A variable `t_list` that holds the returned value resulting from invoking `timeit` using `stmt_set_list` and `setup_str_list` as the setup code. `timeit` should be configured for 10000 iterations.
+    4. Print a report showing the count, `t_set`, `t_list`. The count should be padded to the right with 6 digits, and the values returned by timeit should be displayed in scientific notation.
+
+### 225: checking if all the elements of a list are contained in another list
+
+You can use sets to solve specific use cases such as check if all elements of a list are contained in another list. You can use `issuperset()` for that.
+
+1. Create a list with the following stock codes "AAPL", "GOOG", "AMZN", and "NVDA" representing a list of vetted stocks (good stocks).
+
+2. Create a list `client0` representing the list of stocks owned by `client0` including "GOOG", "AMZN".
+
+3. Create a list `client1` representing the list of stocks owned by `client1` including "AAPL" and "SNAP".
+
+4. Write some code to check if all the stocks for client0 and client1 are from the good stocks.
+
+### 226: checking whether a list contains any element of another list
+
+You can use operations on sets to check whether a list contains any element defined on another list.
+
+1. Create a list with the following stock codes "AAPL", "GOOG", "AMZN", and "NVDA" representing a list of vetted stocks (good stocks).
+
+2. Create a list `client0` representing the list of stocks owned by `client0` including "GOOG", "AMZN".
+
+3. Create a list `client1` representing the list of stocks owned by `client1` including "AAPL" and "SNAP".
+
+4. Create a list `client2` representing the list of stocks owned by `client1` including "MSFT" and "SNAP".
+
+5. Write an expression `contain_any_0` that checks if any of the stocks of `client0` is in the list of good stocks.
+
+6. Write an expression `contain_any_1` that checks if any of the stocks of `client1` is in the list of good stocks.
+
+7. Write an expression `contain_any_2` that checks if any of the stocks of `client2` is in the list of good stocks.
+
+HINT: you will have to use the intersection operators for sets, and then transform the resulting set to a boolean.
+
+### 227: sets operations
+
+The following diagram illustrates the different operations we can perform on sets and the corresponding shorthand Python operator.
+
+![Operations on sets](./pics/operations_on_sets.png)
+
+Define two sets A and B and perform the operations depicted above.
+
+### 228: using deques for FIFO operations
+
+In certain scenarios you will need to deal with queues (FIFO data structures).
+
+While you can use regular lists and a bit of code, using `deque` (pronounced "deck") if far more efficient.
+
+A `deque` is a double-ended queue (it supports insertion and removal from both ends).
+
+Create a program that compares the execution time of the `pop` operation in regular lists and deques:
+
+1. Create a function `time_fifo_testing(n)` in which you create a list and a deque populated with the numbers from 0 to n-1.
+
+2. Within the function, time the execution time to pop from the head all the elements from the queue and the deque using `time.perf_counter`.
+
+3. Return a string with the time it took to execute the code using the format:
+
+```
+   n list: exec_time_6_decimals | deque: exec_time_6_decimals
+```
+
+4. In the main program, create a tuple with the values 100, 1000, 10000, 100000.
+
+5. Then invoke `time_fifo_testing(n)` and print the results. Analyze the values.
+
+6. Repeat the whole exercise with a function that uses `timeit`
+
+### 229: slicing lists
+
+Slicing can extract a sublist from a list. In its simplest form uses the syntax `list[start_idx:end_idx]`, which includes the  element at the start index and excludes the element at the end index. However, the start_idx and end_idx are optional and do not need to be supplied. Additionally, you can also apply a stride to the slicing as the third parameter `list[start_idx:end_idx:stride]`, to retrieve evenly spaced items.
+
+Given the list `["apple", "orange", "banana", "strawberry"]`, use slicing to
+
+1. Extract the list `["orange", "banana"]`
+2. Extract all the fruits from the beginning of the list until `"banana"`
+3. Extract all the elements from "orange" to the end of the list
+4. Create a copy of the list using slicing. Check that it is not aliased.
+
+Given the list of numbers from 1 to 10:
+5. Extract the elements from the 3r to the 5th using the stride (i.e., you should get `[3, 5]`)
+6. Extract all the even elements, using the stride without supplying the end index (i.e., `[2, 4, 6, 8, 10]`)
+7. Invert the list using the slicing syntax with stride (i.e., `[10, 9, 8, 7, 6, 5, 4, 3, 2, 1]`). Confirm it is the same result you get when using `reversed()`. Use `timeit` and `time.perf_counter` to understand which one is faster.
+
+### 230: the slice object
+
+Besides the `lst[start_idx:end_idx:stride]` you can use the `slice()` constructor to create a slice object that represent the slicing specs `start_idx:end_idx:stride`.
+
+Given the list of numbers from 1 to 10, extract all the even elements, using the slice constructor (i.e., the result must be`[2, 4, 6, 8, 10]` and the `slice()` constructor must be used instead of `lst[start_idx:end_idx:stride]`).
+
+Then confirm that you can use the same slice object to extract the even numbers for the list of numbers from 100 to 120
+
+### 231: named slices
+
+The `slice()` constructor is helpful when you need to make sense of complicated data found in lists, as it lets you reuse the `start_idx:end_idx:stride` specifications in multiple slicing operations.
+
+Consider the following text lines that we need to parse:
+
+```
+0....5..............20..........................48......
+1001 Laundry        Wash all clothes            3
+1002 Museum Visit   Go to the Egypt exhibit     4
+1003 Do Homework    Physics and math            5
+1004 Go to Gym      Work out for 1 hour         2
+```
+
+1. Create a list containing all the corresponding lines.
+2. Create specs definitions for:
+  1. The lines containing data (i.e., the slice should discard the header line)
+  2. The id field within the data line
+  3. The task field within the data line
+  4. The desc field within the data line
+  5. The urgency field within the data line
+3. Use the slices above to create a list of tuples whose elements are `id`, `task`, `desc`, and `urgency`.
+
+### 232: slice surgery
+
+Slice surgery is the technique used to manipulate a list subsequence with a slice object in order to replace, extend, shrink, or remove portions of the original list.
+
+Given the list of numbers from 0 to 8
+
+1. Mutate the original list to mutate the first three elements of the list with `[10, 11, 12]`, so that the resulting list is `[10, 11, 12, 3, 4, 5, 6, 7, 8]`.
+
+2. Mutate the list from the 4th element (starting the count from the first) with the list `[13, 14, 15, 16, 17, 18, 19, 20]` so that the resulting list is: `[10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]`
+
+3. Shrink the list, so that the resulting list is `[0, 1, 15, 16, 17, 18, 19, 20]` (HINT: think about the elements you preserve from the list, and the elements that are added).
+
+Given the list: `[0, 1, 15, 16, 17, 18, 19, 20]`
+
+4. Insert the element `-1` every 2nd position, so that the resulting list is `[-1, 1, -1, 16, -1, 18, -1, 20]`
+
+Given the list: `[0, 1, 0, 16, 0, 18, 0, 20]`
+
+5. Remove the elements from the beginning until the third, so that the resulting list is `[0, 18, 0, 20]` using the `del` operator.
+
+6. Remove the elements from 2nd before last until to the end of the list so that the resulting list is `[0, 18]`.
+
+### 233: positive and negative indices when slicing
+
+Indices in slices tend to create confusion, so let's work on another exercise to clarify these concepts.
+
+List slicing returns the portion of the list from start index to stop index and with a stride `list[start_idx:end_idx:stride]` with the three values being optional. Note also that the `end_idx` is not included. Additionally, you can index elements from the end of the list, where the last element has the index `-1`, the element before last `-2`, etc.
+
+The following diagram illustrates how slicing work with a few examples:
+
+![Slicing examples](pics/slicing.png)
+
+
++ when using negative indices, you should use `-1` to identify the last element of the list. That is, `lst[-1]` is the last element.
++ You can use negative indices as the start element, so that `lst[-3:]` extracts the sublist from the third to last (the one before the one before last).
++ When using slicing, you might end up with the elements being inverted &mdash; the elements are retrieved from the first to the end index. If that happens from right to left, the slice would end up being inverted with respect to the original list.
+
+Consider the following list representing the monthly revenue of a company, by month: `revenue_by_month = [95, 100, 80, 93, 92, 110, 102, 88, 96, 98, 115, 120]`.
+
+1. Obtain the revenue in January
+2. Calculate the revenues in Q2
+3. Obtain the revenues in Nov
+4. Calculate the revenues in Q4
+5. Extract the revenues discarding the first and last month
+
+### 234: finding items in a sequence
+
+The `in` keyword lets you check for an item's presence in a sequence. It returns `True` if found, `False` ortherwise.
+
+To locate the particular item, you use the `index(obj)` with returns the position of the element in the sequence. The `index()` method raises a `ValueError` if the item is not found.
+
+In the particular case of strings, you can use `find(str)` and `rfind(str)` which return `-1` is the string is not found.
+
+Note that the behavior of `in` and `index()` illustrate well the LBYL (Look Before You Leap) and EAFP (Easier to Ask For Forgiveness than Permission).
+
+When using LBYL, you use preventive code before taking and action:
+
+```python
+if "cool" in "Python is cool":
+    location = "Python is cool".index("cool")
+  ...
+```
+
+When using EAFP, you just add error handling logic:
+
+```python
+try:
+    location = "Python is cool".index("cool")
+except ValueError as err:
+    ...
+```
+
+In general, Python favors EAFP.
+
+
+Given the list `[1, 2, 3, 4, 5]`
+1. Validate that you get `False` when trying to find the number 8.
+2. Validate that you get `True` when trying to find the number 4.
+3. Use `index()` to find the number 4 in the list.
+4. Confirm that you get a `ValueError` when you try to find the number 8.
+
+Given the string: `"Python is cool!"`
+5. Validate that you can look for `"cool"` using `in`.
+6. Use `index()` to find the location of `"cool"` in the given string.
+7. Use `find()` to find the location of `"cool"` in the given string.
+8. Use `find()` to find the location of `"Rust"` in the given string.
+
+Given the tuple `(404, "Page Not Found")`
+9. Confirm that you can use `in` to check that `404` is an element of the tuple.
+10. Confirm that trying to find `"Not"` with the same approach returns `False`.
+11. Use `index()` to find the location of `404` in the tuple.
+
+
+### 235: Finding an instance of a custom class in a list
+
+Consider the following `Task` class and `tasks` list holding a few instances of the class:
+
+```python
+class Task:
+   def __init__(self, title, urgency):
+       self.title = title
+       self.urgency = urgency
+
+
+tasks = [
+   Task("Laundry", 3),
+   Task("Museum", 4),
+   Task("Homework", 5),
+   Task("Ticket", 2)
+]
+```
+
+Write some code to locate the task (if any) whose urgency is 5. Check if the usual methods used for finding items in sequences of immutable types (`in`, `index()`) can be used.
+
+### 236: Manually triggering iteration on an iterable with an iterator
+
+Iterators are a special data type from which we can retrieve each of their elements in sequence through a process called *iteration*.
+
+Under the hood is performed with two functions `iter()` and `next()`:
+
++ An iterator is created from an iterable using `iter()`.
++ Elements are produced using `next()`. Calling `next()` on the iterator retrieves the next element if available.
++ When all the elements have been produced`, the `StopIteration` exception is raised to signal that `next()` cannot produce more elements (note the EAFP approach).
+
+1. Create a sequence of strings `["task0", "task1", "task2"]`.
+2. Create an iterator out of the sequence using `iter()`.
+3. Obtain the first element from the sequence using `next()`.
+4. Obtain the second element from the sequence using `next()`.
+5. Obtain the third element from the sequence using `next()`.
+6. Try to obtain the fourth element (EAFP) and capture.
+
+### 237: Checking if an object is iterable
+
+You can determine if an object is iterable using the EAFP just by trying to create an iterator out of an object and checking if we get a `TypeError` or not.
+
+Define a function `is_iterable()` and then check what the function returns for:
+1. The number 5.
+2. The list `[1, 2, 3]`.
+3. The string `"Hello"`.
+4. The tuple `(1, 2, "Hello")`.
+5. The dictionary `{1: "one", 2: "two"}`.
+
+
+### 238: creating iterables programmatically using `list`, `dict`, `tuple`, and `set`.
+
+While you can use literals to create lists, dictionaries, and sets, many times you'll need to use the `list`, `dict`, and `set` functions to create them:
+
+1. Create a list with the numbers from 0 to 9 and confirm the result.
+2. Create a list of tuples with the values `("one", 1)`, `("two", 2)`, etc. Then use `dict` to transform the list of tuples into a dictionary using `dict` and confirm the result.
+3. Create a tuple with the following ints 1, 2, 4, 2, 5, 3, 4, 6, 7, 1, 2, 5. Convert it into a `set` and  confirm the result.
+
+
+### 239: creating a list of letters from a string
+
+Strings are iterables, and a string can be transformed into a list of its characters using `list`.
+
+Given the string `"ABCDE"` confirm that it can be converted into a list of characters.
+
+### 240: using `map` to transform the elements of a list
+
+The `map(fn, iterable)` function applies the function `fn` over each of the elements of the iterable.
+
+Given the list of strings `["1.23", "4.56", "7.89"]` use `map` to transform the list of strings into a list of floats and confirm the result.
+
+### 241: using `zip` to create a dictionary from two lists
+
+Let's assume we have two lists with the ids of certain records, and another list with the title fields of such records:
+
+```python
+ids = [101, 102, 103]
+titles = ["Laundry", "Homework", "Soccer"]
+```
+
+Write a snippet that creates a dictionary where the keys are the ids and the values are the corresponding titles.
+
+### 242: list comprehension basics
+
+Comprehensions are a concise way of creating lists, dictionaries, and sets.
+
+1. Given the list of numbers from 1 to 4, create a list with their squares using the list comprehension syntax.
+2. Consider the following list of NamedTuples:
+
+        ```python
+        tasks = [
+            Task("Homework", "Physics and math", 5),
+            Task("Laundry", "Wash clothes", 3),
+            Task("Museum", "Egypt exhibit", 4)
+        ]
+        ```
+  Create a list with all the titles of that list using a list comprehension. Repeat the exercise using `map()`. (Note: `map()` is considered less pythonic).
+
+### 243: dictionary comprehension basics
+
+Consider the following list:
+
+```python
+tasks = [
+   {'title': 'Laundry', 'desc': 'Wash clothes', 'urgency': 3},
+   {'title': 'Homework', 'desc': 'Physics + Math', 'urgency': 5},
+   {'title': 'Museum', 'desc': 'Egyptian things', 'urgency': 2}
+]
+```
+
+Create a dictionary object in which the keys are the titles of the task and the values are the descriptions using a dictionary comprehension.
+
+### 244: set comprehension basics
+
+Consider the following list:
+
+```python
+tasks = [
+   {'title': 'Laundry', 'desc': 'Wash clothes', 'urgency': 3},
+   {'title': 'Homework', 'desc': 'Physics + Math', 'urgency': 5},
+   {'title': 'Museum', 'desc': 'Egyptian things', 'urgency': 2}
+]
+```
+
+Create a set object where the elements are the task titles from the list above using a set comprehension.
+
+### 245: applying a filtering condition to an iterable
+
+Consider the following list:
+
+```python
+tasks = [
+   {'title': 'Laundry', 'desc': 'Wash clothes', 'urgency': 3},
+   {'title': 'Homework', 'desc': 'Physics + Math', 'urgency': 5},
+   {'title': 'Museum', 'desc': 'Egyptian things', 'urgency': 2}
+]
+```
+
+Filter out all the tasks whose urgency is less than or equal to 3 using:
+
+1. A list comprehension.
+2. Using the `filter()` higher-order function.
+
+### 246: using nested loops in comprehensions
+
+Consider the following list:
+
+```python
+tasks = [
+   {'title': 'Laundry', 'desc': 'Wash clothes', 'urgency': 3},
+   {'title': 'Homework', 'desc': 'Physics + Math', 'urgency': 5},
+   {'title': 'Museum', 'desc': 'Egyptian things', 'urgency': 2}
+]
+```
+
+Create a *flattened* list in which all the individual task values (HINT: `task.values()`) are elements in the resulting list. That is, the resulting list must be:
+
+```python
+[
+    "Laundry",
+    "Wash clothes",
+    3,
+    "Homework",
+    "Physics + Math",
+    5,
+    "Museum",
+    "Egyptian things",
+    2,
+]
+```
+
+1. Using regular nested loops.
+2. Using a list comprehension (more pythonic).
+
+### 247: when comprehensions are not recommended
+
+There are certain scenarios in which comprehensions are not recommended:
+
+1. When you are not going to manipulate the individual elements, and instead you will be transforming an iterable into another.
+
+Given the list: `[1, 2, 4 ,2, 4, 5, 1, 2, 3, 4]` transform the list into a set with and without using a comprehension and compare.
+
+2. When the expression within the comprehension is too complex.
+
+Given the lists:
+
+```python
+styles = ['long-sleeve', 'v-neck']
+colors = ['white', 'black']
+sizes = ['L', 'S']
+```
+
+Create a list with all the possible variations of styles, colors, and sizes, so that the resulting list is:
+
+```python
+["long-sleeve white L", "long-sleeve white S", "long-sleeve black L", ...]
+```
+
+Using both a list comprehension and a different approach and compare.
+
+### 248: there's no tuple comprehension
+
+Consider the following code in which a jr. developer is trying to use a *tuple comprehension* to create a tuple out of a list of objects:
+
+```python
+task1 = ["Laundry", "Wash clothes", 3]
+task_tuple = (item for item in task1)
+```
+
+Write some code to check the type of `task_tuple` and confirm it is not a tuple.
+
+What code would you use to create a tuple out of the elements of `task1`?
+
+### 249: using enumerate
+
+Consider the following list of named tuples with fields "title", "description", and "urgency".
+
+```python
+tasks = [
+   Task("Homework", "Physics and math", 5),
+   Task("Laundry", "Wash clothes", 3),
+   Task("Museum", "Egypt exhibit", 4)
+]
+```
+
+Create a basic report showing:
+
+```
+Task 1: Homework   Physics and math   5
+Task 2: Laundry    Wash clothes       3
+Task 3: Museum     Egypt exhibit      4
+```
+
+using enumerate.
+
+### 250: reversing items in an iterable with `reversed()`
+
+Consider the following list of named tuples with fields "title", "description", and "urgency".
+
+```python
+tasks = [
+   Task("Homework", "Physics and math", 5),
+   Task("Laundry", "Wash clothes", 3),
+   Task("Museum", "Egypt exhibit", 4)
+]
+```
+
+Create a report where the tasks show up in reversed order, while keeping the original list untouched. That is, the result must be:
+
+```
+reversed:
+Task: Task(title='Museum', description='Egypt exhibit', urgency=4)
+Task: Task(title='Laundry', description='Wash clothes', urgency=3)
+Task: Task(title='Homework', description='Physics and math', urgency=5)
+
+original:
+Task: Task(title='Homework', description='Physics and math', urgency=5)
+Task: Task(title='Laundry', description='Wash clothes', urgency=3)
+Task: Task(title='Museum', description='Egypt exhibit', urgency=4)
+```
+
+### 251: combining more than two iterables with `zip()`
+
+Consider the following iterables consisting of a list of named tuples with fields "title", "description", and "urgency", a list of dates and a list of locations.
+
+```python
+tasks = [
+   Task("Homework", "Physics and math", 5),
+   Task("Laundry", "Wash clothes", 3),
+   Task("Museum", "Egypt exhibit", 4)
+]
+dates = ["May 5, 2022", "May 9, 2022", "May 11, 2022"]
+locations = ["School", "Home", "Downtown"]
+```
+
+Use `zip()` to create the following report:
+
+```
+Homework: by May 5, 2022 at School
+Laundry: by May 9, 2022 at Home
+Museum: by May 11, 2022 at Downtown
+```
+
+### 252: chaining multiple iterables with `chain()`
+
+Consider the following lists of named tuples that describe the outstanding and completed tasks:
+
+```python
+tasks = [
+   Task("Homework", "Physics and math", 5),
+   Task("Laundry", "Wash clothes", 3),
+   Task("Museum", "Egypt exhibit", 4)
+]
+
+completed_tasks = [
+   Task("Toaster", "Clean the toaster", 2),
+   Task("Camera", "Export photos", 4),
+   Task("Floor", "Mop the floor", 3)
+]
+```
+
+Create a report that shows the titles from both lists using:
+1. a basic approach using list concatenation
+2. a more pythonic approach using `itertools.chain()`
+
+### 253: breaking early from loops
+
+Consider the following list of named tuples with fields "title", "description", and "urgency".
+
+```python
+tasks = [
+    Task("Toaster", "Clean the toaster", 2),
+    Task("Camera", "Export photos", 4),
+    Task("Homework", "Physics and math", 5),
+    Task("Floor", "Mop the floor", 3),
+    Task("Internet", "Upgrade plan", 5),
+    Task("Laundry", "Wash clothes", 3),
+    Task("Museum", "Egypt exhibit", 4),
+    Task("Utility", "Pay bills", 5)
+]
+```
+
+Implement a loop that stops after a task categorized with urgency 5 is found, so that the result is:
+
+```
+Checking task 0: Toaster
+Checking task 1: Camera
+Checking task 2: Homework
+Urgent task detected: Task(title='Homework', description='Physics and math', urgency=5)
+```
+
+### 254: short-circuiting to the next iteration with `continue`
+
+Consider the following list of named tuples with fields "title", "description", and "urgency".
+
+```python
+tasks = [
+    Task("Toaster", "Clean the toaster", 2),
+    Task("Camera", "Export photos", 4),
+    Task("Homework", "Physics and math", 5),
+    Task("Floor", "Mop the floor", 3),
+    Task("Internet", "Upgrade plan", 5),
+    Task("Laundry", "Wash clothes", 3),
+    Task("Museum", "Egypt exhibit", 4),
+    Task("Utility", "Pay bills", 5)
+]
+```
+
+Create a report in which all the tasks categorized as 4 or 5 are printed by calling a function, while the others are skipped. That is, the report should look like the following:
+
+```
+Important/Urgent task: Task(title='Camera', description='Export photos', urgency=4)
+Important/Urgent task: Task(title='Homework', description='Physics and math', urgency=5)
+Important/Urgent task: Task(title='Internet', description='Upgrade plan', urgency=5)
+Important/Urgent task: Task(title='Museum', description='Egypt exhibit', urgency=4)
+Important/Urgent task: Task(title='Utility', description='Pay bills', urgency=5)
+```
+
+### 255: using `else` in `for` loops
+
+Python allows you to use an `else` statement in `for` loops to execute some logic once the looping is complete and `break` has not been used:
+
+```python
+for item in iterable:
+    # loop body
+else:
+    # execute once when looping is complete and break not used
+```
+
+1. To familiarize yourself with `else` in for loops, create a loop that prints the numbers from 0 to 5 printing `done!` when looping is complete.
+
+2. For a more comprehensive example, consider the following list of named tuples whose fields are title, description, and urgency:
+
+```python
+tasks = [
+    Task("Toaster", "Clean the toaster", 2),
+    Task("Camera", "Export photos", 4),
+    Task("Homework", "Physics and math", 5),
+    Task("Floor", "Mop the floor", 3),
+    Task("Internet", "Upgrade plan", 5),
+    Task("Laundry", "Wash clothes", 3),
+    Task("Museum", "Egypt exhibit", 4),
+    Task("Utility", "Pay bills", 5)
+]
+```
+
+Create a program that locates the first task with the desired urgency level using a function `locate_task(urgency_level)`. The function must loop over the tasks until it finds the given urgency level and the prints is. When not found, the function should print `None`.
+
+For example:
+
+```
+locate_task(1)
+Found Task: None
+
+locate_task(4)
+Found Task: Task(title='Camera', description='Export photos', urgency=4)
+```
+
+### 256: using else in `while` loops
+
+As with `for`, Python allows you to use an `else` statement in a `while` loop. The set of statements in the body of the `else` section will be executed once, when the regular iterations have been completed, and skipped if `break` is used to prematurely stop the iteration:
+
+```python
+while condition:
+    # loop body
+else:
+    # executed once, if break not used
+```
+
+Consider the following list of named tuples configured with title, description, and urgency:
+
+```python
+tasks = [
+    Task("Toaster", "Clean the toaster", 2),
+    Task("Camera", "Export photos", 4),
+    Task("Homework", "Physics and math", 5),
+    Task("Floor", "Mop the floor", 3),
+    Task("Internet", "Upgrade plan", 5),
+    Task("Laundry", "Wash clothes", 3),
+    Task("Museum", "Egypt exhibit", 4),
+    Task("Utility", "Pay bills", 5)
+]
+```
+
+Suppose that we need to rest after completing a series of tasks in each session. Create a function `complete_tasks_with_break(resting_threshold)`. The implementation will involve setting a resting threshold that will consider the sum of the urgency levels of the completed tasks. When the threshold is breached, the function must stop pulling tasks out of the tasklist. If the threshold is not reached, the function should display a message.
+
+Test the function implementation with a resting threshold of `7` and `25` and validate that the results are the following:
+
+```
+Completed: Task(title='Utility', description='Pay bills', urgency=5)
+Completed: Task(title='Museum', description='Egypt exhibit', urgency=4)
+Coffee break now!
+```
+
+And for 25:
+
+```
+Completed: Task(title='Laundry', description='Wash clothes', urgency=3)
+Completed: Task(title='Internet', description='Upgrade plan', urgency=5)
+Completed: Task(title='Floor', description='Mop the floor', urgency=3)
+Completed: Task(title='Homework', description='Physics and math', urgency=5)
+Completed: Task(title='Camera', description='Export photos', urgency=4)
+Completed: Task(title='Toaster', description='Clean the toaster', urgency=2)
+Party! Completed all the tasks!
+```
+
+### 257: List comprehensions with if and if-else
+
+Build comprehensions support using if and if-else, but the actual syntax is different in each case.
+
+When using if, the if clause is stated at the end of the list comprehension:
+
+```python
+lst = [for_comprenshion_expr if condition]
+```
+
+When using if-else, the if-else section is specified at the beginning of the list comprehension:
+
+```python
+lst = [val if condition else value_else for_compr_expr]
+```
+
+1. Create a list comprehension for the even numbers from 0 to 10 (excluded).
+2. Create a list comprehension for [0, 1, 2, 3, 4, 0, 6, 7, 8, 9] using if-else in a list comprehension (that is, when iterating from 0 to 9, there should be a 0 for the number 5).
+
+### 258: container type hints
+
+The following table summarizes the most common built-in container object annotations:
+
+| Container type | Example | Description |
+| :------------- | :------ | :---------- |
+| `list` | `list[str]`<br>`list[int]` | list of str elements<br>list of int elements |
+| `tuple` | `tuple[float, int]`<br>`tuple[float, ...]` | two-tuple holding a float and an int elements<br>n-tuple holding n float elements |
+| `dict` | `dict[int, str]`<br>`dict[int, list[int]]` | dict of int keys and str values<br>dict of int keys and list of ints values |
+| `set` | `set[int]`<br>`set[str]` | set of int elements<br>set of str elements |
+
+Additionally, it is possible to use the `|` to indicate that a particular object can be of different types:
+
+```python
+# measures can be a list of floats, or an n-tuple of floats
+def generate_stats(measures: list[float] | tuple[float, ...]) -> tuple[float, ...]
+```
+
+Another example:
+
+```python
+# measures can be a list of floats or ints
+def generate_stats(measures: list[float | int]) -> tuple[float, ...]:
+```
+
+1. Annotate a function `generate_stats(samples)` that takes a list or a tuple of floats (or possibly ints) and returns a tuple with the mean (average) and standard deviation of the sample.
+
+2. Change the type hints for generate_stats to make use of `Sequence` to make it more generic, and that returns a dict instead of a tuple
+
+### 259: all you wanted to know about args, kwargs
+
+Consider the signature of the built-in `print()` function:
+
+```python
+print(*objects, sep=' ', end='\n', file=sys.stdout, flush=False)
+```
+
+With that succinct signature, `print()` is able to support a variable number of arguments.
+
+This happens thanks to the `*objects` definition. The `*` means a variable number (zero or more) positional (that is, unnamed) arguments.
+
+Some other functions are defined as follows:
+
+```python
+sort(*, key=None, reverse=False)
+```
+
+When `*` is used without a trailing name (as in `*objects`), it means that all the arguments following `*` should be keyword-only (no positional arguments will be allowed following `*`).
+
+Similarly, the `/` to state that all arguments before `/` should be positional only:
+
+```python
+sum(iterable, /, start=0)
+```
+
+The previous function accepts a single positional argument `iterable`, and following it, only keyword arguments could be used.
+
+In summary, `/` and `*` are used to enforce certain policies with respect to arguments:
+
+| Left side | Divider | Right side |
+| :-------- | :------ | :--------- |
+| Positional-only | / | Positional or keyword |
+| Positional or keyword | * | Keyword-only |
+
+
+`**kwargs` is used to receive a variable number of keyword arguments. Those will be received as a dictionary, so that you can access the arguments received as `kwargs[key]=value`.
+
+When using `**kwargs`, it should be placed after all the other arguments in the function specification:
+
+```python
+def example(pos0, pos1, *args, keyw0, keyw1, **kwargs)
+```
+
+
+1. Define a function `stringify()` that takes a variable number of arguments and returns a list in which each individual element is converted into a string. Test it with the arguments `1`, `(1, "two")`, and `(1, "two", None)`.
+
+2. Define a function `stringify_a()` that takes one argument `item0` and a variable number of positional arguments `items`. Test it with `0`, `0, 1`, and `0, 1, 2`. Can you use the arguments `0` and `[1, 2]` to invoke the function? How?
+
+3. Define a function `stringify_b()` that as first argument defines a variable number of positional arguments `items` and after that a single argument `item`. Try to see if you can invoke the function with only positional arguments: `0`, `0, 1`. How can you invoke the function correctly?
+
+4. Consider a function used to create the grades report for a student. A sample invocation looks like:
+
+    ```python
+    print_report("John", math=100, phys=98, bio=95)
+    ```
+
+    Implement the function so that the following report is displayed, noting that the subjects should be variable keyword arguments.
+
+    ```
+    ***** Report Begin for John *****
+    ### math: 100
+    ### phys:  98
+    ### bio:   95
+    ***** Report End for John *****
+    ```
+
+    Include a debugging line showing the keyword arguments received as in:
+
+    ```
+    >>>DEBUG: got {'math': 100, 'phys': 98, 'bio': 95} (dict) for John
+    ```
+
+5. Write a function `example()` that accepts only the keyword arguments `item1`, `item2`, `item3` (no positional args allowed). Invoke it with item1="hello", item2="to", item3="Jason", and try to invoke it with "hello", "to", "Jason" and see what happens.
+
+6. Write a function `example2()` that accepts only positional arguments `item1`, `item2`, `item3`. Invoke it with "hello", "to", "Jason" and try to invoke it with item1="hello", item2="to", item3="Jason" and see what happens.
+
+7. Write a function `example3()` that accepts a positional argument `pos0`, a variable number of positional arguments `*args`, and a single keyword argument `kw`. Try to invoke it with "positional_0", kw="last_kw", with pos0="positional_0", kw="last_kw", with  "positional_0", "positional_1", "positional_2", kw="last_kw".
+
+8. Write a function `example4()` that requires:
+    + two arguments pos_0, pos_1 to be passed by position only
+    + followed by an argument that can be passed either as keyword or position kw_or_pos
+    + followed by an argument kw_only that can only be passed as keyword
+
+    Try to invoke it with "item0", "item1", kw_or_pos_2="item2", kw_only="item3", with "item0", "item1", "item2", kw_only_="item3", and with pos_0="item0", pos_1="item1", kw_or_pos_2="item2", kw_3="item3".
+
+## xx: more on OOP
+
+### 260: OOP: self is not a keyword
+
+By convention, we use `self` to refer to the instantiated object in classes. However, `self` is not a reserved keyword in Python &mdash; the use of `self` is a convention.
+
+Create a class `Task` that can be initialized with a title, description, and urgency and use `this` instead of `self`. Create an instance of the class with title="Homework", description="Physics + Math", and urgency=4 (or similar) and confirm it works well.
+
+### 261: OOP: self is implicitly set by Python
+
+When you create a class, the `__init__()` method will require `self` as the first argument. This argument is implicitly set by Python.
+
+This is because behind the scenes, the instantiation of a class consists of two steps:
+1. The class constructor `__new__(cls, *args, **kwargs)` is invoked &mdash; this method must return an allocated instance of the `cls` class, which is typically done using `object.__new__(cls)`.
+
+2. The class initializer `__init__(self)` is invoked &mdash; this method receives the instance created by `__new__(cls)`.
+
+Create a class `MyClass` that defines both `__new__(cls)` and `__init__(self)`. Print the memory address of the instance created by the constructor, and the one received by the initializer.
+
+Repeat the exercise for `Task` class whose initializer accepts a title, a description, and an urgency. Check if you can pre-initialize the values of those attributes in the constructor and validate what values you get in the initializer.
+
+Validate that when you don't create a `Task` instance using `task = Task()` you can still instantiate an object of the class using:
+
+```python
+# This is what Python does when you write task = Task()
+task = Task.__new__(Task)
+Task.__init__(task)
+```
+
+### 262: OOP: Getting instance attributes with `__dict__`
+
+The instance special attribute `__dict__` can be used to access the attributes of an instance.
+
+Create a class `Task` with the attributes title, description, and urgency. Create an instance of that class with the values `"Homework"`, `"Physics + Math"`, 3, and check the shape of `task.__dict__`.
+
+Check if you can:
++ Change the attribute values using `__dict__`.
++ Define more attributes
++ Create a more resilient `__repr__(self)` that prints out all the class attributes (even the ones dynamically created)
+
+### 263: OOP: Adding attributes not defined in the initializer
+
+When facing the desing of the `__init__(self, ...)` for a class, you should consider the following guidelines:
+
+1. Identify the required arguments for the class.
+2. Prioritize key arguments, placing the more important ones before the less important ones in the function signature.
+3. Use key arguments as positional. You want users to be able to set the important things up front and without having to use keywords, as it provides a more succinct and cleaner DX.
+4. Limit the number of positional arguments. Use no more than four positional arguments and make the rest as keyword-only using `*` as separator.
+5. Use sensible default values for the arguments to give a good DX for the users of the class.
+
+Additionally, it it recommended to define all the class attributes in the class initializer. Otherwise, it'll be unclear for the user what are the different attributes a class can have.
+
+To illustrate this bad practice, create a class `Task` initializer with attributes title, description, and urgency. Then define a method `complete()` that will set a new instance attribute `status` to "completed". Define yet another method `add_tag(tag)` that will append a string tag to a list of `tags` bound the instance (HINT: you might need to initialize the `tags` attribute to an empty list).
+
+Create a `__repr__` method that relies on `__dict__` for printing the attributes of the class.
+
+Illustrate the terrible user experience it provides as the class consumers might need to check if the attributes `tags` and `status` are there before accessing them.
+
+Fix the implementation by defining up front the `status` and `tags` attributes. These attributes can be kept internal to the initializer (i.e., they won't appear on the class's initializer) and given initial sensible values. Confirm that with this change the user experience is much better as users don't need to use error handling logic when accessing `status` and `tags`.
+
+### 264: OOP: class attributes
+
+Class attributes are shared for all instance objects. These must be places after the class definition and before the `__init__()` method declaration.
+
+Create a `Task` class with instance attributes title, desc, and urgency and a class attribute `user` which is initialized to the string `"logged in user"`. Implement a `__repr__` method that also prints that class attribute.
+
+Create a couple of instances and print them.
+
+### 265: OOP: instance, static, and class methods
+
+There are three different types of methods you can find on a class:
++ instance methods: intended to be class on an instance object. They are defined with `self` as the first parameter of the method.
+
++ class methods: functions that are not specific to any instance but require access to class-level attributes. They use `cls` as its first parameter, which refers to the class. They are invoked using the class name, and need to be decorated with `@classmethod`.
+
++ static methods: used for utility related functions that are not specific to any instance and don't require access to class attributes. They do not use `self` or `cls` as first parameter, and they are invoked using the class name, and need to be decorated with `@staticmethod`. Oftentimes, static methods are defined outside of the class as they tend to implement generic functionality that does not have to do with the instances or the class.
+
+Create a `Task` class with attributes title, description and urgency. Define an internal attribute (not exposed in the initializer) `status` that is initialized to `"New"` in the initializer.
+
+Create:
+  + an instance method `complete()` that sets the status attribute to `"Done"`.
+  + a class method `task_from_dict` that accepts a dictionary with the keys title, description, and urgency and returns an instance initialized to those values.
+  + a static method `get_current_ts` that returns the current date and time with the format "Oct 25 2025, 09:17".
+
+Create an instance of the `Task` class and invoke the different instance, class, and static methods.
+
+### 266: OOP: invoking methods from instance methods
+
+Create a `Task` class with attributes title, description, and urgency and a couple of internal attributes (not exposed in the initializer) `status` and `close_note` that are initialized to `"New"` in the initializer and `""` respectively.
+
+Create a method `complete(self, note = "")` that sets the task status to "Done" and updates the note. Within the method, invoke the instance method `format_note`. This method will return the result of invoking `title()` on the note if available, or "N/A" otherwise.
+
+Create a `__repr__` method for the class.
+
+Create an instance of the class with the values "Laundry", "Wash clothes", 3 and print the instance. Then call `complete()` passing a note in lowercase and print the instance again.
+
+Can the user of the class invoke `format_note()` directly? Is that the intended result?
+
+
+### 267: OOP: protected and private methods
+
+Python doesn't have any formal mechanism to restrict access to any attribute or method. Instead, Python uses the following convention:
+
++ methods or attributes prefixed by a single underscore `_` are considered protected, and therefore, available to the current class and subclasses, and not to class consumers.
+
++ methods or attributes prefixed by double underscore `__` are considered private, and therefore, should only be available for the current class, and not to subclasses and class consumers.
+
+Create a `Task` class with attributes title, description, and urgency and a couple of internal attributes (not exposed in the initializer) `status` and `close_note` that are initialized to `"New"` in the initializer and `""` respectively.
+
+Create a method `complete(self, note = "")` that sets the task status to "Done" and updates the note. Within the method, invoke the instance method `format_note` and make it private. This method will return the result of invoking `title()` on the note.
+
+Create a `__repr__` method for the class.
+
+Create an instance of the class with the values "Laundry", "Wash clothes", 3 and print the contents of the clas. Then call `complete()` passing a note in lowercase and print the instance again.
+
+Can the user of the class invoke `format_note()` directly?
+
+### 268: OOP: read-only attributes with the `@property` decorator
+
+Consider a `Task` class with attributes title, description, urgency, and a protected property `status` which is initialized as `"New"`.
+
+We want to make the `status` property read-only, so that it can only be interrogated, or updated through a `complete()` instance method.
+
+Create a `__repr__` method for the class so that the instance state can be printed.
+
+Create an instance of the class with values "Laundry", "Wash clothes", 3. Print the initial status of the `task` accessing the `status` property.
+
+Then, invoke `complete()` and check the instance state.
+
+Try to change the status of the task to "reopened". Can you hack it accessing the protected property?
+
+HINT: use the `@property` decorator.
+
+### 268: OOP: using property setters with `@property`
+
+Consider a `Task` class with attributes title, description, urgency, and a protected property `status` which is initialized as `"New"`.
+
+We want to make the `status` property a read/write one. In the setter, make sure that only the values "New", "In progress", "Completed", "Suspended" can be used. In any other case, raise a `ValueError` exception to the consumer of the class.
+
+Create a `__repr__` method for the class so that the instance state can be printed.
+
+Create an instance of the class with values "Laundry", "Wash clothes", 3. Print the initial status of the `task` accessing the `status` property.
+
+Then set the status of the class to "Suspended" and print the instance's state. Try to set the instance of the class to "undefined" and see what happens.
+
+### 270: OOP: more on property setters
+
+Consider a `Task` class with attributes title, description, and a protected property urgency, whose value can be initialized in the `__init__()` method.
+
+Then make urgency a read/write property but control in the setter that the value is an `int` between 1 and 5. Raise a `ValueError` otherwise.
+
+Create a `__repr__` method for the class so that the instance state can be printed.
+
+Create an instance of the class with values "Laundry", "Wash clothes", 3. Print the initial value of the urgency.
+
+Then set the urgency value to 5 and check that it has been updated with an assert.
+
+Try to set the urgency value to "Highest", then to -1, and 99 and see what happens.
+
+Can you initialize a Task with an urgency of 99. Why? How can you fix it?
+
+### 271: OOP: using `__str__` for a user-friendly representation of an instance
+
+You can use the special method `__str__` to provide the user-friendly string representation of an instance.
+
+Consider a `Task` class with attributes title, description, and urgency.
+
+Then create an implementation of `__str__` which should print:
+
+```
+title: description, urgency level: urgency
+```
+
+Validate that `__str__` is invoked when you call `print()` on an instance.
+
+Validate that the class consumer can call `str(obj)` to invoke `__str__`.
+
+### 272: OOP: using `__repr__` for a developer-friendly representation of an instance
+
+When using the interactive console (and Notebook cells), the special method that is invoked to get the string representation of an instance is `__repr__()` instead of `__str__()`.
+
+Because of that, it is customary to implement both `__repr__` and `__str__` in custom classes to provide:
+
++ `__str__`: user-friendly representation of the instance
++ `__repr__`: developer-friendly representation of the instance
+
+| NOTE: |
+| :---- |
+| Python will invoke `__repr__` when `__str__` is not implemented, but it is a good practice to implement both. |
+
+Consider a `Task` class with attributes title, description, and urgency.
+
+Then create an implementation of `__str__` and `__repr__` so that:
+
++ `__repr__` returns something like Task('Laundry', 'Wash clothes', 3) (HINT: use `!r`, to quote the contents of an attribute. This is called a conversion flag).
++ `__str__` returns something like Laundry: Wash clothes, urgency level 3
+
+### 273: OOP: using `__class_` and `__name__` attributes in `__repr__`
+
+Consider a `Task` class with attributes title, description, and urgency.
+
+Then create an implementation of `__repr__` that doesn't hardcode either the name of the class, nor the attributes.
+
+### 274: OOP: design considerations when using inheritance
+
+Inheritance creates a tight-coupling between the classes in your programs, so you shouldn't jump into inheritance right away.
+
+Instead, it is recommended to spend some time analyzing the scenario at hand, and then decide whether using inheritance will pay off.
+
+One way to do this analysis is by studying the similarities and differences in the attributes and methods for the classes that are subject of entering an inheritance relationship.
+
+Consider the following scenario in which we need to model two different kinds of users: supervisors and subordinates:
+
+![supervisors vs. subordinate analysis](./pics/inheritance.png)
+
+We see that there are many similarities, with only a couple of methods being different. This example is screaming for defining a base class `Employee` featuring the similarities, and two subclasses `Supervisor` and `Subordinate` inheriting from it:
+
+![Inheritance design](./pics/inheritance-design-non-uml.png)
+
+While this will create a tight coupling of `Supervisor` and `Subordinate` to `Employee`, we will be fostering the DRY principle as the subclasses won't need to declare the attributes and methods present in the base class.
+
+This analysis process is far more important and complex than the actual implementation.
+
+Implement the classes in the example above. Confirm that `Supervisor` and `Subordinate` classes are very succinct and can reuse all the elements defined in the superclass. Can you explain when the tight-coupling between the classes in the inheritance hierarchy might become a problem?
+
+### 275: OOP: overriding a subclass method completely and `mro`
+
+Python allows you to override a class method in its entirety by simply reimplementing the overridden method in the subclass.
+
+In runtime, MRO (Method Resolution Order) dictates that when you call a method on an instance, the one executed will be the one that is closer to the instance (i.e., the closest overridden one). You can inspect what the MRO looks like by invoking the `mro()` static method on a class.
+
+It's a good practice to decorate the overridden method with `@override`, which requires `from typing import override`.
+
+Create a base class Employee with an initializer for the attributes `name` and `employee_id` and methods `login` and `logout` that announce themselves.
+
+Then create a subclass `Supervisor` that inherits from `Employee` and override the `login` method in a way that it can be distinguished from the `Employee.login()` method. Define a subclass `Subordinate` inheriting from `Employee` that do not override any method.
+
+Invoke both `Supervisor.login()` and `Subordinate.login()`. Invoke the `mro()` method on both `Supervisor` and `Subordinate` and see what it looks like.
+
+### 276: OOP: overriding a method partially using `super()`
+
+Oftentimes, you will want to override the inherited implementation of a method to slightly enhance it, rather than change it completely.
+
+In those cases, you can use `super()` to refer to the methods inherited from the superclass.
+
+Create a base class Employee with an initializer for the attributes `name` and `employee_id` and methods `login` and `logout` that announce themselves.
+
+Then create a subclass `Supervisor` that inherits from `Employee` and override the `login` and `logout` methods in a way that they can be distinguished from the superclass methods.
+
+In particular, `logout()` reimplementation must invoke the superclass logout method. Can you invoke `super()` at any point in the method definition? And in the the initializer?
+
+### 277: Hello, enum classes
+
+In Python, you may be tempted to use regular classes with static attributes to model enumerations (and it's quite common to find code that do so).
+
+Create a class `Direction` with static attributes `NORTH`, `EAST`, `SOUTH`, and `WEST` with values 0, 1, 2, 3 respectively.
+
+Then define a function `move_to(dir: Direction, distance: float)`. Confirm that the attributes are ints.
+
+Enhance the previous approach by defining a `DirectionV2` Enum. Confirm that the attributes are instances of `DirectionV2` and that you can iterate over the values of the enum.
+
+Create a `DirectionV3` in which the values for the directions are N, E, S, W respectively.
+
+Create a variable `north` by assigning it to `DirectionV2.NORTH`. Confirm that the type of `north` is a `DirectionV3` using both `type()` and `isinstance()`.
+
+Use the attributes `name` and `value` of `north` and assert they have the expected values.
+
+### 278: Instantiating an enumerated member from its value
+
+Consider an enum that defines the four possible directions NORTH, EAST, SOUTH, WEST with values 0, 1, 2, 3 respectively.
+
+Instantiate South direction from its value, and confirm using assert that it is the same as using `DIRECTION.SOUTH`.
+
+Confirm that you get an exception when trying to instantiate from a value that do not represent a direction (e.g., 4). What type of exception do you get?
+
+### 279: Iterating over enumeration members and using `in`
+
+By design, any subclass of `Enum` is an iterable.
+
+Consider an enum that defines the four possible directions NORTH, EAST, SOUTH, WEST with values 0, 1, 2, 3 respectively.
+
+Convert the enum into a list and print the list.
+
+Then iterate over the values of the enum using `for`.
+
+Then, use `if ... in ...` to check if a particular value is part of the enumerated values.
+
+
+### 280: Defining methods in an enumeration class
+
+An enumeration class is still a Python class, so you can enhance an enum with additional classes.
+
+Consider an enum that defines the four possible directions NORTH, EAST, SOUTH, WEST with values 0, 1, 2, 3 respectively.
+
+Define an instance method `is_opposite()` that receives a direction and returns whether it's the opposite of the one used in the instance.
+
+Enhance the class with the methods `__str__()` and `__repr__()` with the user-friendly and developer-friendly representation.
+
+Define a function `move_to(direction, distance)` and confirm that your custom classes are invoked. The implementation should be as follows:
+1. check if direction is one of the valid enumerated values
+2. if so, print the message move {direction} for {distance} miles
+3. otherwise, print an error message indicating that direction is not a valid value.
+
+### 281: dataclass to eliminate boilerplate code
+
+The `@dataclass` decorator available in the `dataclasses` module lets you eliminate the boilerplate code associated with the creation of classes that hold values.
+
+Compared with named tuples, which are lighter, data classes:
+1. support mutability
+2. can be enriched with custom methods
+3. support inheritance
+
+Create a dataclass that models a restaurant bill `Bill` including the attributes:
++ table number
++ meal amount
++ served by
++ tip amount
+
+Create two instances with values 5, 60.5, "Jason", 10 and 7, 15.23, "Jane", 3.5. and print them.
+
+Note how the string representation and `__init__` method had been correctly implemented for us.
+
+Then create a `BillV2` in which the tip amount is initialized to the default value `0`. Instantiate a new bill with values 5, 60.5, "Jason".
+
+Confirm that dataclasses are mutable by changing the served by in one of the previously created instances. Can you do the same with a `NamedTuple`?
+
+### 282: Creating immutable dataclasses
+
+You can create immutable dataclasses by passing the argument `frozen = True` to the `@dataclass` decorator.
+
+Create a dataclass that models a restaurant bill `Bill` including the attributes:
++ table number
++ meal amount
++ served by
++ tip amount, with default value 0
+
+Create an instances with values 5, 60.5, "Jason". Then try to mutate the table number and confirm that you get an exception. Print the type of the exception.
+
+### 283: hierarchies of dataclasses with default values gotchas
+
+At its core, a dataclass has the same extensibility features as a regular class. However, you must take into account certain nuances.
+
+Attributes from the base dataclass will be inherited by the subclass, byt you might find problems when the base class define default values for some arguments.
+
+Create a dataclass `BaseBill` with an attribute `meal_amount`. Then define a sub-dataclass `TippedBill` that has an attribute `tip_amount`.
+
+Instantiate a `TippedBill` and confirm it has both `meal_amount` and `tip_amount`.
+
+Then, define a `BaseBillV2` in which `meal_amount` has a default value, and make `TippedBillV2` inherit from it. Try to instantiate a `TippedBillV2` and see what happens.
+
+### 284: Creating lazy attributes (lazy evaluation) with `__getattr__`
+
+Lazy evaluation is an implementation paradigm that defers the evaluation of an expensive operation until it is strictly required.
+
+For example, generators are applications of lazy evaluations, on which the retrieval of an item is deferred until required (as opposed to materializing a potentially memory-hungry list).
+
+Let's consider the following scenario involving a social media app, in which a user can follow other users.
+
+The app provides the following capabilities:
+
++ View a user's followers.
++ Getting the user's detailed profile (by tapping on the user's thumbnail).
+
+Create a *stubbed* backend implementation for the app described above following these guidelines.
+
+1. Create a `User` class with an initializer that receives the username. In the initializer, the `profile_data` attribute must be initialized by invoking the protected method `_get_profile_data()` (to be defined in the subsequent point). Print a statement to identify that the corresponding username has been initialized.
+
+2. Implement the `_get_profile_data()` method. Start by printing a statement announcing that you will be retrieving data from a server and load it in memory. Then introduce a blocking sleep of 1 second. Subsequently, return some piece of data to simulate the retrieval of the profile data.
+
+3. Implement a `get_followers(username)` function (not instance method). The function must announce itself, and stub the followers to a fixed list (such as Jason, Florence, Margot). Then return the list of populated Users.
+
+4. Finally, in the `main()` program get the followers for a user `Emma`. Print the time taken to retrieve the followers. Because the profile data is eagerly evaluated, it should take a bit more than 3 seconds.
+
+Then, implement a lazy evaluation solution by overriding `__getattr__` special method to implement lazy attributes.
+ `__getattr__` lets you customize access to an instance attribute. In this case, we can use it to implement lazy evaluation for the `profile_data` instance attribute.
+
+We know that we can find instance attributes of an instance through the `__dict__` property. This object is a dictionary that has the attribute names as keys, and the attribute values as the values.
+
+If that dictionary does not include an attribute, the `__getattr__` method will be invoked as a fallback mechanism. In the implementation you can then provide the logic to resolve the value for that attribute. Otherwise, an `AttributeError` will be raised (if no value is provided in the implementation).
+
+Create a UserV2 version of the user class that implements the lazy evaluation of the `profile_data` property by overriding the `__getattr__(self, item)` special method. As mentioned above, this method is invoked each time that the consumer code tries to access a property that is not part of the instance's `__dict__`. In the implementation, make sure that you use `setattr(self, prop_name, prop_value)` to set the `profile_data` in the instance's `__dict__`. That way you will be preventing the expensive operation to be carried out twice.
+
+Then in main(), time the invocation of Emma's followers. Time the access to Emma's profile_data, and access the profile data again. What can you say about the results?
+
+ ### 285: Creating lazy attributes (lazy evaluation) with `@property`
+
+Lazy evaluation is an implementation paradigm that defers the evaluation of an expensive operation until it is strictly required.
+
+For example, generators are applications of lazy evaluations, on which the retrieval of an item is deferred until required (as opposed to materializing a potentially memory-hungry list).
+
+Let's consider the following scenario involving a social media app, in which a user can follow other users.
+
+The app provides the following capabilities:
+
++ View a user's followers.
++ Getting the user's detailed profile (by tapping on the user's thumbnail).
+
+Create a *stubbed* backend implementation for the app described above following these guidelines.
+
+1. Create a `User` class with an initializer that receives the username. In the initializer, the `profile_data` attribute must be initialized by invoking the protected method `_get_profile_data()` (to be defined in the subsequent point). Print a statement to identify that the corresponding username has been initialized.
+
+2. Implement the `_get_profile_data()` method. Start by printing a statement announcing that you will be retrieving data from a server and load it in memory. Then introduce a blocking sleep of 1 second. Subsequently, return some piece of data to simulate the retrieval of the profile data.
+
+3. Implement a `get_followers(username)` function (not instance method). The function must announce itself, and stub the followers to a fixed list (such as Jason, Florence, Margot). Then return the list of populated Users.
+
+4. Finally, in the `main()` program get the followers for a user `Emma`. Print the time taken to retrieve the followers. Because the profile data is eagerly evaluated, it should take a bit more than 3 seconds.
+
+Then, implement a lazy evaluation solution using the `@property` decorator. This decorator lets you create your own setters and getters, which we can rely on to intercept invocations of `obj.profile_data` and implement it as a lazy evaluated attribute.
+
+Create a `UserV2` class and define a `_profile_data` attribute in the initializer. This should be initially set to `None`.
+
+Then, define the `profile_data()` getter which will simply check if the `_profile_data` has already been populated (in which case we can return the value), or if it's the first time it has been invoked, in which case, we should invoke the time-consuming `_get_profile_data()` method.
+
+Then in main(), time the invocation of Emma's followers. Time the access to Emma's profile_data, and access the profile data again. What can you say about the results?
+
+
+### 286: using `type` introspection to create flexible methods and functions
+
+Consider the following list of task dataclass objects:
+
+```python
+tasks = [
+    Task("Toaster", "Clean the toaster", 2),
+    Task("Camera", "Export photos", 4),
+    Task("Homework", "Physics and math", 5),
+    Task("Floor", "Mop the floor", 3),
+    Task("Internet", "Upgrade plan", 5),
+    Task("Laundry", "Wash clothes", 3),
+    Task("Museum", "Egypt exhibit", 4),
+    Task("Utility", "Pay bills", 5)
+]
+```
+
+Create a function `filter_tasks(tasks, by_urgency)` that can filter out the tasks based on the given argument `by_urgency`.
+
+That argument can be either a value like `3` or a list as `[3, 4, 5]`. (HINT: use `type` to interrogate the type of the received argument).
+
+### 287: using `isinstance` introspection to create flexible methods and functions
+
+While `isinstance` is similar to `type`, the former is the preferred approach for checking an object's type because of its flexibility.
+
+For example, you can do:
+
+```python
+assert isinstance(4, int)
+assert isinstance([4, 5], list)
+assert isinstance([4, 5], (int, list))
+```
+
+When using `isinstance()`, the first argument is the object to be checked, and the second is a type or a tuple of types.
+
+Additionally, `type` does not take into account the class hierarchy, while `isinstance()` does.
+
+Consider the following list of task dataclass objects:
+
+```python
+tasks = [
+    Task("Toaster", "Clean the toaster", 2),
+    Task("Camera", "Export photos", 4),
+    Task("Homework", "Physics and math", 5),
+    Task("Floor", "Mop the floor", 3),
+    Task("Internet", "Upgrade plan", 5),
+    Task("Laundry", "Wash clothes", 3),
+    Task("Museum", "Egypt exhibit", 4),
+    Task("Utility", "Pay bills", 5)
+]
+```
+
+Create a function `filter_tasks(tasks, by_urgency)` that can filter out the tasks based on the given argument `by_urgency`.
+
+That argument can be either a value like `3` or a list as `[3, 4, 5]`. (HINT: use `isinstance` to interrogate the type of the received argument).
+
+### 288: `type` and `isinstance` with class hierarchies
+
+Consider the following class hierarchy, consisting of a `User` base class and a `Supervisor` subclass.
+
+Create an instance of the subclass named `supervisor` and then perform the following comparisons:
+
++ `type(supervisor) is User`
++ `type(supervisor) is Supervisor`
++ `isinstance(supervisor, User)`
++ `isinstance(supervisor, Supervisor)`
+
+### 289: using generic classes for interface checks
+
+Python does not have interfaces, but in the standard library, the `collections.abc` module defines several abstract base classes which can be used to test whether a specific class has attributes or methods (a sort of an interface check).
+
+> In OOP, an interface represents the defined attributes, functions, methods, classes, and other applicable components of an entity (such as a class or a package) that developers can use.
+
+For example, the `Collection` abstract class is a sort of interface that defines three special methods:
++ `__contains__`: to check whether an item exists in the collection. This enables the syntax `item in collection`.
++ `__iter__`: so that you can do `iter(obj)` to obtain an iterator of the collection.
++ `__len__`: so that you can do `len(obj)` to get the number of items in the collection.
+
+Many classes inherit from this interface, both from stdlib and outside of stdlib (list, tuple, Pandas' Series, etc.).
+
+Consider the following list of task dataclass objects:
+
+```python
+tasks = [
+    Task("Toaster", "Clean the toaster", 2),
+    Task("Camera", "Export photos", 4),
+    Task("Homework", "Physics and math", 5),
+    Task("Floor", "Mop the floor", 3),
+    Task("Internet", "Upgrade plan", 5),
+    Task("Laundry", "Wash clothes", 3),
+    Task("Museum", "Egypt exhibit", 4),
+    Task("Utility", "Pay bills", 5)
+]
+```
+
+Create a function `filter_tasks(tasks, by_urgency)` that can filter out the tasks based on the given argument `by_urgency`. That argument can be either a value like `3` or a collection of values (list, tuple, set, etc.). (HINT: use `Collection`).
+
+### 290: Checking if an object is iterable using `Iterable`
+
+In a previous exercise we used the following approach to check if an object was an iterable:
+
+```python
+def is_iterable(obj: Any) -> bool:  # noqa: ANN401
+    """Check if an object is iterable."""
+    try:
+        _ = iter(obj)
+    except TypeError as err:
+        return False
+    else:
+        return True
+```
+
+Reimplement the function in a cleaner way using the `Iterable` interface (an abstract base class).
+
+Test it with the following:
+
+```python
+is_iterable(5),
+is_iterable([1, 2, 3]),
+is_iterable("Hello"),
+is_iterable((1, 2, "Hello")),
+is_iterable({1: "one", 2: "two"})
+```
+
+### 291: understanding `__new__` and `__del__`
+
+The special methods `__new__(cls, *args)` and `__del__(self)` are methods you can override in your classes to provide specific logic at construction and destruction time of your instances.
+
+Override the methods in a `Task` class in a way that announce themselves to understand when they are called. Implement also the initializer for a `title` instance property. Print the memory address of the corresponding instance in each of the methods.
+
+Note that:
++ `__new__(cls, *args)` must return an allocated object of the class `cls`.
++ `__del__` must be used to perform any sort of deallocation needed for the object.
+
+In the main program, create an instance of the class, and then call `del task` to force the destruction of the object.
+
+The call to the destructor will also happen automatically when the number of references to that object reaches zero.
+
+In the program, create a new function `do_work()` that creates an instance and see if the destructor is called automatically when the function goes out of scope.
+
+| NOTE: |
+| :---- |
+| You can use `sys.getrefcount(obj)` to obtain the number of references to an object. |
+
+Alternatively, you can use the `globals()`/`locals()` functions to check if a particular variable is in scope. To validate it, you can use `"var_name" in globals()` or `"var_name" in locals()`. Use that approach in `main()`.
+
+### 292: using `copy` to create a shallow copy of an object
+
+Create a `Task` class with `title` and `desc`. Implement `__repr__` to get a developer-friendly representation of the object.
+
+Create an instance with the values "Homework", "Physics + Math". Then create a shallow copy using `copy` and validate that they're not aliased.
+
+Then, create a `TaskV2` that includes a `tags` property which is a list of strings. Make sure that it is set to `None` in the initializer and then initialized to either whatever is passed as argument, or the empty list. Create an instance with the values "Homework", "Physics + Math", and ["boring stuff", "school"] as tags.
+
+Create a copy, change the first tag and validate that it is changed in both copies.
+
+### 293: checking equality with `is` and `==`
+
+`is` compares whether two objects are the same object (identity test), while `==` compares whether two objects have the same value.
+
+For example, when checking an object against `None` you should always use `is`, because `None` is a singleton object and you'd like to check if the memory address of your object and that of the singleton `None` are the same.
+
+> `is` should be used when you need to check if the memory address of two objects are the same. In particular, any comparison with `None` should be using `is`.
+
+> `==` should be used when you need to check if the value of two objects are the same, even when they have different memory addresses.
+
+Create a Task class with instance properties `title` and `desc`. Create two instances with the same values for their properties and check what are the results of doing identity and value check. How can you fix it?
+
+### 294: creating a deep copy of an object with `deepcopy`
+
+When performing a deep copy of an object, we copy not only the outmost data container properties, but also perform recursive copies of the inner objects.
+
+Create a `Task` class with `title`, `desc`, and a `tags` property which is a list of strings. Make sure that it is set to `None` in the initializer and then initialized to either whatever is passed as argument, or the empty list. Create an instance with the values "Homework", "Physics + Math", and ["boring stuff", "school"] as tags.
+
+Create a deep copy of the task using `deepcopy`. Change both the outermost and innermost properties and validate that they are not aliased.
+
+### 295: changing the values of variables in a different scope
+
+Variable scope is a hairy topic in many languages, and it is not different in Python.
+
+Create a program that defines a global variable `db_filename` and initialize it to "global".
+
+Then define a function `set_database(db_name)` that sets the value of the variable `db_filename` to the value received.
+
+Then check in `main()` if the value of the global variable has changed. How can this be fixed.
+
+### 293: namespaces and scope
+
+The mechanism for looking up variables in Python involves namespace. A namespace tracks the variables that have been defined and helps locating the variable's information.
+
+A namespace is a sort of a dictionary in which the active variable are the keys, and the values of the dictionaries are the corresponding values of the variables.
+
+Scopes form the boundaries of the namespaces, while the namespaces provide the contents of the variables *in scope*.
+
+When looking up a variable, Python examines the namespace that is associated with a given scope. There are different levels of scopes for the lookup order. This lookup order is dictated by the LEGB rule:
+
+> **LEGB rule** dictates the order for resolving a variable in Python, from Local (L), to enclosing (E), global (G), and built-in (B).
+
+A module forms a global scope. Above the global, the built-in scope holds the namespaces for all the built-in functions and classes. In a module, you can define a class or a function, which will form a local scope.
+
+For functions defined within functions, the local scope of the outer function is known as the enclosing scope.
+
+The LEBG rule applies in the sequential order for variable resolution. Python first searches in its local scope. If the name is resolved, the corresponding value is used. If not, Python continues searching the enclosing scope. If the name is resolved, the value is used &mdash; and so on for the global and built-in scopes sequentially.
+
+If a name can't be resolved after Python checks all these scopes, a `NameError` exception is raised.
+
+![LEGB](./pics/legb_new.png)
+
+The following picture illustrates the different scopes in a piece of Python code:
+
+![Scopes](pics/scopes.png)
+
+Write the piece of code from the example above and validate that all the variables have the expected resolution mechanism.
+
+### 294: accessing the namespaces through `globals()` and `locals()`.
+
+You can use `globals()` and `locals()` to inspect the namespaces. It's quite common to use `list()` to inspect the variable names or when checking if a variable is defined in a particular namespace.
+
+Create a program defining a variable `db_filename` and initialize it to `"N/A"`.
+
+Then create a function `set_database(db_name)` that sets the `db_name` to the value given (NOTE: because we're shadowing a global and not using the `global` keyword, the change won't be effective).
+
+In the function perform the following:
+1. Print the variables in `globals()` when the function starts. Check that you can use `"db_name" in globals()`
+2. Print the variables in `locals()` when the function starts. Check that you can use `"db_name" in locals()`.
+3. Set the `db_name` to to the value passed as an argument.
+4. Print the variables in `globals()` right before the function ends. Check that you can use `"db_name" in locals()`.
+
+In the main program, invoke the function and inspect the results. Confirm that the global variable value won't be affected by the function invocation.
+
+
+### 295: using `global` to change a global variable.
+
+Create a program defining a variable `db_filename` and initialize it to `"N/A"`.
+
+Then create a function `set_database(db_name)` that sets the `db_name` to the value given (NOTE: because we're shadowing a global and not using the `global` keyword, the change won't be effective).
+
+In the function perform the following:
+1. Use the `global` keyword to announce you're going to modify a variable from the global scope.
+1. Print the variables in `globals()` when the function starts. Check that you can use `"db_name" in globals()`
+2. Print the variables in `locals()` when the function starts. Check that you can use `"db_name" in locals()`.
+3. Set the `db_name` to to the value passed as an argument.
+4. Print the variables in `globals()` right before the function ends. Check that you can use `"db_name" in locals()`.
+
+In the main program, invoke the function and inspect the results. Confirm that the global variable value is  affected by the function execution.
+
+### 296: changing an enclosing variable with `nonlocal`
+
+You can use the `nonlocal` keyword to change the value of an enclosing variable in a local scope. In principle, it's similar to `global` but far less common, as enclosing scopes are only found when inner functions are in use.
+
+Create a function `change_text(using_nonlocal: bool)` with the following requirements.
+
+1. Sets the value of a variable `text` to `"N/A"`.
+2. Define an inner function `inner_fun0()` that sets `text` to `"No nonlocal"`.
+3. Define an inner function `inner_fun1()` that uses `nonlocal` to modify the value of `text` and then sets `text` to `"Using nonlocal"`
+4. In the body of the function use the ternary operator to invoke `inner_fun1()` if the nonlocal flag is true, `inner_fun0()` otherwise.
+5. Return the value of `text`.
+
+In main, print the result of invoking `change_text()` with the flag set to `False` and `True`.
+
+### 297: Callability and the `callable()` built-in function
+
+We say that an object is *callable* if it can be used with the call operator `()`.
+
+Python has a built-in function `callable()` that can check the object's callability.
+
+All functions are callable. You can use the `callable` type to identify arguments that accept callable objects, as in `sorted(key: Callable)`.
+
+Classes are also callable, as you can do `MyClass()` to initialize an instance of that class. In addition, you can also make object instances callable if your class implements the `__call__` method.
+
+
+Create a function `doubler(x: int)` that returns the double of the argument received. In the program, use `callable()` to validate that the function is callable.
+
+Create a function `apply(f: Callable, *args)` that applies f to the arguments received. Validate that you can pass a function or a custom class (as in `Task, *(title, desc, urgency))`).
+
+Then use `print()` with `doubler()`, `sum()`, and `map()` and check if you can spot which one is a function, a built-in callable object, and a class.
+
+Make the `Task` instances callable by implementing the `__call__` function.
+
+### 298: poker hand sorting with callable classes (tricky)
+
+Consider the following scenario in which we need to sort a Poker hand using `sorted()`.
+
+```python
+cards = [10, "K", "A", "J", 2]
+print(sorted(cards)) # This will fail
+```
+
+Implement a `PokerOrder` class to fix the problem, so that you can do:
+
+```python
+cards = [10, "K", "A", "J", 2]
+print(sorted(cards, key=PokerOrder)) # 2, 10, J, K, A
+```
+
+Once you have a solution in place, annotate the following implementation that gives a solution in a very succinct way:
+
+```python
+class PokerOrder(int):
+    def __new__(cls, x):
+        cards_to_ord_mapping = {"J": 11, "Q": 12, "K": 13, "A": 14}
+        casted_ord_number = cards_to_ord_mapping.get(x, x)
+        return super().__new__(cls, casted_ord_number)
+
+cards = [10, "K", "A", "J", 2]
+print(sorted(cards, key=PokerOrder)) # 2, 10, J, K, A
+```
+
+### 299: Decorators as classes (tricky)
+
+Because classes are also callable, nothing prevent us from creating decorators in a form of a custom class. The trick is to implement the decorator logic in the `__init__()` method of the class.
+
+Let's start with the function based implementation by creating a decorator `@log_time` using function that prints the following information on the function being applied:
+
+```
+Invocation of <function-name> took <execution-tome-with-6-digits> msecs: args=<args>, kwargs=<kwargs>
+```
+
+Create a function `calculate_sum(n)` that returns the sum of the first n + 1 ints and decorate it to understand the time it takes to execute and parameters and apply the decorator to it.
+
+That is:
+
+```
+calculate_sum_of_numbers(1) => 1
+calculate_sum_of_numbers(2) => 1 + 2 = 3
+calculate_sum_of_numbers(4) => 1 + 2 + 3 = 6
+```
+
+
+Then implement a class `TimeLogger` as a decorator with the same logic as the one above. Create a function `calculate_sum(n)` that returns the sum of the first n - 1 ints and decorate it to understand the time it takes to execute and parameters.
+
+Make `TimeLogger` instances callable by implementing `__call__`. In the implementation, the decorator function containing the logic should be invoked. This will require adding that function as a class instance attribute. Test invocation of the `TimeLogger` instances.
+
+### 300: JSON
 
