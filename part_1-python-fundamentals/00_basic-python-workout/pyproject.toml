@@ -34,9 +34,4 @@ ignore = [
 
 select = ["ALL"]
 
-[tool.uv.workspace]
-members = [
-    "projects/02_basics",
-    "projects/03_tuples_sets_dicts",
-    "projects/04_ranges_comprehensions_generators_zip",
-]
+

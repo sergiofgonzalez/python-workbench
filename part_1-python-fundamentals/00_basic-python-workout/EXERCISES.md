@@ -1,5 +1,5 @@
 # Getting up to speed with simple projects
-> distilled list of projects from [01_python-workout](01_python-workout.ipynb) notebook with solutions in [projects/](projects/)
+> distilled list of basic Python snippets from [01_python-workout](01_python-workout.ipynb) with solutions in [projects/01_getting_up_to_speed](projects/01_getting_up_to_speed/)
 
 
 ## 01: Shakedown test
@@ -4137,5 +4137,1339 @@ Then implement a class `TimeLogger` as a decorator with the same logic as the on
 
 Make `TimeLogger` instances callable by implementing `__call__`. In the implementation, the decorator function containing the logic should be invoked. This will require adding that function as a class instance attribute. Test invocation of the `TimeLogger` instances.
 
-### 300: JSON
+### 300: Deserializing JSON string with `json.loads`
 
+Understanding how to convert data between JSON and Python is important, as your apps are bound to have interactions with other systems via JSON.
+
+JSON data types have corresponding native Python data types and Python data structures. Most of the conversions are straightforward, except for numbers, as JSON doesn't differentiate integers from floats, but Python does:
+
+| JSON type | Example Value | Python type | Example Value |
+| :-------- | :------------ | :---------- | :------------ |
+| String    | "one"         | `str`         | "one"         |
+| Number    | 123<br>123.45 | `int`<br>`float` | 123<br>123.45 |
+| Boolean   | true<br>false | `bool`         | True<br>False |
+| Array     | [1, 2]        | `list`         | [1, 2] |
+| Object    | {"one": 1}    | `dict`         | {"one": 1} |
+| Null      | null          | `NoneType`     | None |
+
+Deserializing (or unmarshalling) JSON means reading a JSON and convert it into a Python object.
+
+
+Create a simple program that converts the examples above into their corresponding Python objects. After converting the JSON value, print it's value and its type. Do you find anything unexpected?
+
+Try to use `json.loads()` to convert `"True"`. What error do you get?
+
+### 301: Deserializing an array of JSON objects
+
+
+Consider the following example in which a JSON string object representing an array of tasks.
+
+```json
+[
+    {
+        "title": "Laundry",
+        "desc": "Wash clothes",
+        "urgency": 3
+    },
+    {
+        "title": "Homework",
+        "desc": "Physics + Math",
+        "urgency": 5
+    }
+]
+```
+
+Use `json.loads(str)` to transform it into the equivalent Python object.
+
+### 302: Converting JSON objects into dataclasses
+
+Create a program that given the JSON:
+
+```json
+[
+    {
+        "title": "Laundry",
+        "desc": "Wash clothes",
+        "urgency": 3
+    },
+    {
+        "title": "Homework",
+        "desc": "Physics + Math",
+        "urgency": 5
+    }
+]
+```
+
+deserializes (unmarshall) it and converts it into a list of `Task` dataclasses.
+
+HINT: you might find useful to define a class method in the dataclass that return Task instances from a dictionary.
+
+### 303: Serializing Python objects into JSON using `json.dumps`
+
+Serialization (or marshalling) is the opposite of deserialization. You start from Python objects and via the serialization mechanism you end up with a JSON string.
+
+The `json` module provides the `dumps` method for serializing Python objects into JSON.
+
+Create a list containing:
++ a string
++ a boolean value
++ a dictionary, whose first key is "0" with value `None` and whose second key is 1 with value `[1.0, 2.0]`.
+
+Use `json.dumps()` to serialize it into JSON and print it. What is the type of the result you obtain when calling `json.dumps()`.
+
+### 304: Serializing dataclasses
+
+Create a `Task` dataclass with attributes title, desc, and urgency. Create an instance with title "Homework", description "Physics + Math", and urgency 5.
+
+Try to use `json.dumps()` to obtain the corresponding JSON representation. What happened?
+
+Try to fix it using the `default` argument in `json.dumps()`. Validate that you can transform it back into a `Task` using a class method that can take a dict and return an instance.
+
+### 305: Prettifying JSON.dumps
+
+The function `JSON.dumps()` exposes a parameter `indent` that you can use to prettify JSON data obtained through `JSON.dumps()`.
+
+Create a `Task` dataclass with attributes title, desc, and urgency. Create an instance with title "Homework", description "Physics + Math", and urgency 5.
+
+Use the `default` and `indent` parameters to serialize the dataclass into a proper JSON object and validate that the object has been correctly indented.
+
+Create a `TaskV2` version that includes a `tags: list[str]` field. Repeat the exercise and validate the result.
+
+Another way to prettify the result is sorting the keys. You can use `sort_keys=True` for that. Repeat the previous exercise using also `sort_keys` and confirm that the keys has been sorted alphabetically.
+
+### 306: Serializing named tuples
+
+Create a `Task` named tuple and instantiate a `Task` as `Task("Homework", "Physics + Math", 5)`. Use `json.dumps()` to convert it to a JSON object.
+
+HINT: you might be tempted to create an encoder to transform the instance into a __dict__ but the encoder won't be called.
+
+
+### 307: Serializing custom classes
+
+Create a `Task` class and instantiate a `Task` as `Task("Homework", "Physics + Math", 5)`. Use `json.dumps()` to convert it to a JSON object.
+
+HINT: you might need to create an encoder to transform the instance into the corresponding JSON object. The custom encoder must take a `Task` instance and return a dictionary.
+
+### 308: Serializing legacy named tuples
+
+Create a `Task` named tuple and instantiate a `Task` as `Task("Homework", "Physics + Math", 5)`. Use `json.dumps()` to convert it to a JSON object.
+
+HINT: you might try with a custom encoder to transform the instance into the corresponding JSON object. The custom encoder must take a `Task` instance and return a dictionary. However, this approach won't work because Python will never call the encoder. In the same way Python won't call the encoder for an int, Python knows about named tuples and won't call your custom encoder.
+
+### 309: using class methods for alternative instance creation
+
+A class method is a method that is defined at class level instead of at instance level. As a result, it takes the class object as its first argument instead of taking `self`.
+
+A common use case for `@classmethod` is to provide different alternatives for object initialization.
+
+Create a `Vector3D` class whose initializer takes the coordinates x, y, and z. Create a class method `from_sequence` that returns an instance of the the class by passing a sequence of three values for the coordinates.
+
+Also, implement `__repr__` to show a developer-friendly representation of the instance.
+
+You can make instances iterable implementing the `__iter__` method in your class. That way, it will support things like `for coord in vec3d` to get the coordinates of the 3D vector. HINT: the cleanest way to implement it is with a generator that yields every coordinate at a time. HINT2: you can use `yield from seq` for a more Pythonic implementation.
+
+### 310: multiple inheritance in Python
+
+Python supports multiple inheritance. Effectively, multiple inheritance allows you to create a class that inherits from multiple parents instead of a single one. The subclass will have access to attributes and methods from all its parents.
+
+Create a `Vehicle` class featuring make, model, and color attributes and `start()` and `stop()` instance methods that announce themselves.
+
+Create a `Car` class that inherits from `Vehicle` and create a `drive()` instance method for it. Then create an `Aircraft` class that also inherits from `Vehicle` featuring a `fly()` method, and engine_type attribute.
+
+Finally, create a `FlyingCar` class that inherits from both `Car` and `Aircraft`. In `main()`, check that it features both attributes and methods from its ancestors.
+
+### 311: mixin classes (mixins)
+
+A mixin class provides methods that you can reuse in many other classes via inheritance, but without assuming an **is-a** relationship between the super and subclasses.
+
+Mixin classes are not intended to be instantiated, instead, you use them to attach extra features to other classes via inheritance.
+
+Consider a class hierarchy with a `Person` class at the root, and `Employee`, `Student`, `Professor`, etc. as subclasses.
+
+Let's assume that all those classes will need methods to serialize their data into different formats (CSV, JSON, pickle, ...). That type of concern can be cleanly modeled with a Mixin class.
+
+As an example, create a `Person` class with `name` and `age` attributes. Then create a `SerializerMixin` class that defines the instance methods `to_json`, `to_pickle`, `to_csv` that serializes the class attributes into those different formats.
+
+Then create an `Employee` class that inherits from both `Person` and `SerializerMixin`. Person instances should feature `employee_id` and `salary` as extra attributes over a `Person`. In main, check the mixin methods.
+
+### 312: opening and closing files without the context manager
+
+The simplest, though discouraged, way in which files can be opened in Python is using the `open` built-in function. This function returns a `TextIOWrapper` object that represents a buffered text stream providing higher-level access to the underlying data in the file.
+
+We typically refer to this object as a *stream* or *file object*, while the actual class is different.
+
+The *stream object* features the following attributes:
++ `name`: name of the file
++ `mode`: indicates how the file was opened (`r` for read-mode, etc.). When a file is opened in `r` mode non-read operations won't succeed.
++ `encoding`: indicates how the file data was encoded. Most text data is encoded with UTF-8.
+
+You can read from a stream using `read()`. This will return a string representation of the whole file contents.
+
+| NOTE: |
+| :---- |
+| This method obtains the entire file contents and materializes it in memory. If the file is too big, your computer might not have enough memory to hold the data and fail. |
+
+Once you're done processing, you must close the file using the `close()` method.
+
+You can check that the file is closed by accessing its `closed` attribute.
+
+
+Use this method to read the information from the file named [`tasks.csv`](./projects/01_getting_up_to_speed/data/in_data/tasks/tasks.csv), whose contents are:
+
+```
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+Open the file and print the file object.
+
+Then read and print the file contents.
+
+Finally, close the file and and check that the file is closed by accesing its `closed` attribute.
+
+What are the problems associated with this example? How would you fix it?
+
+### 313: opening and closing files with the Context Manager (using `with` statement)
+
+The Context Manager protocol involves using the `with` statement to do proper release management of resources both in case of success and failure.
+
+This technique is not only applicable to files. Any resource needing to be closed should support this protocol.
+
+Use this method to read the information from the file named [`tasks.csv`](./projects/01_getting_up_to_speed/data/in_data/tasks/tasks.csv), whose contents are:
+
+```
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+Open it, read its contents using `read()`, print them, and validate that it is closed.
+
+| NOTE: |
+| :---- |
+| This method obtains the entire file contents and materializes it in memory. If the file is too big, your computer might not have enough memory to hold the data and fail. |
+
+How should you handle exceptions when using the `with` statement?
+
+### 314: reading data from a file using a `for` loop
+
+File objects (such as the ones returned by `with open(...) as `) are iterable, returning one line of text in each iteration.
+
+Use this method to read the information from the file named [`tasks.csv`](./projects/01_getting_up_to_speed/data/in_data/tasks/tasks.csv), whose contents are:
+```
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+Create a class `NamedTuple` for each of lines you extract from the file.
+
+Does it work well if the file contains `\n` as the last line?
+
+### 315: reading data from file using `readlines()`
+
+The `readlines()` method reads the whole file into a list of strings.
+
+| NOTE: |
+| :---- |
+| This method obtains the entire file contents and materializes it in memory. If the file is too big, your computer might not have enough memory to hold the data and fail. |
+
+Consider the file named [`tasks.csv`](./projects/01_getting_up_to_speed/data/in_data/tasks/tasks.csv), whose contents are:
+
+```
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+Use `readlines()` to read its contents and create a list of strings such as the following:
+
+```python
+assert numbered_lines == [
+    "row #1: 1001,Homework,5",
+    "row #2: 1002,Laundry,3",
+    "row #3: 1003,Grocery,4",
+]
+```
+
+HINT: for bonus points, use `enumerate(iterable, start=1)` to get the indices for the objects.
+
+### 316: Reading a single line from a file using `readline()`
+
+The method `readline()` lets you read a single line of text from a file. `readline()` can be used multiple times to read the contents of a file line-by-line as in the case of reading files with the `for` loop.
+
+Optionally, you can pass `readline()` a size argument that reads up to the number of characters in that line (e.g., `readline(5)` will read up to 5 characters in that current line).
+
+Use this method to read the information from the file named [`tasks.csv`](./projects/01_getting_up_to_speed/data/in_data/tasks/tasks.csv), whose contents are:
+
+```
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+in the following way:
+
+1. Open the file.
+2. Read the entire first line with `readline()` and print the contents.
+3. Read the entire second line with `readline()` and print the contents.
+4. Read the first 5 chars from the third line and print the contents.
+5. Read the subsequent 8 chars from the third line and print the contents.
+6. Read the remaining chars from the third line and print the contents.
+
+| NOTE: |
+| :---- |
+| Like `readline()`, both `read()` and `readlines()` also accept a `size` argument to identify how many chars to read from the file. |
+
+### 317: writing data to a new file using `write()`
+
+To write data to a new file, you should create a file object using `open()` and the Context Manager protocol (i.e., `with`) passing the `"w"` mode to signal you want to write the file.
+
+Then you can call the `write()` method, which will return the number of characters written.
+
+Create a new file with the following contents:
+
+```
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+Print the numbers of characters written.
+
+Try to the same exercise without passing `"w"` when opening the file. What exception do you get?
+
+### 318: writing a list of lines with `writelines()`
+
+You can write a list of lines to a new file using `writelines()`.
+
+Given the list:
+
+```python
+list_data = [
+    "1001,Homework,5",
+    "1002,Laundry,3",
+    "1003,Grocery,4",
+]
+```
+
+Open a file for writing and write the list above using `writelines()`. Then read the file contents and inspect the results. Are the results consistent with your expectations? How can you fix the exercise so that each list item is written on its own line?
+
+### 319: appending string data to an existing file
+
+You can write data to the end of the file by opening the file in `"a"` (for append) mode.
+
+Use this approach to append the line:
+
+```
+1004,Museum,3
+```
+
+to a file named [`tasks.csv`](./projects/01_getting_up_to_speed/data/in_data/tasks/tasks.csv), whose contents are:
+
+```
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+By doing the following:
+1. Open [`tasks.csv`]((./projects/01_getting_up_to_speed/data/in_data/312_opening_closing_files_discouraged/tasks.csv))
+2. Write a copy of the file `data/out_data/tmp/tasks.csv`.
+3. Verify the contents by printing the contents of `data/out_data/tmp/tasks.csv`.
+4. Open `data/out_data/tmp/tasks.csv` in "a" mode and append the line.
+5. Print the contents of the file and validate the line has been correctly appended.
+
+
+| NOTE: |
+| :---- |
+| The management of newlines might change between Windows and Linux systems, with Windows favoring using `\r\n` for newlines, and Linux favoring `\n`. Also, it is customary to end files in Linux with a line consisting of a single `\n` character. |
+
+### 320: read/write shakedown
+
+The following picture illustrates the different available methods for reading and writing in Python:
+
+![File Operations](pics/file-operations.png)
+
+Additionally, you should be aware of the following file modes, and understand where the file cursor is positioned when you use them:
+
+| Mode | read | write | create | truncate | Cursor position |
+| :--- | :--- | :---- | :----- | :------- | :-------------- |
+| r | * | | | | Start |
+| w |   | * | * | * | Start |
+| a |   | * | * |   | End |
+| r+ | *  | * |   |   | Start |
+| w+ | *  | * | * | * | Start |
+| a+ | *  | * | * |  | End |
+| x |  |  | * |  | Start |
+
+Create an example that validates the different variations.
+
+### 321: reading a CSV file line-by-line using a csv reader
+
+The standard Python library provides a built-in solution for dealing with CSV files: the `csv` module, which allows you to read the data directly with a `csv_reader`.
+
+Use this method to read the information from the file named [`tasks.csv`](./projects/01_getting_up_to_speed/data/in_data/tasks/tasks.csv), whose contents are:
+
+```
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+
+You will have to:
++ obtain a `csv_reader` object using `csv.reader(f)` after having opened the file.
++ use the `csv_reader` as an iterable that returns a line from the file each time you invoke it.
+
+| NOTE: |
+| :---- |
+| You will have to use the `newline=""` in the `open()` method to ensure cross-platform consistency. |
+
+### 322: reading a CSV file in one-shot using a csv reader
+
+For small CSV files, you might want to materialize the whole contents of the file in one shot by materializing the `csv.reader(f)` object using `list`.
+
+Use this method to read the information from the file named [`tasks.csv`](./projects/01_getting_up_to_speed/data/in_data/tasks/tasks.csv), whose contents are:
+
+```
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+
+### 323: reading a CSV file that features a header row using a manual approach
+
+Read a file named [`tasks_with_header.csv`](./projects/01_getting_up_to_speed/data/in_data/tasks/tasks_with_header.csv), whose contents are:
+
+
+```
+task_id,title,urgency
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+and transform it into a list of task dictionary objects that looks like the following:
+
+```python
+[
+    {'task_id': '1001', 'title': 'Homework', 'urgency': '5'},
+    {'task_id': '1002', 'title': 'Laundry', 'urgency': '3'},
+    {'task_id': '1003', 'title': 'Grocery', 'urgency': '4'},
+]
+```
+
+### 324: reading a CSV file that features a header using a DictReader
+
+Read a file named [`tasks_with_header.csv`](./projects/01_getting_up_to_speed/data/in_data/tasks/tasks_with_header.csv), whose contents are:
+
+```
+task_id,title,urgency
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+and transform it into a list of task dictionary objects that looks like the following:
+
+```python
+[
+    {'task_id': '1001', 'title': 'Homework', 'urgency': '5'},
+    {'task_id': '1002', 'title': 'Laundry', 'urgency': '3'},
+    {'task_id': '1003', 'title': 'Grocery', 'urgency': '4'},
+]
+```
+
+using a `DictReader` object.
+
+### 325: writing data to a CSV file using a writer
+
+Write a file named `tasks.csv` with contents:
+
+```
+task_id,title,urgency
+1001,Homework,5
+1002,Laundry,3
+1003,Grocery,4
+```
+
+Confirm what you've written and then append the line `1004,Museum,3`.
+
+| HINTS: |
+| :---- |
+| You will first have to obtain a `csv_writer` object and then use `write_row()`. Note that `writerow()` expects an iterable of strings. |
+| You will have to use the `newline=""` in the `open()` method to ensure cross-platform consistency. |
+
+### 326: writing data to a CSV file using a DictWriter
+
+`DictWriter` is the counterpart of `DictReader` for writing dictionary objects in a CSV file.
+
+Use `DictWriter` to write the following tasks modeled as dictionaries:
+
+```python
+tasks = [
+    {"task_id": "1001", "title": "Homework", "urgency": "5"},
+    {"task_id": "1002", "title": "Laundry", "urgency": "3"},
+    {"task_id": "1003", "title": "Grocery", "urgency": "4"},
+]
+```
+
+HINT: you will have to invoke `DictWriter` setting `fieldnames=fields`, and then invoke `writeheader()` and `writerows()`.
+
+How would you handle the writing of a large CSV file?
+
+### 327: pickling objects for data preservation
+
+Pickling is a technique that allows you to preserve various forms of Python data. The term comes from the preservation of food using vinegar (or similar solutions).
+
+In Python, *pickling* refers to the process of converting objects to a binary format for data preservation. That way, you can store them in binary format, and then conveniently retrieve them later.
+
+Confirm that almost any type of object can be pickled by using pickling to:
+
+```python
+task_tuple = (1001, "Homework", 5)
+task_dict = {"task_id": "1002", "title": "Laundry", "urgency": 3}
+```
+
+Then, *unpickle* those objects and validate that their contents have not changed.
+
+HINT: import the `pickle` module and use the `dump` method.
+
+
+### 328: pickling and unpickling custom classes
+
+Create a custom `Task` class with title and urgency attributes and confirm that they can be pickled and unpickled seamlessly.
+
+Validate that for the seamless pickling and unpickling to work, the class must be known at the time of unpickling. HINT: you can use `del Task` to remove the `Task` class from scope. What exception do you get?
+
+### 329: pickling and unpickling from/to string with pickle.dumps() and pickle.loads()
+
+While JSON is a great data exchange format, it doesn't work well custom classes unless you provide specific JSON serialization instructions via the `default` argument of `json.dumps()`. Additionally, it's very difficult to serialize certain types of objects like functions.
+
+By contrast, you can serialize functions OOB if you use pickling.
+
+Define a `say_hello(name)` function. Pickle it using `pickle.dumps` and unpickle it using `pickle.loads()`. Ensure that you can use the unpickled function right away by invoking it. Assert it is the same function as the original (HINT: use ==).
+
+Note however that not everything can be pickled, for example, you cannot pickle a whole module. Also, loading untrusted pickles is a serious threat vector for your apps, as you cannot see what you're unpickling.
+
+### 330: creating a directory with pathlib module
+
+The `pathlib` module is the preferred approach for dealing with paths, creating directories, etc.
+
+Create the directory `data/out_data/tmp/my_dir` using `pathlib.Path.mkdir()`. Validate that the directory is effectively created using `Path.exists()`.
+
+### 331: creating a bunch of files programmatically
+
+Create the following files in a new `data/out_data/tmp/my_files`
+
+```
+subject_123.config
+subject_123.dat
+subject_123.txt
+subject_124.config
+subject_124.dat
+subject_124.txt
+subject_125.config
+subject_125.dat
+subject_125.txt
+```
+
+by iterating over numbers and extensions.
+
+HINT: the `/` (division) operator is overloaded for pathlib paths, which allows you to create OS agnostic paths by using `path / to / filename`, where `path`, `to`, and `filename` are either `Path` or string variables.
+
+### 332: listing specific files in a directory using `glob`
+
+Consider the [data/in_data/my_files](./projects/01_getting_up_to_speed/data/in_data/my_files/) directory, holding the files:
+
+```
+subject_123.config
+subject_123.dat
+subject_123.txt
+subject_124.config
+subject_124.dat
+subject_124.txt
+subject_125.config
+subject_125.dat
+subject_125.txt
+```
+
+Create a program that retrieves all the .dat files.
+
+HINT: use the `Path.glob` method.
+
+### 333: copying files to a different folder
+
+The `shutil` module provides a high-level API for manipulating files.
+
+In particular, the `copy(src, dst)` allows you to copy files.
+
+Consider the data directory:
+
+Consider the [data/in_data/my_files](./projects/01_getting_up_to_speed/data/in_data/my_files/) directory, holding the files:
+
+```
+subject_123.config
+subject_123.dat
+subject_123.txt
+subject_124.config
+subject_124.dat
+subject_124.txt
+subject_125.config
+subject_125.dat
+subject_125.txt
+```
+
+Create a program that moves each of the files to their corresponding `subject/subjects_<id>/` directory.
+
+| HINT: |
+| :---- |
+| You will need to use the `Path.mkdir()` method which accepts a `parents` argument to create any intermediate levels that don't exist. Also, you can use `exists_ok` to silence any error situation associated to directories that already exist. |
+
+### 334: moving files to a different folder
+
+You can move files by just renaming their file path.
+
+For example, if you rename:
+
+```
+data/subject_123.dat
+```
+
+to
+
+```
+subjects/subject_123/subject_123.dat
+```
+
+the file would be effectively moved from `data/` to `subjects/subject_123/`.
+
+Consider the [data/in_data/my_files](./projects/01_getting_up_to_speed/data/in_data/my_files/) directory, holding the files:
+
+```
+subject_123.config
+subject_123.dat
+subject_123.txt
+subject_124.config
+subject_124.dat
+subject_124.txt
+subject_125.config
+subject_125.dat
+subject_125.txt
+```
+
+Create a program that first copies those files to a temporary location, and then moves each of the files to their corresponding `subject/subjects_<id>/` directory as mentioned in the beginning of the exercise.
+
+| HINT: |
+| :---- |
+| You will need to use the `Path.mkdir()` method which accepts a `parents` argument to create any intermediate levels that don't exist. Also, you can use `exists_ok` to silence any error situation associated to directories that already exist. |
+
+
+
+
+### 335: deleting specific files in a dir
+
+The `Path.unlink()` method lets you delete a file from a directory.
+
+Consider the [data/in_data/my_files](./projects/01_getting_up_to_speed/data/in_data/my_files/) directory, holding the files:
+
+```
+subject_123.config
+subject_123.dat
+subject_123.txt
+subject_124.config
+subject_124.dat
+subject_124.txt
+subject_125.config
+subject_125.dat
+subject_125.txt
+```
+
+Create a program that first copies those files to a temporary location, and then removes the .txt files from that specific directory.
+
+
+### 336: removing a directory with `shutil.rmtree()`
+
+`Path` exposes the `rmdir()` method to delete empty directories, but if you need to remove non-empty directories, you need to use the `shutil.rmtree()`.
+
+Delete the directory ... using both `rmdir()` and `rmtree()`.
+
+### 337: retrieving filename, file extension, basename, and patent dir
+
+The following properties are available for `Path` objects:
++ `parent`: return the parent directory of a Path.
++ `name`: return the entire filename (basename and extension).
++ `stem`: return the basename of a file (no extension).
++ `suffix`: return the file extension.
+
+
+Consider the [data/in_data/my_files](./projects/01_getting_up_to_speed/data/in_data/my_files/) directory, holding the files:
+
+```
+subject_123.config
+subject_123.dat
+subject_123.txt
+subject_124.config
+subject_124.dat
+subject_124.txt
+subject_125.config
+subject_125.dat
+subject_125.txt
+```
+
+Reorganize those files into a structure with intermediate directories identifying the subject_id, like in the following example:
+
+```
+subject_123.dat
+```
+
+to
+
+```
+subjects/subject_123/subject_123.dat
+```
+
+
+Create a program that access the `subjects/` directory tree looking for *.dat files in all the `subjects/` directories. When found, obtain the directory name using `parent` and the filename without extension using `stem`.
+
+(Review the exercise Retrieving file name and file extension related metadata) and elaborate what is done.
+
+### 338: retrieving a file's size and time metadata
+
+You can use the `Path.stat()` method to return a file's metadata.
+
+Consider the [data/in_data/my_files](./projects/01_getting_up_to_speed/data/in_data/my_files/) directory, holding the files:
+
+```
+subject_123.config
+subject_123.dat
+subject_123.txt
+subject_124.config
+subject_124.dat
+subject_124.txt
+subject_125.config
+subject_125.dat
+subject_125.txt
+```
+
+Create a function `process_data_size_threshold(min_size, max_size)` that iterates over the *.dat files in a directory retrieving their size and prints a message when the file is within the given limits.
+
+When the file is within the limits, the program should print the modification timestamp.
+
+HINT: the value returned by `stat().st_mtime` needs to be formatted in order to make it readable using `time.ctime()`
+
+### 339: hello, logging instantiation with `getLogger()`
+
+The `logging` module from the std Python library exposes a Logger class that must be instantiated using the `getLogger` factory method.
+
+As best practice, loggers should be created using the `logging.getLogger(__name__)` which returns a logger configured with the module name. For example, `server` for a module implemented in a `server.py` file.
+
+When using the factory method, whenever you invoke `logging.getLogger()` you will receive the same shared logger instance.
+
+Create a snippet in which you define two functions, both returning invocations of `getLogger()`. Confirm that you're getting the same instance.
+
+Then invoke the the `debug`, `warning`, and `info` methods with fixed strings and check the results.
+
+### 340: hello, logging file handler
+
+You can configure your logger to log to a file through a `logging.FileHandler`.
+
+For that you will need to:
+1. Get a reference to a logger using `logging.getLogger()`.
+2. Instantiate a `logging.FileHandler(<path-to-file>)`
+3. Invoke `logger.addHandler()` to configure the logger with the recently created file handler.
+
+Create a program that configures a file handler and invoke the `debug`, `warning`, and `info` methods with fixed strings and check the results.
+
+### 341: hello, stream handler
+
+You can configure your logger to log to a stream (such as stdout or stderr) through a `logging.StreamHandler()`.
+
+For that you will need to:
+1. Get a reference to a logger using `logging.getLogger()`.
+2. Instantiate a `logging.StreamHandler()`
+3. Invoke `logger.addHandler()` to configure the logger with the recently created file handler.
+
+Create a program that configures a file handler and invoke the `debug`, `warning`, and `info` methods with fixed strings and check the results.
+
+What happens is you add multiple `logging.StreamHandlers()` to your logger? Use `logger.hasHandlers()` and `logger.handlers` to check what handlers have been added to the logger.
+
+Also, Python logging features root logger handlers that can be inspected using `logging.root.handlers`.
+
+### 342: logger levels
+
+Python's logging module supports the following logging levels:
+
+| Severity Value | Logging Level | Description |
+| :------------- | :------------ | :---------- |
+| 50             | `CRITICAL`    | Severe error in core functionalities. |
+| 40             | `ERROR`       | Error in certain functionality. |
+| 30             | `WARNING`     | Unexpected behavior that can lead to errors.<br>This is the **default setting**. |
+| 20             | `INFO`        | Information about expected behaviors. |
+| 10             | `DEBUG`       | Diagnosis information to facilitate observability and debugging. |
+| 0              | `NOTSET`      | Base value. Typically not used. |
+
+You must use the `setLevel` method on a logger to set the level. You can use the constants, `logging.WARNING`, `logging.INFO`, etc. as argument to `setLevel`.
+
+When you set a specific level, all logging invocations at that level and the ones above it (in terms of severity) will be captured by the logger.
+
+For example, if you set your logger level with `logging.WARNING`, warnings, errors, and criticals will be logged, but info, and debug will be suppressed.
+
+Create a function that invokes the different logging methods. Then set your logger with the different available levels and confirm the behavior.
+
+Why is it not working?
+
+HINT: you need to set the logging level using the `basicConfig` method at the beggining of your program. Note that this won't allow for dynamically changing the logging level. See [setting logging levels using basicConfig](#343-setting-logging-levels-using-basicconfig)
+
+### 343: setting logging levels using basicConfig
+
+Create a program that sets the logging level using `basicConfig`. Confirm that then the logger behaves as expected.
+
+### 344: setting logging levels per handler
+
+The `logging` module allows you to set logging level per handler. This is configured as follows:
+
+```python
+handler = logging.<Handler>(...)
+handler.setLevel(<logging-level>)
+logger.addHandler(handler)
+```
+
+Create a program in which you:
+1. Create a module logger and set it with debug level.
+2. Add a file handler and configure it with warning level.
+3. Add another file handler and configure it with critical level.
+4. Add another stream handler that configure it with info.
+5. Create a function that invokes the different logging methods and confirm the behavior.
+
+Once completed, you can reset the existing handlers doing:
+
+```python
+logger.handlers = []
+```
+
+Repeat the exercise once you have resetted the handlers and see what's logged.
+
+### 345: configuring the logger format for a handler
+
+The `logging` module allows you to configure what each of the log lines look like by using the `logging.Formatter()` function.
+
+This result of invoking this function needs to be added to a handler:
+
+```python
+import logging
+
+logger = logging.getLoagger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter("%(asctime)s [%(levelname)s] - %(name)s - %(message)s")
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+```
+
+Create a function that invokes the different logging methods and confirm the behavior.
+
+Is there a way to use formatter from a simplistic `logger` obtained through `logger.getLogger()`.
+
+### 346: configuring the logger format with basicConfig
+
+The `logging` module allows you to configure what each of the log lines look like using the `logging.Formatter()` function.
+
+This result of invoking this function needs to be added to a handler:
+
+```python
+import logging
+
+logger = logging.getLoagger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter("%(asctime)s [%(levelname)s] - %(name)s - %(message)s")
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+```
+
+Create a function that invokes the different logging methods and confirm the behavior.
+
+Is there a way to use formatter from a simplistic `logger` obtained through `logger.getLogger()`.
+
+### 347: logging exceptions
+
+When logging an exception, it is a best practice to use the `exception` method:
+
+```python
+try:
+    ... # code that may raise an exception
+except Exception:
+    logger.exception("<additional-info>")
+```
+
+Create a program that confirms the behavior of `logger.exception()`.
+
+Note that it is not necessary to include any reference to the exception, as it is logged automatically by `logger.exception()`
+
+### 348: interpolating information in log messages
+
+Unfortunately, f-strings are not appropriate for formatting log messages as this will bypass one of the the logging module features that delays string formatting until it is actually needed.
+
+As a result, you should use do interpolation as seen below:
+
+```python
+logging.error("Error saying hello to %s", name)
+```
+
+The following table describes the most common formatters:
+
+| Format specifier | Description | Example |
+| :--------------- | :---------- | :------ |
+| %s | string formatter can be used for any object with a string representation (lists, tuples, etc.) | `logger.error("Hello, %s", name)` |
+| %d | integer formatter | `logger.error("It failed %d times", num)` |
+| %f | floating point formatter | `logger.error("Expected %f", num)` |
+| %.nf | floating point formatter with fixed amount of digits to the right of the decimal point | `logger.error("Num %.5f unexpected", num)` |
+
+Create a program that illustrates these formatters.
+
+### 349: the basics for testing functions
+
+The basics for testing functionality in Python relies on the `assert` keyword. It is used to confirm the that the output of a given function returns the expected output.
+
+Create a `Task` class with a title and urgency. Define a factory function `create_task(text)` that receives a CSV string containing the title and urgency fields and returns a Task.
+
+Use assert to:
+1. Validate that the `create_task` works as expected
+2. Validate that the instance returned by `create_task` it's the same as the one that would be created by invoking the `Task` initializer.
+
+### 350: hello, unittest
+
+You can do unit tests in Python using `unittest`. While `pytest` is far more popular, understanding the basics of unittest might be helpful if you find some test code relying on it.
+
+Create a module that exposes a `Task` class that has the attributes title and urgency, and a `create_task_from_csv_string()` function that receives a CSV record (as in `Homework,3`) and returns an instance of `Task`. Create another function named `create_task_from_dict()` that takes a dictionary with at least `title` and `urgency` keys and instantiates and returns a `Task`.
+
+Then create a unittest TestCase that checks that instances created by `create_task_from_csv_string()` are the same ones created by `Task` initializer.
+
+Do the same for the instances created by `create_task_from_dict()`
+
+HINTS:
+1. You need to import the `unittest` module.
+2. For the test case creation, you need to define a class whose name should begin with `Test*`. This class must inherit from `unittest.TestCase`.
+3. Within it, define test instance methods named `test_<func_name_that_is_tested>`.
+4. For the assertions, rely on unittests's instance methods.
+5. The test program should include the invocation of `unittest.main()` when invoked from the comand line. That is:
+
+```python
+if __name__ == "__main__":
+    unittest.main()
+```
+
+### 351: unittest setup methods
+
+The `unittest.TestCase` class features a `setUp` method you can use to run some actions before running any test.
+
+You can do unit tests in Python using `unittest`. While `pytest` is far more popular, understanding the basics of unittest might be helpful if you find some test code relying on it.
+
+Create a module that exposes a `Task` class that has the attributes title and urgency, and a `create_task_from_text()` function that receives a CSV record (as in `Homework,3`) and returns an instance of `Task`. Create another function named `create_task_from_dict()` that takes a dictionary with at least `title` and `urgency` keys and instantiates and returns a `Task`.
+
+Then create a unittest TestCase that checks that instances created by `create_task_from_text()` are the same ones created by `Task` initializer.
+
+Do the same for the instances created by `create_task_from_dict()`.
+
+Then, define a `setUp` function that initializes the expected data.
+
+HINT: You can define the data in `self` to make it available for the different test functions.
+
+### 352: unittest testing class methods
+
+Create a `Task` class that has the attributes title and urgency, and a couple of static methods `from_text()` function that receives a CSV record (as in `Homework,3`) and returns an instance of `Task`. Create another function named `from_dict()` that takes a dictionary with at least `title` and `urgency` keys and instantiates and returns a `Task`.
+
+
+Create a test class that tests those class methods.
+
+### 353: hello, mock
+
+Even if you're using `pytest`, understanding the `unittest.mock` package will be useful.
+
+A mock object substitutes and imitates a real object within a testing environment.
+
+This becomes really handy if your code is difficult to test in certain areas, including calls to external systems, interactions with the file system, etc.
+
+Additionally, mock objects tend to expose methods that lets you inspect:
++ if a method or function has been called.
++ the arguments passed when invoking a method.
++ how many times a method has been invoked (if more than one is expected).
+
+The standard library includes `unittest.mock` module for your mocking needs. This class provides a class called `Mock` that can be used to imitate real objects.
+
+The library also provides a function `patch`, which replaces objects in your code with `Mock` instances. `patch` can be used as a decorator, or as a context manager. If using the latter, once the designated scope ends, the mock object will be replaced by the real one, which is useful when you only require mocking for a certain portion of your test function.
+
+A `Mock` object simulates the object it replaces. For example, when mocking the `json` module, the mock object must contain the function `dumps()` so that the test code doesn't break when invoking the mocked version.
+
+When using the `Mock` object, you don't need to create the mocked function or attribute yourself: the libary itself creates it.
+
+Also, the mocked functions or attributes are also `Mock` objects, so that you can recursively use mocks to hangle complex scenarios such as `json.loads({"key": "val"}).get("key")`.
+
+Create a program that performs the following:
+1. imports `unittest.mock` and instantiates a `Mock` instance.
+2. mocks the `json` module.
+3. prints the result of invoking `json.dumps()`.
+4. prints the result of invoking  `mock.some_attribute`.
+5. prints the result of invoking `json.load({"key": "val"}).get("key")`.
+
+### 354: mock assertions and inspections
+
+`Mock` objects expose the following methods you can use in your tests:
++ `Mock.assert_called()`
++ `Mock.assert_called_once()`
++ `Mock.assert_called_with(*args, **kwargs)`
++ `Mock.assert_called_once_with(*args, **kwargs)`
+
+If an assertion fails an `AssertionError` will be raised.
+
+The `Mock` object provides a wide range of features to spy how your code is interacting with the mocked object:
++ `Mock.call_count`
++ `Mock.call_args`
++ `Mock.call_args_list`
++ `Mock.method_calls`
+
+Create a program that mocks the `json` module. Use `json.loads(json_str)` to test all the features mentioned above.
+
+### 355: customizing a mock's return value
+
+Write a function `is_weekday()` that returns `True` if current day is a weekday, `False` otherwise.
+
+In order to properly test the function, you will need to mock it, as you will need to ensure you test the function for both results.
+
+You can customize the return value of a mocked function using `return_value`. Use this technique to test `is_weekday()`.
+
+HINT: You need to follow these guidelines:
++ do not import datetime, as you're going to mock it.
++ mock `datetime` at the global level.
++ when configuring the return value, use:
+
+        ```pyblock
+        datetime.now().weekday.return_value = x
+        ```
+
+### 356: customizing a mock's behavior with `side_effect`
+
+Sometimes, `return_value` is not enough.
+
+Consider the following snippet:
+
+```python
+import requests
+
+def get_holidays() -> dict[str, str] | None:
+    r = requests.get("https://date.nager.at/api/v3/PublicHolidays/2025/US", timeout=10)
+    if r.status_code != 200:
+        return None
+    holidays = r.json()
+    return {holiday["date"]: holiday["localName"] for holiday in holidays}
+```
+
+When testing that function fully, we will need to test both the happy path (in which the HTTP succeeds), and the error path, in which we return `None` because the HTTP didn't succeed.
+
+That scenario can be modeled via `side_effect`, which can be configured with a return value or an exception.
+
+Use `side_effect` to test the function defined above when an error condition is found.
+
+HINT: you will need to use `request.exceptions.Timeout` to simulate a `Timeout` when submitting the HTTP request.
+
+Then, use `side_effect` to model the happy path without submitting the HTTP request.
+
+HINTS:
+1. create a function that will simulate the happy path response for the function (e.g., `{"12/25": "Christmas", "7/4": "Independence day"}`).
+2. configure the behavior of `requests.get` with `side_effect`.
+3. Write the corresponding assertions to test the function.
+
+`side_effect` can also be configured with an iterable. When you do so, the configured behavior will produce its next value each time you call your mocked function.
+
+Add another section to your program in which you first configure your mock to return a `Timeout` exception, then to produce a return value.
+
+### 357: configuring a mock
+
+A `Mock` object can be configured with certain attributes such as `name`, `return_value`, and `side_effect`.
+
+Write a program that configures a `Mock` with a name, and name and a return value, and a name and a side effect (e.g., function that returns a greeting to the given name received) and confirm the results.
+
+Additionally, you can do things such as:
+
+```python
+holidays = {"12/25": "Christmas", "7/4": "Independence day"}
+response_mock = Mock(**{"json.return_value": holidays})
+```
+
+Print the result of invoking `response_mock.json()` to see how it works.
+
+### 358: hello, patch decorator
+
+The `patch` function looks up an object in a given module and replaces it with a `Mock` object. It's commonly used with a decorator (`@patch()`) when you want to mock an object for the duration of your entire test function (monkey patching).
+
+Consider the following snippet the defines two calendar related functions defined in a module named `cldr`:
+
+```python
+def is_weekday() -> bool:
+    today_ord = datetime.now(tz=UTC).weekday()
+    return today_ord < 5
+
+def get_holidays() -> dict[str, str] | None:
+    r = requests.get("https://date.nager.at/api/v3/PublicHolidays/2025/US", timeout=10)
+    if r.status_code != 200:
+        return None
+    holidays = r.json()
+    return {holiday["date"]: holiday["localName"] for holiday in holidays}
+```
+
+Create a unittest testcase that tests both `is_weekday()` and `get_holidays()` using `@patch()`. Note that you need to pass the object you want to mock as an argument in string format (as in `@patch("json.loads")`).
+
+You will need to:
++ check that `is_weekday()` works for both weekdays and weekends.
++ check that `get_holidays()` works for the happy and error path.
+
+### 359: patch as a context manager
+
+`patch()` can also be used as a context manager when:
++ you only want to mock an object for a portion of the test scope.
++ you're already using a lot of decorators on the test function and you don't want to compromise readability
+
+The structure is:
+
+```python
+with patch("<object.to.patch>") as mock_obj:
+    mock_obj.fn.side_effect = ...
+    mock_obj.attr = ...
+    # additional arrangements
+    # act: test function with mock
+    # assertions
+```
+
+As soon as the scope of the `with` is completed, `patch()` will replace the mocked object with the real one.
+
+Consider the following snippet the defines two calendar related functions defined in a module named `cldr`:
+
+```python
+def is_weekday() -> bool:
+    today_ord = datetime.now(tz=UTC).weekday()
+    return today_ord < 5
+
+def get_holidays() -> dict[str, str] | None:
+    r = requests.get("https://date.nager.at/api/v3/PublicHolidays/2025/US", timeout=10)
+    if r.status_code != 200:
+        return None
+    holidays = r.json()
+    return {holiday["date"]: holiday["localName"] for holiday in holidays}
+```
+
+Create a unittest testcase that tests both `is_weekday()` and `get_holidays()` using `patch()` with a context manager.
+
+You will need to:
++ check that `is_weekday()` works for both weekdays and weekends.
++ check that `get_holidays()` works for the happy and error path.
+
+### 360: patching an object's attributes with `patch.object`
+
+Oftentimes you will want to mock one method of an object, instead of the entire object. That can be done with the help of `patch.object`.
+
+For example, if you consider:
+
+```python
+def get_holidays() -> dict[str, str] | None:
+    r = requests.get("https://date.nager.at/api/v3/PublicHolidays/2025/US", timeout=10)
+    if r.status_code != 200:
+        return None
+    holidays = r.json()
+    return {holiday["date"]: holiday["localName"] for holiday in holidays}
+```
+
+You can see that `requests.get()` is the only function that needs to be mocked, instead of the entire `requests` module.
+
+When that happens, you can use `@patch.object(target_obj, "func-name-to-mock", side_effect=...)`.
+
+Consider the following snippet the defines two calendar related functions defined in a module named `cldr`:
+
+```python
+def is_weekday() -> bool:
+    today_ord = datetime.now(tz=UTC).weekday()
+    return today_ord < 5
+
+def get_holidays() -> dict[str, str] | None:
+    r = requests.get("https://date.nager.at/api/v3/PublicHolidays/2025/US", timeout=10)
+    if r.status_code != 200:
+        return None
+    holidays = r.json()
+    return {holiday["date"]: holiday["localName"] for holiday in holidays}
+```
+
+Create a unittest testcase that tests both `is_weekday()` and `get_holidays()` using `@patch.object()`.
+
+You will need to:
++ check that `is_weekday()` works for both weekdays and weekends.
++ check that `get_holidays()` works for the happy and error path.
+
+### 361: patching dict-like objects with `@patch.dict()`
+
+You can patch dictionaries, and dictionary-like attributes using `@patch.dict()`. This can be useful for instance when you need to mock environment variables.
+
+Create a test case using `@patch.dict()` in which you mock `os.environ` to test the existence and value of an environment variable.
+
+HINT: See https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch.dict
+
+### 362: Identifying the target object's path when patching
+
+Learning how to use `patch()` effectively is critical when mocking objects in other modules.
+
+Consider the following snippets paying special attention at the import statements. The first snippet effectively mocks the intended function, while the second fails:
+
+```python
+# This one works
+import unittest
+from unittest.mock import patch
+
+import my_calendar
+
+
+class TestCalendar(unittest.TestCase):
+    def test_weekday_mock(self):
+        with patch("my_calendar.is_weekday"):
+            my_calendar.is_weekday()
+
+
+if __name__ == "__main__":
+    unittest.main()
+```
+
+```python
+# This one doesn't work
+import unittest
+from unittest.mock import patch
+
+from my_calendar import is_weekday
+
+
+class TestCalendar(unittest.TestCase):
+    def test_weekday_mock(self):
+        with patch("my_calendar.is_weekday"):
+            is_weekday()
+
+
+if __name__ == "__main__":
+    unittest.main()
+```
+
+In the second snippet, `is_weekday()` has not been mocked. The reason is that the `import` is bringing the function into scope, but the patch is applied to a different reference coming from `my_calendar.is_weekday`.
+
+> the rule of thumb is to patch the object where it is looked up. That is, using the same approach used for the import.
+
+Specifically, if you need to do mock a *bare* `is_weekday()` you will need to use `__main__.is_weekday()` as the path for the patch (or maybe just `is_weekday()`????????????).
+
+Confirm these behaviors using the following snippet the defines two calendar related functions defined in a module named `cldr`:
+
+```python
+def is_weekday() -> bool:
+    today_ord = datetime.now(tz=UTC).weekday()
+    return today_ord < 5
+
+def get_holidays() -> dict[str, str] | None:
+    r = requests.get("https://date.nager.at/api/v3/PublicHolidays/2025/US", timeout=10)
+    if r.status_code != 200:
+        return None
+    holidays = r.json()
+    return {holiday["date"]: holiday["localName"] for holiday in holidays}
+```
+
+### 363: using mock specs
+
+As `Mock` objects creates attributes and methods *on-the-fly* when you access them, you might find problems when the function or method you're invoking is misspelled.
+
+This can be mitigated by creating a *spec* for your mock.
+
+Specs can be used with `Mock` objects, `@patch()`, and `patch()`.
+
+Create an example in which you create a spec for a calendar module `cldr` that defines defines two calendar related functions defined in a module named `cldr`:
+
+```python
+def is_weekday() -> bool:
+    today_ord = datetime.now(tz=UTC).weekday()
+    return today_ord < 5
+
+def get_holidays() -> dict[str, str] | None:
+    r = requests.get("https://date.nager.at/api/v3/PublicHolidays/2025/US", timeout=10)
+    if r.status_code != 200:
+        return None
+    holidays = r.json()
+    return {holiday["date"]: holiday["localName"] for holiday in holidays}
+```
+
+In the tests, validate that you get an exception when you try to use in the mock a function not defined in the specs.
+
+### 364: mocks with `auto_spec`
+
+You can use `auto_spec` (either by importing it from `unittest.mock`) or by passing the argument `autospec=True` in `@patch()` or `patch()`.
+
+Create an example in which you create a spec for a calendar module `cldr` that defines defines two calendar related functions defined in a module named `cldr`:
+
+```python
+def is_weekday() -> bool:
+    today_ord = datetime.now(tz=UTC).weekday()
+    return today_ord < 5
+
+def get_holidays() -> dict[str, str] | None:
+    r = requests.get("https://date.nager.at/api/v3/PublicHolidays/2025/US", timeout=10)
+    if r.status_code != 200:
+        return None
+    holidays = r.json()
+    return {holiday["date"]: holiday["localName"] for holiday in holidays}
+```
+
+In the tests, validate that you get an exception when you try to use in the mock a function not defined in the specs.
+
+### 365: hello, walrus operator
+
+The walrus operator introduced in Python 3.8 lets you use an assignment in an `if` statement.
+
+Refactor the following snippet in a more succinct way using the walrus operator:
+
+```python
+def get_user_input():
+    return "Y"
+
+user_input = get_user_input()
+
+should_show_value = user_input
+if should_show_value == "Y":
+    print("Value should be displayed")
+```
+
+### 366: creating custom iterators
+
+The special methods `__iter__()` and `__next__()` are special methods that are used when creating custom iterators:
+
++ `__iter__()`: called upon initialization of the iteration. Must return an iterator object.
++ `__next__()`: called to *iterate over the iterator*. It must return the next value in the data stream or raise an `StopIteration` exception when the stream of data is exhausted.
+
+Implement the Fibonacci sequence (0, 1, 1, 2, 3, 5, 8, 13, 21, 34) as an iterator by creating a `FibonacciIterator` class that implements `__iter__()` and `__next()__`.
+
+### 367: callable factorial
+
+Python allows you to create your own callable by way of implementing the `__call__()` special method. When you implement that method in a class, the instances of the class will behave like functions.
+
+Create a `Factorial` class whose instances are callable. In the class implementation, benefit from the fact that class maintain state to implement memoization.
+
+### 368: custom context managers (`with ... as`)
+
+You can create your own context manager by implementing the following special methods in your class:
+
++ `__enter__`: sets up the runtime context (such as acquiring resources). It may return an object that you can bind to a variable with on the `with ctx_mngr as ...` header.
++ `__exit__`: cleans up the runtime context, releases resources, handles exceptions, and returns a `bool` indicating whether to propagate any exceptions that may occur in the context.
+
+Implement a basic `TextFileReader` class that supports the context manager protocol and whose DX is like the following:
+
+```python
+with TextFileReader(path_or_str) as text_file:
+    print(text_file.read())
+```
+
+Test what happens when you return `True` and `False` from the `__exit__()` method.
