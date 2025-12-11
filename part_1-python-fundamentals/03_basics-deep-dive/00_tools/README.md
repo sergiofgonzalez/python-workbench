@@ -236,7 +236,7 @@ uv python uninstall
 
 ##### Scripts
 
-To execute standalone Python escripts
+To execute standalone Python scripts
 
 ```bash
 # Run a script
@@ -713,3 +713,4 @@ $ python hello.py
 
 ##### Publishing a package (https://docs.astral.sh/uv/guides/publish/)
 
+Apart from the guides see https://github.com/sergiofgonzalez/pylnlst/blob/main/README.md

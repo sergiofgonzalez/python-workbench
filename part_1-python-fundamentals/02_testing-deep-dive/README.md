@@ -212,7 +212,7 @@ $ python -m unittest discover tests/unit
 
 ## Moving to pytest
 
-pytest is another test framework for Python. Despite not being part of the stdlib it it widely used and requires less verbosity in your tests.
+pytest is another test framework for Python. Despite not being part of the stdlib it is widely used and requires less verbosity in your tests.
 
 If we rewrite the previous `unittest` test in pytest it will end up as:
 
@@ -399,17 +399,17 @@ For example, in our web app projects we had the following:
 
 ```python
 @pytest.fixture(name="sample_dragon")
-def fixture_dragon_sample() -> Generator[Creture, None, None]:
+def fixture_dragon_sample() -> Generator[Creature, None, None]:
     yield Creature(
         name="Dragon",
         description="A large creature with wings that expel fire",
         country="*",
-        aread="*",
+        area="*",
         aka="firedrake"
     )
 
 def test_create(sample: Creature):
-    got = creature.create(sample)
+    got = Creature.create(sample)
     assert got == sample
 
 def test_get_one_missing(sample: Creature):
@@ -419,7 +419,7 @@ def test_get_one_missing(sample: Creature):
     assert e.value.status_code == 404
 ```
 
-Using `name` is a good way to prevent the redefining outer name issue pylint will report when using the fixture function name as an argument to the test function.
+Using `name` is a good way to prevent redefining outer name issue pylint will report when using the fixture function name as an argument to the test function.
 
 pytest will let you also configure the scope of a fixture to run a specific fixture once for all the test methods, once per module, etc.:
 
@@ -581,7 +581,7 @@ Results (0.02s):
 
 ## Why and what to test?
 
-To define what to test, you first need to understand why you are testings. There are multiple motivations for that, and depending on the outcome you can fine-tune the boundaries around what to test, and how much time to dedicate to testing.
+To define what to test, you first need to understand why you are testing. There are multiple motivations for that, and depending on the outcome you can fine-tune the boundaries around what to test, and how much time to dedicate to testing.
 
 + To avoid regressions
 
@@ -589,7 +589,7 @@ To define what to test, you first need to understand why you are testings. There
 
 + To manage quality
 
-        Again, dependening on how you define quality, you might decide to spend only sufficient time to ensure you don't have a lot of bugs in your code, or target a high-level quality standard in which you required everything to get tested.
+        Again, depending on how you define quality, you might decide to spend only sufficient time to ensure you don't have a lot of bugs in your code, or target a high quality standard in which you require everything to get tested.
 
 + To match the specs
 
@@ -611,13 +611,13 @@ To define what to test, you first need to understand why you are testings. There
 
         Similar to the dilute responsibility, sometimes you need to include testing just to justify that you have tests.
 
-What you need to understand is that testing comes at a price, and that when doing testing you need to pay the entry cost right now. It's common to see that testing will pay off on the long run, but that might or might not be true (i.e, there will be cases on which testing won't help you).
+What you need to understand is that testing comes at a price, and that when doing testing you need to pay the entry cost right now. It's common to say that testing will pay off on the long run, but that might or might not be true (i.e, there will be cases on which testing won't help you).
 
 In general, every testing target might be fine depending on the goal: from no testing at all to having 100% code coverage. But you need to make the rationale behind that decision.
 
 ## A few rules of thumb
 
-In general, favor a top-to-botoom interface:
+In general, favor a top-to-bottom interface:
     + GUI end-to-end testing is the test flavor that brings the most bang for your bucks.
 
     + If you have a web API test the exposed public API.
@@ -693,7 +693,7 @@ In general, favor a top-to-botoom interface:
 
 + Backtesting &mdash; it's the process of accumulating input and output to ensure that your system still behaves like that. It's therefore a mix of regression and end-to-end testing.
 
-+ Property-based testing &mdash; the idead is to check tht a general property of your system remains no matter what the actual input is. You will typically rely on frameworks such as hypothesis that will pass all sort of inputs to your function.
++ Property-based testing &mdash; the idea is to check that a general property of your system remains no matter what the actual input is. You will typically rely on frameworks such as hypothesis that will pass all sort of inputs to your function.
 
 
         This might look like the following:
