@@ -5473,3 +5473,441 @@ with TextFileReader(path_or_str) as text_file:
 ```
 
 Test what happens when you return `True` and `False` from the `__exit__()` method.
+
+### 369: refresh your Python list methods skills
+
+Complete the following table to prove your Python list skills:
+
+| Statement | Result | Additional Details |
+| :-------- | :----- | :----------------- |
+| [1, 2, 3].append(4) | | |
+| [1, 2, 3].clear() | | |
+| [1, 2, 3].copy() | | |
+| [1, 2, 3].count(2) | | |
+| [1, 2, 3].extend([4, 5]) | | |
+| [1, 2, 3].index(2) | | |
+| [1, 2, 3].insert(1, "a") | | |
+| [1, 2, 3].pop() | | |
+| [1, 2, 3].pop(1) | | |
+| [1, 2, 3].remove(2) | | |
+| [1, 2, 3].reverse() | | |
+| [1, 2, 3].sort() | | |
+| [1, 2, 3].sort(reverse=True) | | |
+| [1, 2, 3] + [4, 5] | | |
+| [1, 2, 3] * 2 | | |
+| [1, 2, 3][1] | | |
+| [1, 2, 3][:2] | | |
+| [1, 2, 3][1:] | | |
+| len([1, 2, 3]) | | |
+| [1, 2, 3].append(4) | | |
+| [x * 2 for x in [1, 2, 3]] | | |
+| list("abc") | | |
+| list(range(3)) | | |
+| sum([1, 2, 3]) | | |
+| max([1, 2, 3]) | | |
+| min([1, 2, 3]) | | |
+| any([False, True, False]) | | |
+| all([True, True, True]) | | |
+| sorted([3, 1, 2]) | | |
+| list(enumerate["a", "b"]) | | |
+| list(map(str, [1, 2, 3])) | | |
+
+Validate your responses with a program.
+
+SOLUTION:
+
+| Statement                     | Result             | Additional Details    |
+| :---------------------------- | :----------------- | :-------------------- |
+| [1, 2, 3].append(4)           | [1, 2, 3, 4]       |                       |
+| [1, 2, 3].clear()             | []                 |                       |
+| [1, 2, 3].copy()              | [1, 2, 3]          |                       |
+| [1, 2, 3].count(2)            | 1                  |                       |
+| [1, 2, 3].extend([4, 5])      | [1, 2, 3, 4, 5]    |                       |
+| [1, 2, 3].index(2)            | 1                  |                       |
+| [1, 2, 3].insert(1, "a")      | [1, "a", 2, 3]     |                       |
+| [1, 2, 3].pop()               | 3                  | list becomes [1, 2]   |
+| [1, 2, 3].pop(1)              | 2                  | list becomes [1, 3]   |
+| [1, 2, 3].remove(2)           | [1, 2]             |                       |
+| [1, 2, 3].reverse()           | [3, 2, 1]          | list updated in place |
+| [1, 2, 3].sort()              | [1, 2, 3]          | list sorted in place  |
+| [1, 2, 3].sort(reverse=True)  | [3, 2, 1]          | list sorted in place  |
+| [1, 2, 3] + [4, 5]            | [1, 2, 3, 4, 5]    |                       |
+| [1, 2, 3] * 2                 | [1, 2, 3, 1, 2, 3] |                       |
+| [1, 2, 3][1]                  | 2                  |                       |
+| [1, 2, 3][:2]                 | [1, 2]             |                       |
+| [1, 2, 3][1:]                 | [2, 3]             |                       |
+| len([1, 2, 3])                | 3                  |                       |
+| [1, 2, 3].append(4)           | [1, 2, 3, 4]       |                       |
+| [x * 2 for x in [1, 2, 3]]    | [2, 4, 6]          |                       |
+| list("abc")                   | ["a", "b", "c"]    |                       |
+| list(range(3))                | [0, 1, 2]          |                       |
+| sum([1, 2, 3])                | 6                  |                       |
+| max([1, 2, 3])                | 3                  |                       |
+| min([1, 2, 3])                | 1                  |                       |
+| any([False, True, False])     | True               |                       |
+| all([True, True, True])       | True               |                       |
+| sorted([3, 1, 2])             | [1, 2, 3]          | list stays the same   |
+| list(enumerate["a", "b"])     | [(0, "a", 1, "b")] |                       |
+| list(map(str, [1, 2, 3]))     | ["1", "2", "3"]    |                       |
+
+### 370: vars are labels
+
+In Python, variables are not like buckets that store a value as in other programming languages. Instead, Python variables are more like labels that refer to objects in Python's interpreter namespace.
+
+As a result, any number of labels can refer to the same object, and when the object changes, the value referred to by all of those variables/labels also changes. However, when variables are referring to constants or immutable values, the distinction isn't quite as clear.
+
+To formalize these concepts create:
+
+1. A variable `a` with value `[1, 2, 3]`
+1. A variable `b` pointing to `a`.
+1. A variable `c` pointing to `b`.
+1. Make change in the list using `b`: make the second element of the list `-5`.
+1. Print the values of `a`, `b`, and `c` and their memory addresses.
+1. Now, make `a = 1`
+1. Make `b = a`
+1. Make `c = b`
+1. Now, make `b = -5`
+1. Print the values of `a`, `b`, and `c` and their memory addresses.
+
+### 371: advanced slicing techniques
+
+Slice notation (`lst[index1:index2]`) can be used in assignments to replace the elements in a list. This will work even if the list used on the right hand side has more or fewer elements, in which case the list size will be altered.
+
+This fact opens up a range of very interesting techniques for modifying lists.
+
+Using slicing syntax:
+1. Define a variable `x` and assign it to the list `[1, 2, 3, 4]`
+1. Extend the list with `[5, 6, 7]` so that the resulting list is `[1, 2, 3, 4, 5, 6, 7]`
+1. Prepend the list with `[-1, 0]` so that the resulting list is `[-1, 0, 1, 2, 3, 4, 5, 6, 7]`
+1. Remove the elements from the second to the one before last so that the resulting list is [-1, 7]`
+1. Reassign x to the list `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`
+1. Prepend the list with the third to last, second to last, and last so that the resulting list is `[8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`
+1. Remove the list from the third to last to the end of the list, so that the resulting list `[8, 9, 10, 1, 2, 3, 4, 5, 6, 7]`
+
+### 372: using del with slices
+
+The `del` statement lets you delete an element from a list, but it can also be used with slices.
+
+1. Define a variable `x` and assign to the list `["a", 2, "c", 7, 9, 11]`
+1. Use del to remove the second element so that the resulting list is `["a", "c", 7, 9, 11]`
+1. Use del to remove the first and second element so that the resulting list is `[7, 9, 11]`
+
+### 373: custom sorting
+
+By default, `sort` (the in-place sorting mechanism for lists) uses built-in Python comparison functions to determine the ordering in which elements should be sorted.
+
+However, `sort` allows you to provide any other ordering mechanism by way of providing a `key` argument with the sorting function to use.
+
+1. Given the list ["uno", "dos", "tres", "cuatro", "cinco"], sort the list in-place using the length of the string as the sorting strategy.
+
+1. Given the list ["uno", "tres", "cuatro"], sort the list in-place using the length of the string as the sorting strategy in reverse order.
+
+1. Given the list of lists [[1, 2, 3], [2, 1, 3], [4, 0, 1]] sort the list by the second element in each list so that the result is [[4, 0, 1], [2, 1, 3], [1, 2, 3]].
+
+### 374: list basics
+
+Answer the following list related questions:
+
+1. What is the result of `len([1, 2] * 3)`?
+1. What are the two differences between using `in` and `index`?
+1. Which of the following will raise an exception?
+    1. `min(["a", "b", "c"])`
+    2. `max([1, 2, "three"])`
+    3. `[1, 2, 3].count("one")`
+
+Create a program that validates your answers.
+
+Solution:
+1. 6
+1. While `in` simply returns `True` or `False`, `index` raise an exception if the element is not found.
+1. 2 will raise an exception, because it has mixed types.
+
+### 375: safely removing an item from a list
+
+Define a function `safe_remove(l: list, elem: object)` that safely removes an item from a list if and only if that value is present in the list.
+
+Create a second version of the function to remove the element only if the item occurs in the list more than once.
+
+### 376: nested lists gotchas
+
+Lists can be nested. One application of nesting lists is the representation of two-dimensional matrices.
+
+You might run into a gotcha with nested lists because Python variables are just labels pointing to underlying objects in Python's interpreter namespace.
+
+1. Create a variable x = [0]
+1. Create another variable y = [x, 1]
+1. Confirm that you can modify the nested list using both x and y by way of:
+    1. Modify the 0 element making it "zero"
+    1. Modify the "zero" element to make it again 0
+1. Now make x = [2]
+1. What is the value of y after the change? How can you explain it?
+
+SOLUTION:
+We need to think of Python variables not as buckets that store values, but as labels that point to objects that live in memory.
+
+When you do the reassignment:
+
+```python
+x = [5]
+```
+
+Python will update the memory address `x` is pointing to, while keeping `y[0]` pointing to the old address.
+
+
+### 377: lists: shallow vs. deep copy
+
+While there are multiple ways of creating a shallow copy of a list:
+1. Taking a full slice `x[:]`
+1. Using the concatenation operator with an empty list `x +[]`
+1. Using the multiplication operator `x * 1`
+
+The first option is the cleanest and fastest.
+
+To create a deep copy of a list you need the `copy.deepcopy` method. To familiarize yourself with these techniques do the following.
+
+1. Define `original = [[0], 1]`
+1. Create a `shallow` variable which is a shallow copy of the original.
+1. Confirm that the lists are the same (value and id)
+1. Create a `deep` variable which is a deep copy of the original.
+1. Change the value of the 0 element making it "zero" using `shallow`. Confirm that `original` is also changed.
+1. Change the value of the 0 element using `deep`. Confirm that the `original` is not changed.
+1. Suppose that you have the list `x == [[1, 2, 3], [4, 5, 6], [7, 8, 9]]`. What code would you use to get a copy `y` of that list in which you could change the elements without the side effect of changing the contents of `x`?
+
+SOLUTION (last point):
+I would need a deep copy of x, that way x and y would be disconnected and I could get an initial copy of the list that I could modify leaving the original untouched.
+
+### 378: basic set operations
+
+Complete the following table to prove your Python set skills:
+
+| Statement | Result | Additional Details |
+| :-------- | :----- | :----------------- |
+| set([1, 2, 3, 4, 5]) | | |
+| {1, 2, 3, 4, 5}.add(6) | | |
+| {1, 2, 3, 4, 5}.add(3) | | |
+| {1, 2, 3, 4, 5}.remove(5) | | |
+| 1 in {1, 2, 3, 4, 6} | | |
+| 5 not in {1, 2, 3, 4, 6} | | |
+| {1, 2, 3, 4, 6} \| {1, 7, 8, 9} | | |
+| {1, 2, 3, 4, 6} & {1, 7, 8, 9} | | |
+| {1, 2, 3, 4, 6} ^ {1, 7, 8, 9} | | |
+
+SOLUTION:
+| Statement                        | Result                   | Additional Details |
+| :------------------------------- | :----------------------- | :----------------- |
+| set([1, 2, 3, 4, 5])             | {1, 2, 3, 4, 5}          |                    |
+| {1, 2, 3, 4, 5}.add(6)           | {1, 2, 3, 4, 5, 6}       |                    |
+| {1, 2, 3, 4, 5}.add(3)           | {1, 2, 3, 4, 5 }         |                    |
+| {1, 2, 3, 4, 5}.remove(5)        | {1, 2, 3, 4}             |                    |
+| 1 in {1, 2, 3, 4, 6}             | True                     |                    |
+| 5 not in {1, 2, 3, 4, 6}         | True                     |                    |
+| {1, 2, 3, 4, 6} \| {1, 7, 8, 9}  | {1, 2, 3, 4, 6, 7, 8, 9} | Union              |
+| {1, 2, 3, 4, 6} & {1, 7, 8, 9}   | {1}                      | Intersection       |
+| {1, 2, 3, 4, 6} ^ {1, 7, 8, 9}   | {2, 3, 4, 6, 7, 8, 9}    | XOR                |
+
+### 379: hello, frozensets
+
+The `frozenset` type can be used to create an immutable set. A `frozenset` is immutable and hashable, and therefore can be used as a member of another set, or as a dictionary key.
+
+1. Create the set `x` from the iterable [1, 2, 3, 1, 3, 5]
+1. Create a frozenset `z` from the set `x`
+1. Confirm that you can compare sets and frozensets with `==`.
+1. Try to add the element 6 to the frozen set: What exception do you get?
+
+SOLUTION (last point):
+You get an AttributeError exception telling you that frozenset does not have an attribute 'add'.
+
+### 380: Escape sequences for octal, hex, and Unicode
+
+You can include any ASCII character in a string using its octal or hex escape sequence using the syntax below:
+
+```python
+x = "\ooo" # octal
+x = "\x6d" # hexadecimal
+```
+
+Unicode characters can also be included using a similar fashion:
+
+```python
+x = "\u0061" # Unicode code point
+x = "\N{LATIN SMALL LETTER A}" # Unicode human-readable label
+```
+
+Create a program illustrating these concepts.
+
+### 381: split and join
+
+Use split and join to change all the whitespace in a string to dashes. For example, "this is a test" should end up as "this-is-a-test".
+
+### 382: strip, rstrip, lstrip, removeprefix, removesuffix
+
+`strip`, `rstrip`, and `lstrip` methods return a new string that's the same as the original string, except that any whitespace at both the beginning and the end, or at the end, or at the beginning (respectively) has been removed.
+
+Test those methods with the string "  Hello, world!  \t\n"
+
+
+| NOTE: |
+| :---- |
+| The exact meaning of whitespace is platform dependent, but you can consult it using `string.whitespace`. |
+
+The methods `removeprefix` and `removesuffix` can be used to strip prefixes and suffixes. These methods require the prefixes and suffixes to be an exact match.
+
+Test those methods with the string "www.python.org" to remove the "www." and ".org".
+
+If a string is "(name, date),\n", which of the following would return the string `"name, date"?
+
+1. `x.rstrip("),")`
+2. `x.strip("),\n")`
+3. `x.strip("\n)(,")`
+
+SOLUTION:
+The third option
+
+### 383: find, rfind
+
+`find()` is a string method that takes the string be searched for and returns the position of the first character of the first instance of such string passed, or -1 if the string is not found.
+
+It accepts two optional arguments:
++ `start`: ignore all characters before that position.
++ `end`: ignore all characters at or after that position.
+
+`rfind()` works similarly, but the search starts from the right (i.e., from the end of the string).
+
+Familiarize yourself with those methods by:
+
+1. Finding the first occurrence of "ss" in "Mississippi".
+1. Finding the first occurrence of "zz" in "Mississippi".
+1. Finding the first occurrence of "ss" ignoring the first two characters.
+1. Finding the first occurrence of "ss" ignoring the first three characters.
+1. Finding the first occurrence of "ss" ignoring the first character and ignoring the characters after the 4th position (included).
+1. Finding the first occurrence of "ss" ignoring the first 4 characters when starting the search from the right.
+
+Try to come up with the result before using Python.
+
+### 384: index, rindex
+
+`index()` and `rindex()` are identical to `find()` and `rfind()`, but these methods raise a `ValueError` (instead of returning -1) when the string is not found.
+
+Familiarize yourself with those methods by:
+1. Finding the first occurrence of "ss" in "Mississippi".
+1. Finding the first occurrence of "zz" in "Mississippi".
+
+### 385: count string method
+
+`count()` returns the number of non-overlapping times the given substring occurs in the given string.
+
+Find the result of counting "ss" in "Mississippi".
+
+### 386: startswith, endswith
+
+`startswith()` and `endswith()` return a boolean depending on whether the string they're applied on starts on ends with the given string.
+
+Familiarize yourself with those methods by:
+1. Checking if "Mississippi" starts with "Miss".
+1. Checking if "Mississippi" ends with "ippi".
+1. Checking if "Mississippi" ends with "bar".
+
+### 387: maketrans and translate
+
+The method `maketrans()` is used to create a translation table with a one-to-one mapping which can then be used with `translate()` to get a modified string that is the result of applying the translation table to a string.
+
+Create a translation table to translate:
++ A -> 4
++ I -> 1
++ S -> 5
++ E -> 3
+
+Then translate the string:
+"IF YOU DON'T CLAIM YOUR HUMANITY, YOU WILL BECOME A STATISTIC"
+
+Familiarize yourself with the third argument of `maketrans()` to understand what does `str.maketrans("", "", string.punctuation)` mean.
+
+### 388: Modifiying string by using lists
+
+Strings are immutable, but there are techniques that would let you operate on a given string and return a new string that's a modified version of the original one.
+
+One of such techniques is convert a string into its corresponding list of character strings, using the list to make modifications, and then turning the resulting list back into a string.
+
+| NOTE: |
+| :---- |
+| You should be aware that string operations cause the creation and destruction of new `str` objects and this might have an impact on performance. |
+
+Given the string "Hello, world!", use this technique to obtain the string that goes from the beginning of the string to the 6th character (excluded) reversed.
+
+### 389: Changing all punctuation characters to spaces
+
+Given the string: "Fairy tales don't tell children that dragons exist: They already know that! They tell children that dragons can be defeated."
+
+Change all punctuation characters ".,:;!?-" to spaces by changing the string to a list of characters. Then repeat the exercise using `maketrans()` and `translate()`
+
+### 390: mixed str exercises
+
+Suppose that you have a list of strings in which some (but not all) of the strings begin and end with the double quote character. Write a snippet to remove those double quotes.
+
+You can use the following example: `x = ['"abc"', 'def', '"ghi"', '"klm"', 'nop']`.
+
+What code could you use to find the position of the last "p" in "Mississippi"? When you've found that position, what code would you use to remove just that letter?
+
+### 391: format
+
+The `format()` method can be used to for interpolate variables within a string. Both numbered and named parameters can be used, for example:
+
+```python
+s = "{0} is the food of {users[1]}".format("Ambrosia", users = ["the mortals", "the gods"])
+```
+
+`format()` supports the well-known format specifiers as well.
+
+Familiarize yourself with format by:
+
+1. Formatting the string `"<> is the food of gods"`, where the placeholder is for "Ambrosia" which should take 10 spaces.
+
+1. Formatting the string `"<v:n> is the food of gods"`, where the v placeholder is for "Ambrosia" and n is the number of spaces it should take.
+
+1. Formatting the string `"<v:width> is the food of gods"`, where the v is a named placeholder is for "Ambrosia" and width is the number of spaces it should take.
+
+1. Formatting the string `"<> is the food of gods"`, where the placeholder is for "Ambrosia" which should take 10 spaces with the string aligned to the right.
+
+1. Formatting the string `"<> is the food of gods"`, where the placeholder is for "Ambrosia" which should take 10 spaces with the string aligned to the right and '&' should be the fill character.
+
+1. Formatting the string `"<> is the food of gods"`, where the placeholder is for "Ambrosia" which should take 10 spaces with the string aligned to the center.
+
+1. Try to predict the results of:
+    1. `x = "{1:{0}}".format(3, 4)`
+    1. `x = "{0:$>5}".format(3)`
+    1. `x = "{a:{b}}".format(a=1, b=5)`
+    1. `x = "{a:{b}}:{0:$>5}".format(3, 4, a=1, b=5, c=10)`
+
+SOLUTION:
+1. "  4"
+2. "$$$$3"
+3. "    1"
+4. "    1:$$$$3"
+
+### 392: more on f-strings
+
+1. Print the value of pi by using 10 characters for the whole number and 5 characters for the decimal part.
+1. Print the string `x=3.21` by using the simplest f-string you can think of.
+1. Print the value of the variable `x` whose value is `3.21` with the following details:
+    1. it should start with x= without you coding `"x="` in the f-string
+    1. use 10 characters for the whole number (integral and decimal part) representing the variable
+    1. use 2 characters for the decimal part of the variable
+1. Print the string "The word is "hello"", without you using double-quotes in the string. (HINT: you can use a variable).
+
+### 393: hello, bytes
+
+A `bytes` object is similar to a string, but while a string in an immutable sequence of Unicode characters, a `bytes` object is an immutable sequence of integers whose values range from 0 to 255.
+
+`bytes` objects become very useful when dealing with binary data, such as the data you would read from a binary data file.
+
+The `string.encode()` method converts a Unicode string to a `bytes` object. Strings and bytes objects cannot be mixed together.
+
+The `string.decode()` method converts a bytes object into a string.
+
+1. Create a string with the unicode code point `á` whose Unicode friendly name is LATIN SMALL LETTER A WITH ACUTE.
+1. Print the string.
+1. Transform the string into the equivalent bytes object.
+1. Print the bytes object.
+1. Try to get the bytes object resulting from appending "a" to the bytes object.
+1. Fix the previous point by transforming "a" to a bytes object.
+1. Transform the result bytes sequence into the equivalent string ("áa").
