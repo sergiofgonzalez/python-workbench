@@ -1,5 +1,5 @@
 # 05: pytest: additional features
-> illustrates additional features of pytes
+> illustrates additional features of pytest
 
 See [README.md](../README.md#05-pytest-additional-features) for full details.
 

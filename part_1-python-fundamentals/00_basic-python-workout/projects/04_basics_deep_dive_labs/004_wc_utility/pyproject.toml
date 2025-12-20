@@ -1,0 +1,25 @@
+[project]
+name = "004_wc_utility"
+version = "0.1.0"
+description = "Lab 004: A basic reimplementation of Unix's wc (word count) utility."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = ["ruff>=0.14.8"]
+
+[tool.ruff]
+
+ignore = [
+  "T201", # Allow print statements
+]
+
+# Enable all rules
+select = ["ALL"]
+
+# Specific per-file-ignores for the tests directory
+per-file-ignores = { "tests/**/*.py" = ["S101"] } # Allow assert in tests
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

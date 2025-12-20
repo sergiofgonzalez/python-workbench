@@ -5911,3 +5911,362 @@ The `string.decode()` method converts a bytes object into a string.
 1. Try to get the bytes object resulting from appending "a" to the bytes object.
 1. Fix the previous point by transforming "a" to a bytes object.
 1. Transform the result bytes sequence into the equivalent string ("áa").
+
+### 394: dict: keys, values, and items are views not lists
+
+When using dictionaries, the `keys()`, `values()`, and `items()` return views, not lists. Views behave like sequences, but they are dynamically updated whenever the underlying dictionary changes.
+
+Formalize the understanding of this concept by:
+
+1. Create an `eng_to_french` dictionary that holds the following key-value pairs:
+    + red -> rouge
+    + blue -> bleu
+    + green -> vert
+
+1. Print the keys, values, and items.
+
+1. Create the list eng_to_french_key_list by way of materializing the list of the keys of the dictionary.
+
+1. Delete the red entry from the dict
+
+1. Assert that the corresponding keys, values, items have been updated but the list isn't.
+
+### 395: dict: `setdefault()`
+
+The `dict.setdefault()` method is used to:
++ get the key from the dictionary, if it exists.
++ return a default value, if the given key doesn't exist in the dictionary and create a new key in the dictionary with the associated default value.
+
+Formalize the understanding of this concept by:
+1. Create an `eng_to_french` dictionary that holds the following key-value pairs:
+    + red -> rouge
+    + blue -> bleu
+    + green -> vert
+
+1. Assert that `setdefault()` returns the existing value when the key exists.
+1. Assert that `setdefault()` returns the given default value when it doesn't exist, and also creates the corresponding key in the dictionary.
+
+| NOTE: |
+| :---- |
+| The use of `setdefault()` is discouraged. Its name is confusing, and the side-effects on the dict when the key is not found is less than desirable. If you really need a dictionary with default values, use `defaultdict`. |
+
+### 396: dict: `defaultdict()`
+
+The `defaultdict` subclass of `collections` lets you create a dictionary that can be configured to have a default value (configured with a function).
+
+1. Create a `defaultdict` that holds the following key-value pairs and map unknown keys to "unknown".
+    + red -> rouge
+    + blue -> bleu
+    + green -> vert
+
+1. Assert that for known keys you get the behavior of a dict.
+
+1. Assert that for unknown keys you get the default value and as a side-effect, the unknown key will be added to the dictionary associated to the value "unknown".
+
+1. Is is possible to create a `defaultdict` that holds the following key-value pairs and map unknown values to the length of the received key?
+    + red -> 3
+    + blue -> 4
+    + green -> 5
+
+
+SOLUTION (last point):
+No, a default dict lets you create a factory method that receives no arguments. However, you could potentially subclass defaultdict.
+
+### 397: Creating shallow and deep copies of dictionaries with `copy` and `deepcopy`.
+
+Create shallow and deep copies of a dictionary with `copy` and `deepcopy` and confirm that it works as expected:
+
+1. When using shallow copies, modifying the underlying object will update both copies.
+
+1. When using deep copies, both copies are not linked.
+
+### 398: Merging dictionaries with `update`
+
+The `update` method updates the dictionary it is applied on with all the key-value pairs of the dictionary passed as an argument. All the keys already present in the dictionary it is applied on will be overwritten.
+
+1. Create a dictionary `a` with key-values: 1 -> "One", 2 -> "Two", and `b` with key-values: 0 -> "Zero", 1 -> "__one__".
+
+Apply the update on `a` passing `b` as a parameter and confirm it works as expected.
+
+### 399: computing the frequency of words
+
+Given the sample string "To be or not to be", use a dictionary to count the frequencies of the words in that string. Normalize the string to lowercase before compunting the frequency.
+
+The resulting report shoud be:
+
+to  occurs 2 times.
+be  occurs 2 times.
+or  occurs 1 time.
+not occurs 1 time.
+
+### 400: Hashable keys for dicts
+
+Any Python object that is immutable and hashable can be used as a key to a dict.
+
+Lists are mutable, and therefore can never be used as dict keys. However, tuples are immutable, but not all tuples can be used as dict keys because some tuples are not hashable.
+
+For an object to be hashable, it must have a stable hash value provided by the `__hash__` method (it must not change throughout the life of the value). As a result, a tuple that holds mutable objects do not qualify as dict keys.
+
+The following table illustrates these restrictions:
+
+| Python type | Immutable? | Hashable? | Dictionary key? |
+| :---------- | :--------- | :-------- | :-------------- |
+| int         | yes        | yes       | yes             |
+| float       | yes        | yes       | yes             |
+| boolean     | yes        | yes       | yes             |
+| complex     | yes        | yes       | yes             |
+| str         | yes        | yes       | yes             |
+| bytes       | yes        | yes       | yes             |
+| bytearray   | no         | no        | no              |
+| list        | no         | no        | no              |
+| tuple       | yes        | sometimes<br>(only when tuple elements are immutable) | sometimes<br>(only when tuple elements are immutable)       |
+| set         | no         | no        | no              |
+| frozenset   | yes        | yes       | yes             |
+| dictionary  | no         | no        | no              |
+
+Confirm that you cannot use tuples with mutable values as dict keys. Can you use instances of custom classes as dict keys? If so, why?
+
+SOLUTION:
+Custom objects are hashable by default and even if you modify the object's attributes, its hash remains stable. I assume that `__has__()` returns the memory address for the instance, which won't change even if you update its values.
+
+There's a caveat, though: if you create a custom class with a custom `__hash__()` method that relies on the attribute values, it would let you use the instance as a dictionary key, but if the instance is changed (and therefore, the `__hash__()`), they key won't be found anymore in the dictionary:
+
+```python
+class PersonV3:
+...
+    def __hash__(self) -> int:
+        return hash((self.name, self.age))
+
+...
+    charlie = PersonV3("Charlie", 40)
+    d = {charlie: "PersonV3 object as key"} # OK, when it shouldn't
+
+    charlie.age = 41  # modifying attribute
+    try:
+        print(d[charlie])  # Will not work because the hash has changed
+    except KeyError as e:
+        print(f"Error: {e}")
+```
+
+### 401: structural pattern matching with match: case
+
+Starting from Python 3.11, Python has a way to select between multiple options with `match: case` statements.
+
+This is similar to the case-switch, but more powerful, and a bit less predictable, as it can match based not only on values, but also in terms of matching types.
+
+It also supports the use of `|` to match more than one option on a case branch.
+
+The fallback case branch is identified with `_`.
+
+Familiarize yourself with `match: case` by:
+
+1. Build a match case so that
+    1. "A was selected" is printed if x matches "A"
+    1. "Some other string was selected" if x is a string.
+    1. "Zero was selected" if x matches 0
+    1. "The selected value {x} was in the range 1-3" if the value of x was 1, 2, or 3.
+    1. "An integer other than 0, 1, 2, or 3 was selected: {x}" if x matches other integer.
+    1. Neither string nor int in any other case.
+
+1. Test it with x = 5, x = 2, "A", "Hello", a list, a tuple, a custom class.
+
+### 402: generator expressions
+
+A generator expression is similar to a list comprehension. It uses parentheses, instead of square brackets, but the syntax is the same.
+
+The advantage of using a generator expression is that the entire list of entries is not materialized in memory, so arbitrarily large sequences can be generated with very little memory overhead.
+
+Given the list of numbers `[1, 2, 3, 4, 5]`, create a generator `squared` using a generator expression.
+
+Assert the result by:
+1. Materializing the whole generator using a list and confirming that you get `[1, 4, 9, 16, 25]`.
+
+1. Iterating with a `for`.
+
+### 403: breaking up Python code in multiple lines
+
+In Python, you can explicitly break up a line of code by using the backslash character `\`.
+
+You can break up strings by `\` as well, but you have to take into account that any indentation tabs or spaces will become part of the string, which might not be what you intended.
+
+1. Write the statement: `x = 100 + 200 + 300 + 400 + 500` in two lines.
+
+1. Break up the string: "a very large string that most probably will reach the threshold that I had established" in two lines with different indentation and print the resulting string.
+
+1. Break up the same string, using parentheses. This will require delimiting the string in each line with `"` which will make the resulting string evident.
+
+### 404: truthy and falsy
+
+Most Python objects can be used as Boolean values. It is a good practice to use them this way, as it makes the code more succinct and readable:
+
++ The numbers `0`, `0.0`, and `0+0j` are all `False`. Any other number is `True`.
++ The empty string `""` is `False`. Any other string is `True`.
++ The empty list `[]` is `False`. Any other list is `True`.
++ The empty dictionary `{}` is `False`. Any other dictionary is `True`.
++ The empty set `set()` is `False`. Any other set is `True`.
++ The special value `None` is always `False`.
+
+Assert all the cases listed above.
+
+### 405: functions: reading the docstring from a function
+
+You can obtain the value of the docstring from a functions using `<fn_name>.__doc__`. This might come in handy to use it in a plotted chart and in other places.
+
+Write a snippet to confirm.
+
+### 406: functions: arguments are passed in by reference
+
+In Python, arguments are passed in by object reference. That is, once in the function, the parameter becomes a new reference to the object passed as argument.
+
+As a result:
++ if you pass a mutable object (list, dict, class instance), any change made to the object within the function will have an effect outside the function.
++ if you pass an immutable object (tuples, strings, numbers), any change to the object will have no effect outside the function.
+
+Confirm both facts. What happens when you pass a tuple that holds a list?
+
+SOLUTION:
+When you pass a tuple holding a list and you modify it inside the function, the change is reflected outside the function.
+
+### 407: functions: mutable objects as default values
+
+Using mutable objects as default values for parameters is discouraged, because Python assigns the object to be used as the default value when the function is first compiled, and it does not change it for the entire duration of the program.
+
+As a result, when you use a mutable object as the default, and mutate it in the function implementation, you will reuse the same object.
+
+| NOTE: |
+| :---- |
+| To minimize the problem is recommended to use `None` as the default value for mutable objects that you pass to functions. |
+
+To understand why, do the following:
+
+1. Create a function `odd_numbers(lst, odds=[])` that will scan `lst` adding the odd numbers found in the list to odds.
+
+1. Confirm that `odds` contain the expected numbers after having executed the invocation.
+
+1. Call the function again with a different `lst` and inspect the results. What has happened?
+
+SOLUTION:
+Because the `odds` list is created when the Pyton compiler sees the function for the first time and does not change it, the `odds` list keeps track of the previous invocation.
+
+### 408: functions: nonlocal and global
+
+Given the following snippet:
+
+```python
+g_var = 0
+nl_var = 0
+
+def outer_fn():
+    nl_var = 2
+    assert g_var == ?
+    assert nl_var == ?
+    def inner_fn():
+        global g_var
+        nonlocal nl_var
+        g_var = 1
+        nl_var = 4
+        assert g_var == ?
+        assert nl_var == ?
+
+    inner_fn()
+    assert g_var == ?
+    assert nl_var == ?
+
+outer_fn()
+assert g_var == ?
+assert nl_var == ?
+```
+
+Write the values for all the `?` placeholders before execute the snippet. Then confirm the results using Python.
+
+In any case:
+> if you want to assign to a variable existing outside a function, you must explicitly declare the variable to be `nonlocal` or `global`.<br>If you're just reading the variable from an outer scope, you don't need to use either.
+
+SOLUTION:
+
+```python
+g_var = 0
+nl_var = 0
+
+def outer_fn():
+    nl_var = 2
+    assert g_var == 0
+    assert nl_var == 2
+    def inner_fn():
+        global g_var
+        nonlocal nl_var
+        g_var = 1
+        nl_var = 4
+        assert g_var == 1
+        assert nl_var == 4
+
+    inner_fn()
+    assert g_var == 1
+    assert nl_var == 4
+
+outer_fn()
+assert g_var == 1
+assert nl_var == 0
+```
+
+### 409: functions: global
+
+Assuming that x = 5, what will be the value of x after executing `funct1()`. And after `funct2()` is executed?
+
+```python
+def funct1():
+    x = 3
+
+def funct2():
+    global x
+    x = 2
+```
+
+Confirm your expectations by writing a Python program.
+
+### 410: generators: hello!
+
+A generator function is a special kind of function that lets you define your own iterators. When using a generator, you use `yield` keyword to return each iteration's value.
+
+When a generator function is used, it returns a generator object, which can be used as an iterator. As such, the generator function body will execute up to the `yield` at which point it will return a value and the execution of the generator function will stop.
+
+When invoked again, the generator function execution will resume after `yield` and will execute until either `yield` is found again (in which case the execution will temporarily stop again), or until it finds an empty return statement, which will mean that the generator function has finished its execution.
+
+Define a generator function `four()` that returns the numbers from 0 to 3. Confirm that you can iterate over the values with `for` and also using `next()`.
+
+
+### 411: generators: yield from
+
+The keyword `yield from` lets you chain generators together. In practice, `yield from` behaves the same way `yield` does, except that it delegates the generator machinery to a subgenerator.
+
+1. Define a generator `gen_a(n)` that generates the numbers from 0 to n.
+
+1. Define a generator `gen_b()` that:
+    1. yields from `gen_a(1)`.
+    2. yields from `gen_a(2)`.
+    3. yields from `gen_a(3)`.
+    3. yields from `gen_a(5)`.
+
+### 412: generators: in
+
+You use use `in` with generator functions to check if a value is in the series that a generator produces.
+
+1. Define a generator that produces the numbers from 0 to 4 (included).
+
+1. Confirm that 2 will be one of the values returned by the generator, while 5 will be not.
+
+### 413: decorators
+
+Create a decorator function that encloses the return value of the decorated function between `"<html>"` and `"</html>"`.
+
+Test it by applying the decorator to a function that returns some string.
+
+### 414: decorators: deconstructed
+
+The syntax `@decorate` is syntactic sugar. Create a decorator named `@trace` that announces the function that it is applied on and use it in:
+
+1. A function which will use the `@trace`.
+
+1. A function which will not use `@trace`, and instead, will make the explicit invocations.
+
+Confirm that you get the same results, but that the `@trace` syntax is much more succinct.

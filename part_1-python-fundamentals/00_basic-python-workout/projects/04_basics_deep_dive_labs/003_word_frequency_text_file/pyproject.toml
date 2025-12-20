@@ -1,0 +1,25 @@
+[project]
+name = "001-hello-pytest"
+version = "0.1.0"
+description = "Lab 001: Getting Started with Pytest and a sample custom module under test"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = ["ruff>=0.14.8"]
+
+[tool.ruff]
+
+ignore = [
+  "T201", # Allow print statements
+]
+
+# Enable all rules
+select = ["ALL"]
+
+# Specific per-file-ignores for the tests directory
+per-file-ignores = { "tests/**/*.py" = ["S101"] } # Allow assert in tests
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
