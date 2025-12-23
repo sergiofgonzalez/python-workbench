@@ -6270,3 +6270,265 @@ The syntax `@decorate` is syntactic sugar. Create a decorator named `@trace` tha
 1. A function which will not use `@trace`, and instead, will make the explicit invocations.
 
 Confirm that you get the same results, but that the `@trace` syntax is much more succinct.
+
+### 415: redirecting stdin and stdout
+
+In Linux, it's common to redirect the contents of a file or the output of another process into a script which will take it as the input instead of interactively letting the user type the input using the keyboard. It's also common to redirect the output of a script to the input of another process.
+
+To redirect a file into input you need to specify that you want to read from stdin. In Python, the standard input (stdin) is accessed through `sys.stdin`. You can treat `sys.stdin()` as you'd treat a regular input file and therefore, you can use the file input operations you already know.
+
+Similarly, you can write to the standard output (stdout) using `sys.stdout`. Note that `print` writes to stdout by default.
+
+On the command line, use:
++ `<` to redirect from a file to input
++ `>` for sending the output to file
+
+Create a program that redirects the contents of stdin, so that it is assigned to a variable, and then prints the contents in uppercase to the stdout.
+
+To test it, validate that when you run the program you get:
+
+```bash
+$ python <script-name>.py
+```
+
+When you configure your program to read from stdin, you will see that as soon you execute your program, the terminal will start capturing what you type in the command line: everything you type will be displayed on screen. When you're done typing you will have to type CTRL+D on a new line to signal the end of what you want to send to the script.
+
+
+| NOTE: |
+| :---- |
+| You can finalize stdin by typing CTRL+D on a new line. |
+
+
+Therefore, you can do:
+
+```bash
+$ python <script-name>.py
+>This is me writing into stdin
+^D
+THIS IS ME WRITING TO STDIN
+```
+
+### 416: redirecting stdin and stdout with args
+
+
+Create a program that accepts two arguments str1 and str2, and then reads the contents of the stdin into a variable and then writes to stdout performing the substitution of `sys.argv[1]` by `sys.argv[2]` in it.
+
+To test it, do:
+
+```bash
+$ python <script-name>.py me I
+>This is me writing into stdin
+^D
+This is I writing into stdin
+```
+
+When you execute the script, it will start capturing the standard input, so everything you type will be displayed on screen. When you're done typing you will have to type CTRL+D to signal the end of what you want to send to the script.
+
+With the script working as expected, familiarize yourself with the input/output redirection in the command line by running the following commands:
+
+Instead of typing directly in the terminal window, you can pass a file to do the substitution:
+
+```bash
+python script.py me I < data/in_data/416_redirecting_stdin_stdout_args/infile.txt
+```
+
+When you pass a file, you won't be allowed to type any input, and the file would be used instead.
+
+
+You can also pipe the output of a first execution of the script to a subsequent execution of the same script.
+
+```bash
+$ python script.py me I < data/in_data/416_redirecting_stdin_stdout_args/infile.txt | python script.py 1 one
+This is I writing one line in a file. This is line zero.
+This is I writing another line in a file. This is line 1.
+```
+
+Finally, you can redirect the final output to a file and inspect the results:
+
+```bash
+$ python script.py 0 zero < data/in_data/416_redirecting_stdin_stdout_args/infile.txt | python script.py 1 one > data/out_data/tmp/outfile.txt
+```
+
+The contents of data/out_data/tmp/outfile.txt should be:
+
+```
+This is me writing one line in a file. This is line zero.
+This is me writing another line in a file. This is line one.
+
+```
+
+### 417: argparse for command-line tools
+
+The `argparse` module provides support for parsing different types of arguments and can generate usage messages.
+
+You should start your script by invoking `ArgumentParser()` constructor, which will return a `parser`
+
+With `argparse`, both positional and optional arguments are specified with `parser.add_argument()`.
+
+Arguments are specified as following:
++ positional: name of the variable holding argument
++ keyword: type, to specify the type of the variable if not a string, as in `type=int`
++ keyword: help, for the help string associated to the parameters, as in `help=the help you need`.
+
+Similarly for the optional arguments:
++ positional: short flag, as in `-t`
++ positional: long flag, as in `--time-it`
++ keyword: dest, to specify the destination variable
++ keyword: help, for the help string associated to the parameters, as in `help=the help you need`.
++ keyword: action, to specify what must be done when the flag is present, for example `action=store_false`.
++ keyword: default, the value the variable must hold if the flag is not resent, for example, `default=True`.
+
+Once the arguments and options have been specified, you just call `parser.parse_args()` to parse the CLI arguments and interact with them.
+
+Create a command-line tool with argparse for an application requiring two positional arguments:
++ argument 1: `indent`, and int
++ argument 2: `input_file` (no type specified)
+
+And several optional arguments that must come before the positional ones:
++ `-f/--file-output`: destination variable "filename", file where report is written to
++ `-x/--x-ray`: no destination variable specified; specify xray strength factor.
++ `-q/--quiet`: action is `store_false`, destination variable `verbose`, default=True; don't print status messages to stdout
+
+When `-q` is not given, `verbose` should be set to `True`; when given, `verbose` should be `False`.
+
+So that you can type:
+
+```bash
+$ python 415_python_script.py -x100 -q -f outfile 2 arg2
+```
+
+The command-line tool should simply output the arguments received:
+
+```bash
+args=Namespace(indent=2, input_file='myfile', filename='outfile', x_ray='100', verbose=False)
+```
+
+How do you access the individual arguments?
+
+SOLUTION:
+
+You can access individual arguments using the *dot notation* as in (`args.filename`).
+
+There's also a trick to access the elements as if args were a dict:
+
+```python
+for arg_name, arg_value in vars(args).items():
+    print(f"{arg_name}: {arg_value}")
+```
+
+`vars(args)` is equivalent to `args.__dict__`.
+
+### 418: hello, vars for __dict__
+
+The `__dict__` property, when applied to a class instance returns the instance fields; when applied to a class returns the class methods.
+
+In some circumstances, you should prefer `vars(obj)` instead, especially when you will be chaining multiple `'.'` expressions.
+
+Create a `Employee` class with employee_id, name, age, salary, supervisor attributes, and iterate over its properties using both `__dict__` and `vars()`. Which one is cleaner?
+
+SOLUTION:
+If you need to iterate over an object's properties, `vars()^ is cleaner:
+
+```python
+# Iterate over the attributes using vars()
+print("Using vars():")
+for attr_name, attr_value in vars(alice).items():
+    print(f"{attr_name}: {attr_value}")
+print("=" * 40)
+
+# Iterate over the attributes using __dict__ (equivalent to vars() but uglier)
+print("Using __dict__:")
+for attr_name, attr_value in alice.__dict__.items():
+    print(f"{attr_name}: {attr_value}")
+print("=" * 40)
+```
+
+However, in my opinion, if accessing individual fields, `__dict__` is more explicit:
+
+```python
+print(f"Employee ID accessed directly: {alice.__dict__['employee_id']}")
+print(f"Name accessed through vars(): {vars(alice)['name']}")
+```
+
+
+### 419: hello, fileinput
+
+The `fileinput` module provides support for processing lines of input from one or more files. It automatically reads the command-line arguments out of `sys.argv`, takes them as a list of input files, opens them, and starts serving them to your script line by line using a simple iterator using `fileinput.input()`.
+
+If no command-line arguments are present, the stdin will be captured.
+
+Additionally, `fileinput` module provides the following other functions:
++ get the total number of lines that have been read with `lineno()`.
++ get the total number of lines that have been read from the current file with `filelineno()`.
++ the name of the current file: `filename()`.
++ whether this is the first line of a file: `isfirstline()`.
++ whether the stdin is currently being captured: `isstdin()`
++ skip to the next file: `nextfile`
++ close the whole stream: `close`
+
+Additionally, you can call `fileinput.input()` with a single filename or a list of filenames and they'll be used as input for the iterator, instead of `sys.argv`. This may come in handy if you're using `argparse` or any other framework for building CLI tools.
+
+Create a script that can be invoked with a variable number of arguments, but at least one, each one of them being a path to a text file
+
+```bash
+# Invoked with just one argument
+$ python script1.py data/in_data/419_fileinput_hello/infile_1.txt
+
+# Invoked with a couple of files
+$ python script1.py data/in_data/419_fileinput_hello/infile_1.txt data/in_data/419_fileinput_hello/infile_2.txt
+```
+
+The script should rely on fileinput to process the arguments received from the command line as files, and implement the following additional capabilities:
+
++ prints the lines in stdout if line doesn't start with `#`. Otherwise, line should not be printed.
+
++ if it's the first line of the file, print an extra line with the message:
+
+    ```
+    <start of file {filename_being_processed}>
+    ```
+
++ Also, if stdin is being processed you should print:
+
+```
+<stdin> | {line_no} | {file_line_no} | {line_read}
+```
+
+And if it's not stdin:
+
+```
+ | {line_no} | {file_line_no} | {line_read}
+```
+
+In conclusion, you should obtain the following when using infile_1.txt and infile_2.txt:
+
+```bash
+$ uv run 419_fileinput_hello.py data/in_data/419_fileinput_hello/infile_1.txt data/in_data/419_fileinput_hello/infile_2.txt
+--- Start of file: data/in_data/419_fileinput_hello/infile_1.txt ---
+file | 1 | 1 | this is the first line of the file.
+file | 2 | 2 | this is the second line of the files.
+file | 4 | 4 | this file has many lines but this one is mine.
+--- Start of file: data/in_data/419_fileinput_hello/infile_2.txt ---
+file | 1 | 5 | this is another line in another file.
+file | 2 | 6 | and some numbers:
+file | 3 | 7 | 12 15 0
+file | 5 | 9 | 100 100 0
+```
+
+| NOTE: |
+| :---- |
+| You can finalize stdin by typing CTRL+D. |
+
+
+### 420: hello, fileinput with custom files
+
+`fileinput` reads the command-line arguments out of `sys.argv`, takes them as a list of input files, opens them, and starts serving them to your script line by line using a simple iterator using `fileinput.input()`.
+
+However, you can call `fileinput.input()` with a single filename or a list of filenames and they'll be used as input for the iterator, instead of `sys.argv`. This may come in handy if you're using `argparse` or any other framework for building CLI tools and you wouldn't like `fileinput` to take over.
+
+Create a progream that passes two files as arguments for `fileinput.input()` and simply prints their contents.
+
+You can use the files in `data/in_data/419_fileinput_hello/`.
+
+
+### 421:

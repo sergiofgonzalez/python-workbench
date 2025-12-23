@@ -1,4 +1,4 @@
-"""pytest unit tests for creature.py."""
+"""pytest unit tests for the word frequency functions."""
 
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
