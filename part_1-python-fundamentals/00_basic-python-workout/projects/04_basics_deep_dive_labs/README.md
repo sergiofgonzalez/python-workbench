@@ -198,3 +198,23 @@ This format relies on two facts about Python:
 1. Zip files allow arbitrary contents to be added to the beginning of the archive. If you add a shebang line pointing to a Python interpreter, and give the file the needed permissions, the file can become self-contained and executable.
 
 Review the information from [zipapp](https://docs.python.org/3/library/zipapp.html) and create a sample zip that can be distributed as an app.
+
+### [012: calculating directory tree size](012_dir_tree_size/README.md)
+> TBD
+
+Create a program that calculates the total size of all files in a directory tree that aren't symlinks.
+
+Optionally, you can pass an extension (as in `.py`) to only count the files matching that extension.
+
+Also, the program should allow to pass --human-readable argument to format the size in a human-readable format.
+
+
+### [013: find duplicates in a directory tree]()
+> TBD
+
+Lorem ipsum
+
+### [014: purge_venv.sh in Python]()
+> TBD
+
+Lorem ipsum

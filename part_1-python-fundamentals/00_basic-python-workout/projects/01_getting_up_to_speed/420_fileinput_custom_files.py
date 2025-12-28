@@ -10,7 +10,8 @@ def main() -> None:
 
     for line in fileinput.input(files=(file1, file2)):  # noqa: SIM115
         print(
-            f"{fileinput.filename()} | {fileinput.filelineno()} | {fileinput.lineno()} | {line}",
+            f"{fileinput.filename()} | {fileinput.filelineno()} |"
+            f" {fileinput.lineno()} | {line}",
             end="",
         )  # line already has newline
 

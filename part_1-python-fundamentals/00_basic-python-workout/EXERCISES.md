@@ -6531,4 +6531,192 @@ Create a progream that passes two files as arguments for `fileinput.input()` and
 You can use the files in `data/in_data/419_fileinput_hello/`.
 
 
-### 421:
+### 421: pathlib: get the current working directory (CWD)
+
+Since Python 3.5, pathlib is available and provides a more modern way of doing the same operations that were done with `os` and `os.path` modules, which haven't become obsolete but are no longer recommended for dealing with filesystem operations.
+
+You can obtain the current working directory (the directory where a Python program is in) using `Pathlib.Path()` with empty arguments.
+
+Also, given an path, `cwd()` method returns the current working dir. What's the difference between them?
+
+SOLUTION:
++ `Pathlib.Path()` returns the current directory as a Path object as a relative path, so you get '.'.
++ `Path.cwd()` returns the current directory as an absolute path.
+
+### 422: pathlib: building paths with Path.joinpath()
+
+You can construct paths using the `Path.joinpath()` method.
+
+Create a snippet that creates the path `bin/utils/disktools` (that is, it is *grounded* on the current path). Do the same using the `/` operator.
+
+### 423: components of a Path object
+
+Given a path object, the `parts` attribute returns a tuple with its components.
+
+Given the path `./bin/utils/disktools` (that is, it is grounded on the current path), print its parts.
+
+Additionally, you can use the following properties:
++ `name`: returns the basename of the path, that is the single file or directory name at the end of the path.
++ `parent`: returns the path up to, but not including the last name.
++ `suffix`: returns the dotted extension of a path representing a file (if available)
+
+Familiarize with those properties using also the path: `path/to/img.png`.
+
+### 424: pathlib: referring to user and home directories
+
+Path objects support referring to the user and home directory using the `Path.expanduser()` and `Path.home()` methods.
+
+Familiarize yourself with those methods.
+
+### 425: using os with directories (legacy)
+
++ `os.getcwd()` returns the current working directory as a string.
++ `os.curdir` returns a string representing the current dir (i.e., `.` in Linux and Windows).
++ `os.pardir` returns a string representing the parent director (i.e., `..` in Linux and Windows).
++ `os.listdir()`: return a list with the files in the current dir.
++ `os.chdir()`: allows you to change the CWD
++ `os.path.join()` can be used to build a path, and works transparently with Windows and Linux paths when you use subpaths such as `utils/disktools/chkdsk`. It also supports `os.pardir` and `os.curdir`.
++ `os.path.split()` returns a 2-tuple splitting the basename (single file or directory at the end of a path) from the rest of a path.
++ `os.path.basename()` returns only the basename of the path.
++ `os.path.dirname()` returns the path up to, but not including the last last name.
++ `os.path.splitext()` returns a tuple consisting of a file name and the dotted extension.
++ `os.path.expandvars()` can be used to expand environment variables used in paths (both for Win and Linux).
++ `os.path.expanduser()` expands username shortcuts found in paths.
++ `os.name` returns the name of the Python module to handle the OS specific operations.
++ `os.environ` returns a dictionary with all the environment variables.
+
+Familiarize yourself with the legacy `os` module by:
+1. Print the current working dir.
+1. Print the string representing the current directory and the parent directory.
+1. List the files in the current dir.
+1. Change to a different directory and list the files found there.
+1. Build the path `bin/utils/disktools`.
+1. Build the path whose path elements are `mydir/bin` and `utils/disktools/chkdsk`.
+1. Build the path whose path elements are `mydir\bin` and `utils\disktools\chkdsk`.
+1. Build the same path as above in a more portable manner.
+1. Use `os.path.split()` on `path/to/some/directory`.
+1. Print the `basename` and `dirname` of the path `path/to/some/directory/img.png"`.
+1. Use `os.path.splitext` on `path/to/img.png` and on `path/to/some/directory`.
+1. Use `expandvars` on the path `"$HOME/downloads"`.
+1. Use `expanduser` on the path `~/downloads`.
+1. Build the path `../path/to/./some/dir` using `os.curdir` and `os.pardir`.
+1. Use `os.path.isabs()` to check if `../mini-projects` is an absolute or relative path.
+1. Validate if `os.path.isabs()` works well with Windows paths such as: `C:\Program Files\Doom`, `C:`, `C:\`, `win_11\shared`.
+
+### 426: pathlib vs. os.path
+
+How would you use the `os` module to take a path to a file called `test.log` and create a new file path in the same directory for a file calle `test.log.old`? How would you do the same using `pathlib`.
+
+### 427: pathlib: getting info about files
+
++ `Path.exists()`: returns `True` if its argument is a path correspoding to something that exists in the filesystem.
++ `Path.isfile()`: returns `True` if its argument is a normal file and it exists. Otherwise, it returns `False` even if it's a valid path for a file, but it doesn't exist.
++ `Path.isdir()`: returns `True` if its argument is a directory and it exists. Otherwise, it returns `False` even if it's a valid path for a directory, but it doesn't exist.
++ `Path.is_symlink()`: returns `True` if the path is a symbolic link.
++ `Path.is_mount()`: returns `True` if the path is a mount point.
++ `Path.samefile(path)`: returns `True` if the path it is applied to, and the one given as an argument point to the same file.
++ `Path.is_abs()`: returns `True` if the path represents an absolute path.
++ `Path.stat()`: returns an object with the file properties such as `st_size` (size), `st_mtime` (modified time), `st_atime` (las access time), `st_ctime` (creation time).
+
+
+1. Familiarize yourself with `Path.exists()`, `Path.isdir()`, `Path.isfile()` for all the possible scenarios.
+1. Familiarize your self with `is_symlink()`, `is_mount()`, `samefile()`, `is_absolute()`.
+1. Obtain the properties of a file using `stat()`.
+
+### 428: listing the files in a dir with `os.scandir()` (legacy)
+
+The function `os.scandir` returns an iterator of `os.DirEntry` objects. The `DirEntry` object exposes the file attributes of a directory entry, and can be more efficient than using `os.listdir()` as it doesn't materialize the whole list of files at once.
+
+Additionally, `os.scandir()` supports the context manager syntax, which ensures resources are released when no longer needed.
+
+Use this method to list the files in the current directory.
+
+### 429: listing the files in a dir with `Path.iterdir()`
+
+The `Path.iterdir()` method returns an iterator of a path, so that you can use it to obtain a list of the contents of a directory.
+
+Use this approach to list the files in the current directory. What would you use to materialize the whole list of files at once?
+
+### 430: Hello, `Path.glob()`
+
+Path objects explose a `glob()` method you can use to obtain an iterator of the the path objects that match a given pattern, allowing you to use the following wildcard patterns:
+
++ `*`: matches any sequence of characters.
++ `?`: matches any single character.
++ `[h, H]`: matches the given characters.
++ `[0-9]`: matches the given character sequence.
+
+List of the files in the current directory whose pattern is `"1?[2,4,6]*.py"`.
+
+How would you find all JPEGs, PNGs, and GIFs in a directory?
+
+SOLUTION:
+Unfortunately, `Path.glob()` does not support things like `*.{jpg,jpeg,png,gif}` so you'll have to get all the objects and then filter them out using a list comprehension or similar.
+
+### 431: creating empty files with Path.touch
+
+`Path.touch()` allows you to create empty files if they don't exist, or update the timestamp of an existing one if it already exists (as you'd do with `touch` command).
+
+Create a new file named `some.tmp` in some temporary directory using touch. Then, use `stat` to get the timestamps of an existing file, apply `touch` to that file, and print the timestamps again. Which one and how how have they been updated?
+
+SOLUTION:
+All of the timestamps are updated (even the created at):
+```
+Before touch: created  at 2025-11-23 07:37:56.023873+00:00
+Before touch: modified at 2025-11-23 07:37:56.023873+00:00
+Before touch: accessed at 2025-12-22 10:12:11.667443+00:00
+After touch : created at  2025-12-27 08:20:59.801272+00:00
+After touch : modified at 2025-12-27 08:20:59.801272+00:00
+After touch : accessed at 2025-12-27 08:20:59.801272+00:00
+```
+
+### 432: renaming/moving and deleting files with `rename` and `unlink`
+
+You can rename/move a file or directory using `Path.rename()`. To remove or delete a data file, use `Path.unlink`. You cannot use `Path.unlink` to delete directories, even if they're empty.
+
+1. Rename a file `log.out` and `log.out.old`.
+1. Rename `log.out.old` so that it's moved to a different directory.
+1. Delete a file name `some.tmp` that you create with touch.
+1. Confirm that you cannot delete directories with `unlink` (even if they're empty).
+
+
+### 433: creating dirs with `Path.mkdir()`, removing them with `Path.rmdir()`.
+
+You can create directories with `Path.mkdir()` method. If you pass `parents=True`, any intermediate directories that do not exist will be created.
+
+You can remove empty directories with `Path.rmdir()`.
+
+Familiarize yourself with those methods.
+
+### 434: removing non-empty directories with `shutil.rmtree()`
+
+You can use `shutil.rmtree()` to remove directories (even if they're not empty).
+
+Familiarize yourself with the method.
+
+### 435: processing all files in a directory subtree with Pathlib
+
+The `Path.walk()` function lets you walk through an entire directory tree, returning three things for each directory it traverses:
+    + the root or path of that directory.
+    + a list of its subdirectories.
+    + a list of files.
+
+`Path.walk()` can be configured with three optional arguments:
++ `topdown`: if `True` or not present, the files in each directory are processed before its subdirectories. If false, the subdirectories are processed first.
++ `onerror`: can be set to a function to handle any error that may result from calling `os.listdir()`. By default, errors are ignored.
++ `followlinks`: if `True`, symbolic links will be followed. By default, it doesn't walk down into folders that are symbolic links.
+
+Familiarize yourself with this method by traversing the current directory.
+You should skip traversing the following directories:
+`.venv`, `__pycache__`.
+
+| NOTE: |
+| :---- |
+| The `os.walk()` provides the same capabilities using the os-based approach, which is considered legacy. |
+
+### 436: making a copy of an entire directory tree with `shutil.copytree()`
+
+The function `shutil.copytree()` recursively makes copies of all the files in a directory and all of its subdirectories, preserving their permissions modes and stat data (except for the creation time, which is updated by copytree operation with the current time.).
+
+Copy an entire directory tree, including subdirs, symlinks, etc. and validate that nothing has changed except for the creation time.
+
