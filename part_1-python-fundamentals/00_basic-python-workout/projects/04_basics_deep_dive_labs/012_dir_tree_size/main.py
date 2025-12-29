@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 def get_directory_size(directory: Path, extension: str | None = None) -> int:
-    """Recursively calculates the total size of files in the given directory.
+    """Recursively calculate the total size of files in the given directory.
 
     Args:
         directory (Path): The directory to calculate the size for.
@@ -24,7 +24,7 @@ def get_directory_size(directory: Path, extension: str | None = None) -> int:
 
 
 def get_human_readable_size(size_in_bytes: int) -> str:
-    """Converts a size in bytes to a human-readable format.
+    """Convert a size in bytes to a human-readable format.
 
     Args:
         size_in_bytes (int): Size in bytes.
@@ -47,7 +47,7 @@ def print_results(
     extension: str | None,
     human_readable: bool,
 ) -> None:
-    """Prints the results of the directory size calculation.
+    """Print the results of the directory size calculation.
 
     Args:
         total_size (int): The total size in bytes.
@@ -69,7 +69,7 @@ def print_results(
 
 
 def validate(directory: Path) -> None:
-    """Validates that the provided path is a directory.
+    """Validate that the provided path is a directory.
 
     Args:
         directory (Path): The directory path to validate.

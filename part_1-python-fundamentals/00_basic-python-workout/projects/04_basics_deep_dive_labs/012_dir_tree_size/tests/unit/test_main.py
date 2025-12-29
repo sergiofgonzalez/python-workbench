@@ -1,6 +1,5 @@
 """pytest unit tests for creature.py."""
 
-import contextlib
 import fnmatch
 from collections.abc import Callable, Generator
 from pathlib import Path
@@ -68,42 +67,48 @@ def mock_rglob(
 def test_validate_with_nonexistent_directory() -> None:
     """Test validate function with a non-existent directory."""
     with (
-        patch("pathlib.Path.exists", return_value=False),
+        patch("pathlib.Path.exists", return_value=False) as mock_exists,
         patch("sys.exit", side_effect=SystemExit) as mock_exit,
     ):
-        with contextlib.suppress(SystemExit):
+        with pytest.raises(SystemExit):
             validate(Path("fake/path"))
+        mock_exists.assert_called_once()
         mock_exit.assert_called_once_with(1)
 
 
 def test_validate_with_non_directory_path() -> None:
     """Test validate function with a path that is not a directory."""
     with (
-        patch("pathlib.Path.exists", return_value=True),
-        patch("pathlib.Path.is_dir", return_value=False),
+        patch("pathlib.Path.exists", return_value=True) as mock_exists,
+        patch("pathlib.Path.is_dir", return_value=False) as mock_is_dir,
         patch("sys.exit", side_effect=SystemExit) as mock_exit,
     ):
-        with contextlib.suppress(SystemExit):
+        with pytest.raises(SystemExit):
             validate(Path("fake/path"))
+        mock_exists.assert_called_once()
+        mock_is_dir.assert_called_once()
         mock_exit.assert_called_once_with(1)
 
 
 def test_validate_with_valid_directory() -> None:
     """Test validate function with a valid directory."""
     with (
-        patch("pathlib.Path.exists", return_value=True),
-        patch("pathlib.Path.is_dir", return_value=True),
+        patch("pathlib.Path.exists", return_value=True) as mock_exists,
+        patch("pathlib.Path.is_dir", return_value=True) as mock_is_dir,
         patch("sys.exit") as mock_exit,
     ):
         validate(Path("valid/path"))
+        mock_exists.assert_called_once()
+        mock_is_dir.assert_called_once()
         mock_exit.assert_not_called()
 
 
 def test_get_directory_size_empty_directory() -> None:
     """Test get_directory_size with an empty directory."""
-    with patch("pathlib.Path.rglob", return_value=iter([])):
+    with patch("pathlib.Path.rglob", return_value=iter([])) as mock_rglob:
         size = get_directory_size(Path("empty/dir"))
         assert size == 0
+    mock_rglob.assert_called_once_with("*")
 
 
 def test_get_directory_size_with_files() -> None:
@@ -297,3 +302,21 @@ def test_main_with_invalid_directory(
     assert exc_info.value.code == 1
     captured = capsys.readouterr()
     assert "does not exist" in captured.out
+
+
+def test_main_with_path_to_a_file(
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Test main() with non-existent directory."""
+    test_file = tmp_path / "test.txt"
+    test_file.write_text("Sample content")
+    monkeypatch.setattr("sys.argv", ["main", str(test_file)])
+
+    with pytest.raises(SystemExit) as exc_info:
+        main()
+
+    assert exc_info.value.code == 1
+    captured = capsys.readouterr()
+    assert "is not a valid directory" in captured.out
