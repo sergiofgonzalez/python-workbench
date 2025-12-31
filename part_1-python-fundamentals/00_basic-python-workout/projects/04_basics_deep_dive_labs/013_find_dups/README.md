@@ -516,6 +516,13 @@ See [README.md](../README.md#013-find-duplicates-in-a-directory-tree) for full d
 You can run the application with:
 
 ```bash
-uv run main.py
+# get help
+$ uv run main.py -h
+
+# find dups for all types of files
+$ uv run main.py data/
+
+# find dups for jpg and jpeg files
+$ uv run main.py data/ -e .jpg,jpeg
 ```
 
