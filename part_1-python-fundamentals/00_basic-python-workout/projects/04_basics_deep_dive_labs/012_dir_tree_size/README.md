@@ -564,6 +564,20 @@ See [README.md](../README.md#012-calculating-directory-tree-size) for full detai
 You can run the application with:
 
 ```bash
-uv run main.py
+# basic invocation
+$uv run main.py data/
+Total size of files in 'data/': 1 byte
+
+# requesting human-readable output
+$ uv run main.py . --human-readable
+Total size of files in '.': 130.30 MB
+
+# filtering files with human-readable output
+$ uv run main.py . --human-readable --ext .py
+Total size of files in '.' with extension '.py': 6.42 MB
+
+# filtering files
+$ uv run main.py . --ext .py
+Total size of files in '.' with extension '.py': 6737019 bytes
 ```
 
