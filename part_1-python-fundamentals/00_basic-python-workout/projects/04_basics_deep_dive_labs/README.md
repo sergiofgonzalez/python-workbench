@@ -210,7 +210,7 @@ Also, the program should allow to pass --human-readable argument to format the s
 
 
 ### [013: find duplicates in a directory tree](013_find_dups/README.md)
-> TBD
+> pathlib, hashlib, uv, publishing, pytest
 
 Create a program that accepts as argument a path to a directory and a list of extensions and outputs a report of the duplicate files found in the directory tree.
 
@@ -218,7 +218,12 @@ HINT: the program should start by traversing the directory tree creating a dicti
 
 As a bonus, publish the script in PyPI with `uv` and validate it can be invoked with `uvx` to identify duplicates in your pictures collection, etc.
 
-### [014: purge_venv.sh in Python]()
+### [014: purge_venv.sh in Python](014_purge_venv/README.md)
+> pathlib, shutil, rglob, user input, monkey patch, cli e2e tests
+
+Write a script that given a directory, recursively finds all virtual environment directories (typically named `.venv`, but not always, so it must be an argument), report the total size of those and then asks the user for confirmation. If the user confirms, all the directories found are removed and the program reports how much space the directory size is after purging.
+
+### [015: Rename Link to shortcuts]()
 > TBD
 
-Lorem ipsum
+ToDo

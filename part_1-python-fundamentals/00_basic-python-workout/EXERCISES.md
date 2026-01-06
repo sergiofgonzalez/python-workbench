@@ -6720,3 +6720,8 @@ The function `shutil.copytree()` recursively makes copies of all the files in a 
 
 Copy an entire directory tree, including subdirs, symlinks, etc. and validate that nothing has changed except for the creation time.
 
+### 437: replacing references to current dir / parent dir with path
+
+Sometimes, when using command line tools you might want to replace references to '.' or '..' in the report with the actual absolute or relative path.
+
+Write a program that when passed a Path object that is '.' or '..' prints the absolute path, and otherwise prints the given path.
