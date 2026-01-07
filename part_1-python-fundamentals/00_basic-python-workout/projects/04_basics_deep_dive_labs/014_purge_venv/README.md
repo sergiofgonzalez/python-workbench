@@ -182,5 +182,18 @@ Examples about how to run it.
 You can run the application with:
 
 ```bash
+# run without params
 uv run purge-venv
+
+# run to get some help
+uv run purge-venv --help
+
+# run on data/ directory with default params
+uv run purge-venv data/
+
+# run on data/ directory with non-default venv names
+uv run purge-venv data/ --venv-names .venv venv
+
+# dry-run mode (does not delete anything)
+vuv run purge-venv data/ --venv-names .venv venv --dry-run
 ```

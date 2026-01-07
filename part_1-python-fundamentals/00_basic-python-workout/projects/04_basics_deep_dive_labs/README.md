@@ -223,7 +223,13 @@ As a bonus, publish the script in PyPI with `uv` and validate it can be invoked 
 
 Write a script that given a directory, recursively finds all virtual environment directories (typically named `.venv`, but not always, so it must be an argument), report the total size of those and then asks the user for confirmation. If the user confirms, all the directories found are removed and the program reports how much space the directory size is after purging.
 
-### [015: Rename Link to shortcuts]()
-> TBD
+### [015: Rename "Link to " shortcuts prefix](015_shortcut_prefix_renamer/README.md)
+> renaming, pathlib, symlinks, generators
 
-ToDo
+Write a script that given a directory, recursively scans all the files contained with it identifying the ones whose name start with "Link to {name}.{ext}" and replace those with `{name}.{ext}`. The script must be smart enough to avoid name collisions by adding some suffix such as:
+
+```
+{name}_{number}.{ext}
+```
+
+The prefix part should be configurable, with `"Link to "` being the default.
