@@ -2014,7 +2014,7 @@ When using the OOP approach, you first create a `Pattern` object by compiling a 
 
 When using the functional style call, you directly pass the regular expression and the string in the same invocation.
 
-OOP is more verbose, but it's more appropriate when you reuse the same `Pattern` object multiple times, as the compilation can be cached.
+OOP is more verbose, but it's more appropriate when you reuse the same `Pattern` object multiple times, as the compilation result can be cached.
 
 Create a program that illustrates how to use the OOP and functional style call for the `re` module by:
 1. OOP
@@ -2100,6 +2100,7 @@ The following table lists the most common character sets supported in Python. No
 
 | Regex | Construct | Description |
 | :---- | :-------- | :---------- |
+| \b | character set | any character that can act as a word boundary (e.g., "\bhello\b") |
 | \d | character set | any decimal digit |
 | \D | character set | any character that is not a decimal digit |
 | \s | character set | any whitespace character including space, \t, \n, \r, \f, \v |
@@ -2121,7 +2122,7 @@ The following table lists the most common character sets supported in Python. No
 | hi{2,} | Quantifiers | "h" followed by 2 or more "i" (i.e., "ii", "iii", "iiii", ...) |
 
 Given the test string: "#1$wm_ M\t"
-use the functional style version of `findall` to check the outcome of using the function against the following regex patterns: "\d", "\D", "\s", "\S", "\w", "\W", ".", "[lmn]"
+use the functional style version of `findall` to check the outcome of using the function against the following regex patterns: "\d", "\D", "\s", "\S", "\w", "\W", ".", "[lmn]", "[wm]"
 
 Print a report by creating a for loop that applies `findall` for each regex pattern in the following format:
 
@@ -2146,6 +2147,7 @@ The following table lists the logical operators:
 | ^foo | Boundary anchor | Starts with "foo" |
 | bar$ | Boundary anchors | Ends with "bar" |
 | ^foo bar$ | Boundary anchors | Starts and ends with "foo bar" |
+| \b | character set | any character that can act as a word boundary (e.g., "\bhello\b") |
 | \d | character set | any decimal digit |
 | \D | character set | any character that is not a decimal digit |
 | \s | character set | any whitespace character including space, \t, \n, \r, \f, \v |
@@ -2201,12 +2203,19 @@ A `Match` instance, and the corresponding groups also feature a span object with
 
 The `Span` instance exposes the methods `start()` and `end()` that return the index of the first and last element of the match.
 
+Please note that it should be used as:
 
-1. Create a snippet that searches for the group of a word character followed by a digit occurring one or more times in the string "xyza2b1c3dd". Try to anticipate the results of the match and then confirm using `match.groups()`, `match.group(n)`, `match.spans()`, `match.group()`, `match.span()`. Then print the start and end of the matched string.
+```python
+match.start(i)  # span start value for group i
+match.end(i)    # span end value for group i
+```
+
+
+1. Create a snippet that searches for the group of a word character followed by a digit occurring one or more times in the string "xyza2b1c3dd". Try to anticipate the results of the match and then confirm using `match.groups()`, `match.group(n)`, `match.group()`, `match.span()`. Then print the start and end of the matched string.
 
 2. Given the string "Homework, urgent; today", which identifies a task name, its priority, and the due date, create the regex pattern that matches the task name and priority as different groups. Then use `groups()`, `group()`, `group(0)`, `group(1)`, and `group(2)` to understand the result of invoking those methods. Try to anticipate the results.
 
-3. Repeat the exercise above with `spans()`, `span()`, `span(0)`, `span(1)`, and `span(2)`.
+3. Repeat the exercise above with `span()`, `span(0)`, `span(1)`, and `span(2)`.
 
 ### 202: hello, search
 
@@ -2226,6 +2235,10 @@ The `Span` instance exposes the methods `start()` and `end()` that return the in
 
 `findall()` returns a list of strings that match the pattern. When the given regex pattern has multiple groups, the item returned is a tuple.
 
+| NOTE: |
+| :---- |
+| If there's a single group, defined in the pattern to match, no tuples are used (see 3 below). |
+
 Note that `findall()` has a particular way of capturing groups. `findall()` returns only the captured groups and not the full match.
 
 1. Given the string "hi hey hello", use `findall()` to match the following sequence of characters:
@@ -2237,6 +2250,8 @@ Note that `findall()` has a particular way of capturing groups. `findall()` retu
   1. h or H, as a group
   2. followed by i or e, as a second group
 
+1. Given the string "hi Hey hello", use `findall()` to match h or H as a group.
+
 ### 205: hello, finditer
 
 `finditer()` returns an iterator that yields `Match` objects.
@@ -2245,7 +2260,12 @@ Given the string "hi Hey Hello", use `finditer()` to match the following sequenc
   1. h or H, as a group
   2. i or e, as a second group
 
-Use the iterator to understand the results.
+Use the iterator to understand the results by:
+1. using `next()` on the iterator to get the next result until the iterator is exhausted (controlling `StopAsync` exception).
+
+1. using `list()` to materialize all the matches.
+
+1. using `for` to get each match returned by the iterator.
 
 ### 206: hello, split
 
@@ -2297,6 +2317,9 @@ Python supports the syntax:
 
 to give a name to a pattern group.
 
+For example, a pattern such as `r"(\d+)"` could be enhanced with a named group using `r"(?P<number>\d+)"`.
+
+
 When doing so, you will be able to use `match.group(<group_name>)` instead of its index, which will improve your code's readability.
 
 Suppose that we have the following text that contains multiple valid records, along with invalid records with random data, mimicking what you'd get out of a DB log after a crash:
@@ -2322,6 +2345,14 @@ Another random record
 ### 211: using groupdict with regular expressions with group names
 
 The `groupdict()` method allows you to create a dictionary with the named groups.
+
+This method is applied to the Match object and returns a dictionary, so that instead of invoking `match.groups("group_name")` you can do:
+
+```python
+if match:
+    groups_dict = match.groupdict()
+    fld = groups_dict["field_name"]
+```
 
 Suppose that we have the following text that contains multiple valid records, along with invalid records with random data, mimicking what you'd get out of a DB log after a crash:
 
@@ -6876,3 +6907,395 @@ Note that:
 + the keys of the `shelf` objects returned by `shelve.open()` need to be strings.
 + `shelf` objects are not materialized into memory. Instead, only the necessary information is brought into memory, and the rest remains in disk.
 + there's no concurrent access control, so `shelf` objects are not appropriate for multiuser databases. Also, while lookups are very fast, adding and update keys are slow operations.
+
+### 447: full exception syntax
+
+Familiarize yourself with the full syntax for exception catching and handling by implementing a try-except block such as the following:
+
+```python
+try:
+    body
+except exception_type1 as var1:
+    exception_handler_1
+except exception_type2 as var2:
+    exception_handler_2
+except exception_type3, exception_type4 as var34:
+    exception_handler_34
+except:
+    default_exception_code
+else:
+    else_block
+finally:
+    finally_block
+```
+
++ The `finally_block` is always executed. Even if you return from the exception handler.
++ If the execution of the body is successful, the `else_block` will be executed, and then the `finally_block` will be executed. Note that the `else_block` won't be executed if you return from the `body`.
++ If the `body` fails, the `except` clauses are searched sequentially, from top to bottom. If a matching `except` is found, the thrown exception is assigned to the variable named after the associated exception type, and then, the corresponding exception handler code is executed. After that, the `finally_block` will be executed.
++ You can use `except exception_type` (without the instance of the exception) if you're only interested in the type of exception found.
++ You can include a *catch-all* `except`: that catches all types of exceptions and it is not recommended.
+
+### 448: exception with multiple args
+
+If you raise an exception with multiple arguments, those will be delivered to your handler as a tuple in the `args` attribute.
+
+Familiarize yourself with this concept by defining a custom exception `MyError` that inherits from `Exception`.
+
+Then, raise a `MyError` exception with a single string argument and print what's been received.
+
+Then, raise a `MyError` exception passing two separate strings and an int value. Print the arguments received individually, and using the `str(error)`.
+
+### 449: hello, exception groups
+
+Since Python 3.11, two new exceptions were added:
++ `BaseExceptionGroup`, which inherits from `BaseException`.
++ `ExceptionGroup`, which inherits from `Exception`.
+
+The purpose of exception groups is to bundle exceptions together to make it possible to handle more than one exception at a time.
+
+The following snippet illustrates both the syntax and behavior:
+
+```python
+try:
+    message = ""
+    raise ExceptionGroup(
+        "Multiple exceptions at once",
+        [TypeError(), FileNotFoundError(), ValueError()]
+    )
+except* TypeError:
+    message += "Handling TypeError exception\n"
+except* IOError:
+    message += "Handling IOError exception\n"
+except* ValueError:
+    message += "Handling ValueError exception\n"
+finally:
+    print(message)
+```
+
+This code raises an `ExceptionGroup` wrapping three different exceptions. Then three separate `except*` handlers are defined to deal with those exceptions.
+
+The `ExceptionGroup` was added to wrap multiple exceptions in a special exception. Each individual exception within the group can be handled through the `except*` group by type.
+
+An `except*` block for an exception that is a base class of other exceptions (e.g., `IOError`) will catch all the subclass exceptions (e.g., `FileNotFoundError`, `FileAlreadyExists`, etc.), but if the exceptions are not in the same hierarchy, multiple handlers can be executed.
+
+Familiarize yourself with this concept by implementing the code above. Is it possible to send and retrieve the arguments in an `ExceptionGroup`?
+
+SOLUTION: Yes, you can use `except* ValueError as e` and then use e. Note that the `except* e` may also catch multiple instances of the same exception type (e.g., two `ValueError` exceptions).
+
+### 450: hello, assert
+
+The `assert` statement is a specialized form of the `raise` statement that uses the syntax:
+
+```python
+assert expression, explanation
+```
+
+The `AssertionError` exception will be raised if the expression evaluates to `False` and the system variable `__debug__` is `True` (which is the default).
+
+
+You can turn off `__debug__` by:
++ passing `-O` or `-OO` to the Python interpreter.
++ setting `PYTHONOPTIMIZE` environment to `True`.
+
+Familiarize yourself with the `assert` statement, and validate how you can disable it. How can you disable assertions when running with `uv`?
+
+SOLUTION: You need to do:
+
+```bash
+uv run python -O 45_assert_hello.py
+```
+
+to disable the assertion errors.
+
+Alternatively, you can do:
+
+```bash
+$ PYTHONOPTIMIZE=True uv run 450_assert_hello.py
+```
+
+### 451: dealing with exception hierarchy in except blocks
+
+Python evaluates except blocks from top-to-bottom, considering the exception class hierarchy.
+
+That is, it honors the following hierarchical structure:
+
+```
+BaseException
+├── BaseExceptionGroup
+├── Exception
+│   ├── ArithmeticError
+│   │   ├── FloatingPointError
+│   │   ├── OverflowError
+│   │   └── ZeroDivisionError
+│   ├── AssertionError
+│   ├── AttributeError
+│   ├── BufferError
+│   ├── EOFError
+│   ├── ExceptionGroup [BaseExceptionGroup]
+│   ├── ImportError
+│   │   └── ModuleNotFoundError
+│   ├── LookupError
+│   │   ├── IndexError
+│   │   └── KeyError
+│   ├── MemoryError
+│   ├── NameError
+│   │   └── UnboundLocalError
+│   ├── OSError
+│   │   ├── BlockingIOError
+│   │   ├── ChildProcessError
+│   │   ├── ConnectionError
+│   │   │   ├── BrokenPipeError
+│   │   │   ├── ConnectionAbortedError
+│   │   │   ├── ConnectionRefusedError
+│   │   │   └── ConnectionResetError
+│   │   ├── FileExistsError
+│   │   ├── FileNotFoundError
+│   │   ├── InterruptedError
+│   │   ├── IsADirectoryError
+│   │   ├── NotADirectoryError
+│   │   ├── PermissionError
+│   │   ├── ProcessLookupError
+│   │   └── TimeoutError
+│   ├── ReferenceError
+│   ├── RuntimeError
+│   │   ├── NotImplementedError
+│   │   ├── PythonFinalizationError
+│   │   └── RecursionError
+│   ├── StopAsyncIteration
+│   ├── StopIteration
+│   ├── SyntaxError
+│   │   ├── IncompleteInputError
+│   │   └── IndentationError
+│   │       └── TabError
+│   ├── SystemError
+│   ├── TypeError
+│   ├── ValueError
+│   │   └── UnicodeError
+│   │       ├── UnicodeDecodeError
+│   │       ├── UnicodeEncodeError
+│   │       └── UnicodeTranslateError
+│   └── Warning
+│       ├── BytesWarning
+│       ├── DeprecationWarning
+│       ├── EncodingWarning
+│       ├── FutureWarning
+│       ├── ImportWarning
+│       ├── PendingDeprecationWarning
+│       ├── ResourceWarning
+│       ├── RuntimeWarning
+│       ├── SyntaxWarning
+│       ├── UnicodeWarning
+│       └── UserWarning
+├── GeneratorExit
+├── KeyboardInterrupt
+└── SystemExit
+```
+
+As a practical example:
+
+```
+├── LookupError
+│   ├── IndexError
+│   └── KeyError
+```
+
+Because `LookupError` is a base class for `IndexError`, if you write a handler for `LookupError` before your handler for `IndexError`, the latter will never be executed.
+
+Confirm and suggest what should be the best approach.
+
+### 452: exception handling for non-halting situations
+
+Python favors the "EAFP" (it's easier to ask for forgiveness than permission) over "LBYL" (look before you leap), you will find many situations in which exceptions are used to deal with non-critical situations.
+
+Define a function `cell_value(str)` that receives a cell value in string format that is supposed to contain a number.
+The function should return:
++ The value, if the cell value represents a floating point number.
++ 0, if the cell is empty.
++ `None` in any other case.
+
+Implement it using the EAFP approach.
+
+### 453: context manager with multiple resources
+
+Create a single context manager to copy a source file to a destination file.
+
+How would you deal with a custom implementation of the context manager?
+
+SOLUTION: when using multiple context managers, each one of them is invoked on its own, so there's no additional logic you need to include.
+
+### 454: OOP: shapes
+
+1. Create a base class `Shape` that takes the coordinates of a point (x, y) as two individual arguments in the initializer. Define a method `move(delta_x, delta_y)` that performs the translation of the shape's point.
+
+1. Create a `Circle` class that inherits from `Shape`. Include two class variables `pi=3.14159` and `all_circles` (a list that contains a reference to each of the instances created).
+
+    The initializer method must optionally accept the circle's radius, and optionally the coordinates x, y, which should be passed to the base class initializer. The default values for (x, y) should be (0, 0).
+
+    In the Circle class define a class method `total_area` that returns the area of all the circles defined.
+    Define also a static method `circle_area()` returning the area of a circle of radius `r`.
+
+1. Create an instance of `Circle` named `c1` by invoking the default initializer and print the radius, and (x, y) values.
+
+    Then create another instance `c2` with radius 2 and (x,y) = (1,1) and print them as well.
+
+    Invoke the `move()` method on `c2` with delta_x = 2, and delta_y = 2. Print the radius and (x, y) again.
+
+    Print `Circle.all_circles` and check what's printed. Invoke the static method `circle_area` for c1.
+
+### 455: OOP: property decorator for Temperature
+
+Create a temperature class that can be initialized with a Fahrenheit temperature. Create a `temp` read/write property that returns the temperature in Celsius.
+
+### 456: OOP: property decorator for Rectangle
+
+Create a `Rectangle` class in which the properties `width` and `height` are private, but exposed with setters and getters. The setter functions should have logic to prevent setting 0 or negative value for those properties.
+
+### 457: regex: counting lines in file with matching string
+
+Create a program that count the lines in the file [01_textfile.txt](projects/01_getting_up_to_speed/data/in_data/regex_files/01_textfile.txt) in which the search string "hello" is found.
+
+Note that a line containing the search string more than once should be counted only once.
+
+1. Use the OOP approach available in `re`.
+1. Use the functional approach available in `re`.
+1. Enhance the program to identify both "hello" and "Hello" using at least three different regex pattern variations (e.g., using logical operators, character sets, etc.)
+
+### 458: regex: matching range of numbers
+
+Create a program that matches the numbers from -5 to 5.
+
+You can assume that you will only be given numbers from -9 to 9.
+
+### 459: regex: matching hex digit
+
+Write a program that matches a hexadecimal digit.
+
+### 460: regex: using raw strings in regexes
+
+Write a program that matches the string "\ten" in the file [02_textfile.txt](projects/01_getting_up_to_speed/data/in_data/regex_files/02_textfile.txt) using regular and raw strings.
+
+HINT: Note that even when using raw strings you will need to use an extra backslash.
+
+### 461: regex: extracting matched text from strings
+
+Let's assume that you have a file with a list of people and phone numbers conforming to the format:
+
+```
+surname, firstname middlename: phonenumber
+```
+
+where:
++ the middlename may or may not be present
++ phone numbers conform to the format:
+    + 3 digit area code (optional)
+    + 3 digit exchange code
+    + 4 digit number station code
+
+    using "-" as separator. For example, you might find phone numbers written as 800-123-4567 or 123-4567
+
+The file might also have lines with comments that won't conform to that format.
+
+Write a program that goes through the file [03_textfile.txt](projects/01_getting_up_to_speed/data/in_data/regex_files/03_textfile.txt) printing a report such as the following:
+
++ for invalid lines: "line {line_no}: "{line}" could not be interpreted.
++ for valid lines: "Name={first_name}, MiddleName={MiddleName}, LastName={last_name}, Phone={phone}"
+
+### 462: regex: extracting matched text (enhanced)
+
+This is an enhancement of the previous exercise, to deal with international phone numbers, featuring a country code with two digits.
+
+Let's assume that you have a file with a list of people and phone numbers conforming to the format:
+
+```
+surname, firstname middlename: phonenumber
+```
+
+where:
++ the middlename may or may not be present
++ phone numbers conform to the format:
+    + \+ and 2 digit international country code (optional)
+    + 3 digit area code (optional)
+    + 3 digit exchange code
+    + 4 digit number station code
+
+    For example, you might find phone numbers written as 800-123-4567, 123-4567, (+47) 800-123-4567, (+10) 123-4567
+
+The file might also have lines with comments that won't conform to that format.
+
+Write a program that goes through the file "..." printing a report such as the following:
+
++ for invalid lines: "line {line_no}: "{line}" could not be interpreted.
++ for valid lines: "Name={first_name}, MiddleName={MiddleName}, LastName={last_name}, CountryCode={country_code} Phone={phone}"
+
+Note that the country code must not feature the `+` sign. HINT: use a named group within the group.
+
+When ready, enhance the pattern to deal with country codes having one to three digits. Use the file [04_textfile.txt](projects/01_getting_up_to_speed/data/in_data/regex_files/04_textfile.txt) for testing it.
+
+### 463: regex: substituting text
+
+Create a program that given a string containing integer values, returns a string with the same numerical values, but as floating point numbers.
+
+That is, given the string:
+
+```
+1, 2, 3 count with me, that's how the numbers go, 4, 5, 6, 7, 8, 9
+```
+
+The program must convert it into:
+
+```
+1.0, 2.0, 3.0 count with me, that's how the number goes, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0
+```
+
+### 464: regex: default contry code in phone book
+
+This is an enhancement of previous exercised, to deal with international phone numbers, featuring a country code with two digits.
+
+Let's assume that you have a file with a list of people and phone numbers conforming to the format:
+
+```
+surname, firstname middlename: phonenumber
+```
+
+where:
++ the middlename may or may not be present
++ phone numbers conform to the format:
+    + \+ and 1 to 3 digit international country code (optional)
+    + 3 digit area code (optional)
+    + 3 digit exchange code
+    + 4 digit number station code
+
+    Note that the country code might not feature the `+` sign. HINT: use a named group within the group.
+
+    For example, you might find phone numbers written as 800-123-4567, 123-4567 (+47) 800-123-4567, (+10) 123-4567, or (34) 123-456-7890
+
+The file might also have lines with comments that won't conform to that format.
+
+Write a program that goes through the file [05_textfile.txt](projects/01_getting_up_to_speed/data/in_data/regex_files/05_textfile.txt) printing a report such as the following:
+
++ for invalid lines: "line {line_no}: "{line}" could not be interpreted.
++ for valid lines: "Name={first_name}, MiddleName={MiddleName}, LastName={last_name}, CountryCode={country_code} Phone={phone}"
+
+Also, if the Country code is not present, use +1 for US and Canada.
+
+### 465: regex: US phone number normalizer
+
+In USA and Canada, phone numbers consist of ten digits, usually separated into:
++ a three-digit area code
++ a three-digit exchange code
++ a four-digit station code
+
+They may or may not be preceded by the country code +1.
+
+The following possible formats are acceptable:
++ +1 223-456-7890
++ 1-223-456-7890
++ +1 223 456-7890
++ (223) 456-7890
++ 1 223 456 7890
++ 223.456.7890
+
+Create a phone-number normalizer function that can take phone number using any of the formats above and returns the phone number in the format: `1-NNN-NNN-NNNN`. You can use the file [06_textfile.txt](projects/01_getting_up_to_speed/data/in_data/regex_files/06_textfile.txt)
+
+Bonus
+> the first digit of the area code and the exchange code can only be 2-9, and the second digit of an area code can't be 9.

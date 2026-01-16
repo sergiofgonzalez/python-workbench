@@ -1,0 +1,3 @@
+as a word: ten
+what I'm searching: \ten
+the tab expanded:	ten

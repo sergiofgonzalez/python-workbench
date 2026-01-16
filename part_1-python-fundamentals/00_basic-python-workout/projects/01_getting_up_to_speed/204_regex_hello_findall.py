@@ -30,5 +30,16 @@ def main() -> None:
         print(f"No matches found: {regex_pattern=}; {test_str=}.")
 
 
+    print("===" * 20)
+    test_str = "hi Hey hello"
+    regex_pattern = r"([hH])"
+    matches = re.findall(regex_pattern, test_str)
+    if matches:
+        print("Matches found!")
+        print(matches) # see how no tuples are used as there's a single group
+    else:
+        print(f"No matches found: {regex_pattern=}; {test_str=}.")
+
+
 if __name__ == "__main__":
     main()

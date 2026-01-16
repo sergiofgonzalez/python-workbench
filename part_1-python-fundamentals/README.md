@@ -14,6 +14,8 @@ This project has become a bit of a mess with duplicated content, so this reading
 
 + Next, you should tackle [04: Basics deep-dive labs](00_basic-python-workout/projects/04_basics_deep_dive_labs/README.md). This is similar to the Exercises section aforementioned, but the examples are more contrived and will let you exercise your Python skills in a deeper way.
 
++ The notebooks in [Basics: Deep Dive](03_basics-deep-dive/) are also a good source of detailed information on modern Python if you're looking for specific details about a particular topic. Many of the exercises and labs are taken from those notebooks.
+
 I would not recommend following any of the other notebooks in this section, as they may contain outdated (especially with respect to tooling and project management) or duplicated information (that can be found in the bullet points above).
 
 ## Legacy sections

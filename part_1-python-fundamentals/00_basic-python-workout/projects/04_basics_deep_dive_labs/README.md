@@ -233,3 +233,35 @@ Write a script that given a directory, recursively scans all the files contained
 ```
 
 The prefix part should be configurable, with `"Link to "` being the default.
+
+### [016: Python classes to generate HTML](016_html_generator/README.md)
+
+Create a hierarchy of Python classes that could be used to generate an HTML page just by calling the `str()` method.
+
+For example, the following code:
+
+```python
+para = p(text="This is some body text wrapped in a paragraph")
+doc_body = body(text="this is the body", subelement=para)
+doc = html(subelement=doc_body)
+print(doc)
+```
+
+Should generate:
+
+```html
+<html>
+    <body>
+        This is the body
+        <p>
+            This is some body text wrapped in a paragraph
+        </p>
+    </body>
+</html>
+```
+
+Make a first implementation which complies with the SDK and user experience presented above.
+
+Then, enhance the initial approach so that instead of using a single `subelement` and optionally some text, the resulting classes sopport any number of children elements.
+
+That way, the body, which has both some inner text and a paragraph will be easily accommodated.

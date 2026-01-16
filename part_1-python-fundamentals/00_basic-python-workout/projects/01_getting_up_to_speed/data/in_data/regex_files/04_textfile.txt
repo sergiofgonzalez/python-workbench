@@ -1,0 +1,7 @@
+# This is comment line, won't be parsed
+surname, firstname middlename: 555-123-4567
+Isaacs, Jason: 123-4567
+Pugh, Florence Mary: 123-4567
+Krabs, Eugene: 800-123-4567
+Castillo, Anna: (+34) 555-123-4567
+Skarsgård, Stellan: (+46) 123-4567

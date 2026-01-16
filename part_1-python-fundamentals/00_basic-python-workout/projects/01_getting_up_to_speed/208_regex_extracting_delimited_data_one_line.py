@@ -17,6 +17,12 @@ def main() -> None:
     print(matches)
     assert matches == ["fld1", "fld2", "fld3", "fld4", "fld5"]
 
+    # Alternatively, we could have used re.split() using a regex pattern for the
+    # delimiter
+    splits = re.split(r"_*,+_*", text_line)
+    print(splits)
+    assert splits == ["fld1", "fld2", "fld3", "fld4", "fld5"]
+
 
 if __name__ == "__main__":
     main()

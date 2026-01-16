@@ -15,6 +15,7 @@ def main() -> None:
         r"\W",  # Non-word character
         r".",  # Any character except newline
         r"[lmn]",  # Any of the characters l, m, or n
+        r"[wm]", # Any of the characters w or m
     ]
     print("Text to search:", repr(text))
     max_len = max(len(p) for p in regex_patterns)

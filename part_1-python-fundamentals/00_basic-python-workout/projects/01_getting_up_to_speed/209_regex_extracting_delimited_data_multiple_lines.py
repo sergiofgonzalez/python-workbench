@@ -85,7 +85,7 @@ Another random record"""
         print(f" - {record}")
     print("-" * 80)
 
-    # I've noticed that the regex pattern could be improved byt adding boundary
+    # I've noticed that the regex pattern could be improved by adding boundary
     # anchors to ensure that we match the whole line
     regex_pattern_valid_record = r"^(\d+),\s(\w+);\s(.+)$"
     valid_records = []
