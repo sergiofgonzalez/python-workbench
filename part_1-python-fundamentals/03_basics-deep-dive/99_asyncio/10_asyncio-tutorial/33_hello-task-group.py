@@ -76,5 +76,5 @@ async def main() -> None:
         print(f"[white]Task #{i}: done={task.done()}, cancelled={task.cancelled()}, result={task.result() if not task.cancelled() and not task.exception() else 'N/A'}, exception={task.exception() if not task.cancelled() and task.exception() else "N/A"}[/white]")  # noqa: E501
 
 if __name__ == "__main__":
-    # Start the event loop in the curren thread
+    # Start the event loop in the current thread
     asyncio.run(main())

@@ -265,3 +265,81 @@ Make a first implementation which complies with the SDK and user experience pres
 Then, enhance the initial approach so that instead of using a single `subelement` and optionally some text, the resulting classes sopport any number of children elements.
 
 That way, the body, which has both some inner text and a paragraph will be easily accommodated.
+
+### [017: Using Duck Typing to create a TypedList](017_custom_typed_list/README.md)
+
+| NOTE: |
+| :---- |
+| The exercise [467: OOP: Creating a TypedList by subclassing the `list` class](../../EXERCISES.md#467-oop-creating-a-typedlist-by-subclassing-the-list-class) illustrate a more succinct implementation using subclassing. This exercise's goal is to get you familiarized with duck typing by creating an implementation from scratch. |
+
+Python can work with *duck typing* (if it walks like a duck and quacks like duck, it's probably a duck).
+
+The underlying idea is that Python's way of determining whether an object can be used in a particular scenario is not through the determination of its type (as it happens in Java), but rather by looking at the interface of the given object.
+
+For example, if a piece of code needs an iterator, the object doesn't need to be a subclass of any particular iterator class &mdash; as long as the object conforms to the expected interface of iterators to yield new objects everything will be fine.
+
+Create a `TypedList` class that defines a `TypedList` object that behaves like a list (duck typing) and ensures that it contains only elements of a given type.
+
+The class' initializer must accept:
++ an example element, which will set the type of the list's elements.
++ an initial list, which will be used to pre-initialize the list.
+
+The class must implement the following methods to behave like a robust list:
+
++ `__getitem__()`: to return elements from the list.
++ `__setitem__()`: to set elements in the list.
++ `__len__()`: to support `len()`.
++ `__delitem()`: to support `del x[i]`.
++ `__add__()`: to allow list concatenation with the syntax `x + y`.
++ `__mul__()` and `__rmul()`: to allow `5 * tl` and `tl * 5` operations.
++ `append(elem)`: to allow appending elements to the list.
+
+It must support the following snippets:
+
+```python
+x = TypedList("", 5 * [""])
+print(x)
+
+x[2] = "Hello"
+x[3] = "to"
+x[4] = "Jason Isaacs"
+
+print(f"{x[2]}-{x[3]}-{x[4]}")
+
+a, b, c, d, e = x
+print(f"{a=}, {b=}, {c=}, {d=}, {e=}")
+
+x = TypedList("example")
+assert len(x) == 0
+
+x.append("one")
+assert len(x) == 1
+assert x[0] == "one"
+
+del x[0]
+assert len(x) == 0
+
+# list concatenation: first with real lists
+a = ["one", "two", "three"]
+b = ["one", "two"]
+print(a + b)
+
+
+# now with TypedLists
+x.append("one")
+x.append("two")
+x.append("three")
+
+y = TypedList("example", ["uno", "dos"])
+z = x + y
+print(z)
+
+# mul
+x = TypedList(0, [123])
+y = 5 * x
+print(y)
+
+x = TypedList(0, [321])
+y = x * 5
+print(y)
+```

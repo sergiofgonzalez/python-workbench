@@ -3,7 +3,7 @@ name = "misc_projects"
 version = "0.1.0"
 description = "Simple Python projects for getting up to speed with Python."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "requests>=2.32.5",
 ]

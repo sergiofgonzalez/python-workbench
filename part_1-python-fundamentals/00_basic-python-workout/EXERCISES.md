@@ -1,6 +1,16 @@
 # Getting up to speed with simple projects
 > distilled list of basic Python snippets from [01_python-workout](01_python-workout.ipynb) with solutions in [projects/01_getting_up_to_speed](projects/01_getting_up_to_speed/)
 
+## List of Labels
+
+The following labels are used to prefix the exercises. Many of the exercises cover multiple concepts, but a single prefix is used to identify the one that is more relevant to the exercise:
+
+1. OOP: Object-oriented programming and classes
+1. asyncio: asynchronous programming using asyncio
+1. ctxmngrs: context manager (sync interface)
+1. pathlib: file operations using pathlib
+1. generators: generator functions
+
 
 ## 01: Shakedown test
 
@@ -7299,3 +7309,809 @@ Create a phone-number normalizer function that can take phone number using any o
 
 Bonus
 > the first digit of the area code and the exchange code can only be 2-9, and the second digit of an area code can't be 9.
+
+### 466: types: inspecting types
+
+Suppose that you want to make sure that object `x` is a list before you try appending to it. What could would you use?
+
+What would be the different between using `type()` and `isinstance()`? Would this be LBYL ("Look Before You Leap") or EAFP ("Easier to Ask for Forgiveness than Permission")? What other options might you have besides checking the type explicitly?
+
+SOLUTION: Both `type()` and `isinstance()` are LBYL solutions. By contrast, you could do no type checking and then let the corresponding function fail or raise an exception to report the problem (EAFP).
+
+### 467: OOP: Creating a TypedList by subclassing the `list` class
+
+Create a `TypedList` class that subclasses the `list` class while ensuring that it contains only elements of a given type.
+
+The class' initializer must accept:
++ an example element, which will set the type of the list's elements.
++ an initial list, which will be used to pre-initialize the list.
+
+The resulting list must support the following DX:
+
+```python
+x = TypedList("", 5 * [""])
+print(x)
+
+x[2] = "Hello"
+x[3] = "to"
+x[4] = "Jason Isaacs"
+
+print(f"{x[2]}-{x[3]}-{x[4]}")
+
+a, b, c, d, e = x
+print(f"{a=}, {b=}, {c=}, {d=}, {e=}")
+
+x = TypedList("example")
+assert len(x) == 0
+
+x.append("one")
+assert len(x) == 1
+assert x[0] == "one"
+
+del x[0]
+assert len(x) == 0
+
+# list concatenation: first with real lists
+a = ["one", "two", "three"]
+b = ["one", "two"]
+print(a + b)
+
+
+# now with TypedLists
+x.append("one")
+x.append("two")
+x.append("three")
+
+y = TypedList("example", ["uno", "dos"])
+z = x + y
+print(z)
+
+# mul
+x = TypedList(0, [123])
+y = 5 * x
+print(y)
+
+x = TypedList(0, [321])
+y = x * 5
+print(y)
+```
+
+### 468: OOP: Creating a TypedList by subclassing the `UserList` class
+
+`collections.UserList` is a wrapper class the exposes an underlying list as a `data` attribute.
+
+Create a `TypedList` class that subclasses the `UserList` class ensuring that it contains only elements of a given type.
+
+The class' initializer must accept:
++ an example element, which will set the type of the list's elements.
++ an initial list, which will be used to pre-initialize the list.
+
+The resulting list must support the following DX:
+
+```python
+x = TypedList("", 5 * [""])
+print(x)
+
+x[2] = "Hello"
+x[3] = "to"
+x[4] = "Jason Isaacs"
+
+print(f"{x[2]}-{x[3]}-{x[4]}")
+
+a, b, c, d, e = x
+print(f"{a=}, {b=}, {c=}, {d=}, {e=}")
+
+x = TypedList("example")
+assert len(x) == 0
+
+x.append("one")
+assert len(x) == 1
+assert x[0] == "one"
+
+del x[0]
+assert len(x) == 0
+
+# list concatenation: first with real lists
+a = ["one", "two", "three"]
+b = ["one", "two"]
+print(a + b)
+
+
+# now with TypedLists
+x.append("one")
+x.append("two")
+x.append("three")
+
+y = TypedList("example", ["uno", "dos"])
+z = x + y
+print(z)
+
+# mul
+x = TypedList(0, [123])
+y = 5 * x
+print(y)
+
+x = TypedList(0, [321])
+y = x * 5
+print(y)
+```
+
+### 469: OOP: dictionary that only allows strings for both keys and values
+
+Create a dictionary `StringDict` that only allows strings for both keys and values by subclassing the `dict` type.
+
+### 470: collections: `defaultdict(int)` for counting words in a sentence
+
+The collections module has a handy tool called `defaultdict`, a subclass of Python's dict that accepts a default factory as its primary argument. The default factory is usually a Python type (e.g., `int` or `list`, but you can pass a lambda too).
+
+```python
+from collections import defaultdict
+
+d = defaultdict(int)
+```
+
+When you use `defaultdict(int)` the Python runtime will assume that the default value of keys is `0`. That will simplify the logic in some scenarios.
+
+1. Start by creating a snippet that counts the number of times a word is used in a string.
+1. Reimplement the solution using a `defaultdict(int)`.
+
+### 471: collections: `defaultdict(list)` for managing amount by account
+
+Let's assume you have a list of purchases with each item conforming to the format (acct_no, amt):
+
+```python
+purchases_list = [
+    (1234, 100.23),
+    (345, 10.45),
+    (1234, 75.00),
+    (345, 222.66),
+    (678, 300.25),
+    (1234, 35.67),
+]
+```
+
+Create a dictionary that groups each purchase by account number using:
+
+1. A regular dictionary.
+1. A default dictionary initialized with a list (e.g., `defaultdict(list)`)
+
+### 472: collections: `defaultdict(lambda)`
+
+The `defaultdict` class can be initialized passing a lambda function that will be used to set the default value for keys not yet seen.
+
+Use this approach for a dictionary whose key is the name of an animal and the value is the type of the animal. The default value for keys not yet seen should be `"Monkey"`.
+
+### 473: OOP: UpperCaseDict by subclassing `dict`
+
+Create an `UpperCaseDict` class by subclassing `dict`. It must be a dictionary-like class that automatically stores all its keys as strings where all the letters are uppercase.
+
+That is:
+
+```python
+numbers = UpperCaseDict()
+numbers["one"] = 1
+
+print(numbers) # {'ONE': 1}
+
+try:
+    numbers[2] = 2.345 # raises TypeError
+except TypeError:
+    ...
+
+numbers = UpperCaseDict({"one": 1, "two": 2, "three": 3}) # must apply uppercase
+
+numbers.update({"four": 4}) # must apply uppercase (what does this do)
+```
+
+What would you say of the implementation?
+
+SOLUTION: The solution is very verbose, and you can't be 100% sure that the given solution is going to work in 100% of the use cases as the dict interface is huge.
+
+### 474: dict: familiarizing with dict.update method
+
+Create a simple snippet to familiarize yourself with the dict.update() method.
+
+
+### 475: collections: UpperCaseDict by subclassing `UserDict`
+
+Create an `UpperCaseDict` class by subclassing `UserDict`. It must be a dictionary-like class that automatically stores all its keys as strings where all the letters are uppercase.
+
+HINT: `UserDict` is a wrapper around a regular `dict` object that gives you access to the underlying dictionary through the `data` instance attribute.
+
+```python
+numbers = UpperCaseDict()
+numbers["one"] = 1
+
+print(numbers) # {'ONE': 1}
+
+try:
+    numbers[2] = 2.345 # raises TypeError
+except TypeError:
+    ...
+
+numbers = UpperCaseDict({"one": 1, "two": 2, "three": 3}) # must apply uppercase
+
+numbers.update({"four": 4}) # must apply uppercase (what does this do)
+
+numbers.setdefault("five", 5) # must create a "FIVE": 5
+```
+
+HINT: `setdefault` and `update`
+
+What would you say of the implementation by comparing it with inheriting from `dict`.
+
+### 476: collections: `UserDict` that accepts Eng and US spelling
+
+Create a user dictionary that can accept keys spelled using the English and US spelling of words such as:
+
+| Eng | US |
+| :-- | :-- |
+| colour | color |
+| flavour | flavor |
+| behaviour | behavior |
+
+It should support the following usage:
+
+```python
+likes = EnglishSpelledDict({"color": "blue", "flavour": "vanilla"})
+
+>>> likes
+{'color': 'blue', 'flavor': 'vanilla'}
+
+>>> likes["flavour"]
+vanilla
+>>> likes["flavor"]
+vanilla
+
+>>> likes["behaviour"] = "polite"
+>>> likes
+{'color': 'blue', 'flavor': 'vanilla', 'behavior': 'polite'}
+
+>>> likes.get("colour")
+'blue'
+>>> likes.get("color")
+'blue'
+
+>>> likes.update({"behaviour": "gentle"})
+>>> likes
+{'color': 'blue', 'flavor': 'vanilla', 'behavior': 'gentle'}
+```
+
+### 477: OOP: ValueDict a dict with additional methods
+
+Create a class `ValueDict` that inherits from `dict` and must expose the following methods:
+
++ `key_of(value)`: returns the first key matching the given value.
++ `keys_of(value)`: returns an iterator yielding all the keys matching a given value.
+
+It must support the following code:
+
+```python
+>>> from value_dict import ValueDict
+
+>>> inventory = ValueDict()
+>>> inventory["apple"] = 2
+>>> inventory["banana"] = 3
+>>> inventory.update({"orange": 2})
+
+>>> inventory
+{'apple': 2, 'banana': 3, 'orange': 2}
+
+>>> inventory.key_of(2)
+'apple'
+>>> inventory.key_of(3)
+'banana'
+
+>>> list(inventory.keys_of(2))
+['apple', 'orange']
+```
+
+### 478: asyncio: hello, asyncio
+
+Create the async version of the following program, including some code to measure and report the execution time.
+
+```python
+def count(label: str) -> None:
+    """Print one, sleep for one second, then print two."""
+    print(f"{label}: One Mississippi")
+    time.sleep(1)
+    print(f"{label}: Two Mississippi")
+    time.sleep(1)
+    print(f"{label}: Three Mississippi")
+    time.sleep(1)
+
+
+def main() -> None:
+    """Invoke count three times synchronously."""
+    count("first")
+    count("second")
+    count("third")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 479: asyncio: scheduling coroutines without awaiting them
+
+Write a coroutine `create_file_async(name: str)` that receives a file name and writes a simple message `"Hello, {name}!`.
+
+In the `main()` coroutine, use `asyncio.gather()` to schedule the execution of three different instances of `create_file_async()` with different names without using await.
+
+Do you get a `RuntimeWarning`? Does the program works as expected?
+
+SOLUTION: if you implement the `create_file_async()` in a completely sync way (no await and using pathlib) no error is generated and program seems to work as expected. However, as soon as you introduce a sleep you'll get a runtime error that can't be caught using traditional try-except.
+
+If you invoke the `create_file_async()` coroutine as if it were a regular function, you get a `RuntimeWarning` indicating that the coroutine was never awaited, and the coroutine body doesn't get executed.
+
+
+### 480: asyncio: asynchronously generating a random number until in range
+
+Write a coroutine `make_random(idx: int, threshold: int = 6) -> int` that generates a random number between 0 and 10 (inclusive) until that random number is greater than the given threshold, and then return it.
+
+If the number is less than or equal than the threshold, `make_random()` must sleep asynchronously (i.e., make use of `asyncio.sleep()`) for `idx + 1` seconds.
+
+In the `main()` coroutine, use `asyncio.gather()` to schedule the execution of three `make_random()` coroutines:
++ make_random(0, 9)
++ make_random(1, 8)
++ make_random(2, 7)
+
+The `main()` coroutine must return the result of awaiting `asyncio.gather()`, which should then be printed by the main program.
+
+BONUS:
+1. To make the program's results repeatable, use `random.seed(444)` in the main section of your program.
+2. Use `print()` in `make_random()` to announce the execution start, the event in which the generated random is too low and you'll be retrying, and finally when the random number is greater than the threshold.
+3. Enhance the print statements to use ANSI colors, so that each instance of `make_random()` use a different color. The trick is to include the following string before whatever text you want to colorize, and then use the end of color string to reset it:
+    + "\033[36m" for Cyan
+    + "\033[91m" for Red
+    + "\033[35m" for Magenta
+    + "\033[0m" for End of color
+
+### 481: context manager: implementing a File context manager
+
+Create a simple implementation of a context manager for a file using a class that implements `__enter__()` y `__exit__()`.
+
+In the `__enter__()` method, you should perform the `FileContextManager` object setup and return the object that will be handed over to the consumer code.
+
+In the `__exit__()` method, you should do the teardown and exception control. In the event of an exception, consider whether the exception should be bubbled up (returning `True`) or handled by the `__exit__()` returning `False`.
+
+Create a simple program that supports the following DX:
+
+```python
+with FileContextManager(file_path="my_file.txt", open_mode="w") as file:
+    file.write("Hello, world!")
+```
+
+Check the exception logic by invoking a made-up method on the object returned by the context manager and test how the propagation works by returning `True` (exception could be handled by the context manager and should not be propagated) or something other than `True` (typically `None`, although `False` can also be used) when the exception should be bubbled up in the `__exit__()` method.
+
+### 482: asyncio: Async Context Manager with classes
+
+Familiarize yourself with the concept of async context managers by implementing yourself an `AsyncFile` context manager using classes.
+
+In order to make it real, use `aiofiles` instead of the regular blocking file libraries.
+
+The resulting context manager must support the following DX:
+
+```python
+async def main() -> None:
+    """Application entry point."""
+    async with AsyncFile("my_file.txt", "w") as file:
+        await file.write("Hello to Jason Isaacs!")
+
+    async with AsyncFile("my_file.txt", "r") as file:
+        await file.made_up_method("hello, hello!")
+```
+
+### 483: asyncio: Async Context Manager with a generator
+
+Familiarize yourself with the concept of async context managers by implementing yourself an `AsyncFile` context manager using a generator.
+
+In order to make it real, use `aiofiles` instead of the regular blocking file libraries.
+
+The resulting context manager must support the following DX:
+
+```python
+async def main() -> None:
+    """Application entry point."""
+    async with AsyncFile("my_file.txt", "w") as file:
+        await file.write("Hello to Jason Isaacs!")
+
+    async with AsyncFile("my_file.txt", "r") as file:
+        await file.made_up_method("hello, hello!")
+```
+
+#### 484: generator: fibonacci sequence
+
+Write a generator `fibonacci(n)` that returns the numbers of the Fibonacci sequence up to the nth element.
+
+Consume the generator using both a for loop and instantiating the generator and calling `next()` on it.
+
+#### 485: strings: iterable, iterators and iteration
+
+Illustrate that a string supports iteration, it is iterable, but that a string is not an iterator. Then, benefit from the fact that it is an iterable to create an iterator and iterate over it using `next()`.
+
+### 481: asyncio: chaining pattern
+
+Familiarize yourself with the concept of chaining coroutines. Because a coroutine is an awaitable object, a coroutine can await on another coroutine, effectively creating a chain.
+
+Create the following program first to illustrate the problem chaining solves by create a coroutine `big_process(n: int) -> str` which:
+1. generates a random number between 0 and 10
+1. sleeps for the number of seconds obtained in the previous step
+1. generates another random number between 0 and 10
+1. sleeps again for the number of seconds obtained in the previous step
+1. returns the string "result{n}"
+
+In the `main()` coroutine, enable receiving a variable number of int arguments, and use `asyncio.gather()` to invoke `big_process()` for each of the arguments received.
+
+In the body of the *main guard* invoke the `main()` coroutine passing the arguments 1, 2, 3.
+
+BONUS: to facilitate tracking the execution of the different instances of bing process use `rich.print()`. This function lets you colorize your print statements using `print("[color(n)]text colorized here[/color(n)]")`
+
+Then, create a second version of the program in which you split the `big_process()` into `process_part1()` with the first two steps and `process_part2()` with the remaining steps. Create an additional `chain()` coroutine the orchestrates the invocation of `process_part1()` and `process_part2()`.
+
+### 482: asyncio: hello, `asyncio.gather()`
+
+The function `asyncio.gather()` executes all the provided coroutines concurrently returning an `asyncio.Future` that represents the results after executing them.
+
+Familiarize yourself with `asyncio.gather()` by creating a simple program that:
+
+1. Defines a coroutine `rand_sleep_async(max_sleep: int)` that generates a random number between 0 and `max_sleep`, sleeps for that amount of seconds, and returns the random value.
+1. Define a `main(*sleep_values: int)` coroutine, that accepts a variable number of sleep values, and set up an `asyncio.gather` call to schedule the execution of those calls concurrently.
+1. Await the completion of `asyncio.gather()` and print the results.
+1. Repeat the exercise, but this time taking a reference to the `Future` returned by `asyncio.gather()` doing some other stuff, and then awaiting the Future and printing the results.
+
+When would you say the last point would be more appropriate than the third one?
+
+BONUS: Use `rich.print()` to colorize the execution of the coroutines and include execution times. You can use `rich.print("[color]text in green[/color]")` to colorize your print statements using red, green, blue, etc.
+
+### 483: asyncio: `asyncio.gather()` dealing with exceptions
+
+`asyncio.gather()` provides a `return_exceptions` argument that when set to `True` will make `asyncio.gather()` not to raise exceptions and instead return the exception in the results list. By doing so, all the coroutines will be executed (even if some of them fails).
+
+Conversely, the default `return_exceptions=False` will re-raise the corresponding co-routine exception as soon as any of the coroutines fail without waiting for the other coroutines that were being executed concurrently to complete.
+
+Familiarize yourself with this behavior by creating a program that:
+1. Defines an `coro_that_raises()` coroutine that sleeps for 2 seconds and then raises a `RuntimeError()`.
+1. Defines an `coro_that_returns()` coroutine that sleeps for 3 seconds and returns a string.
+1. Define a couple of coroutines that use `asyncio.gather()` with `return_exceptions` set to `True` (so that all coroutines are executed) and `False` (so that `asyncio.gather()` re-raises as soon as a coroutine fails).
+    1. In the first case, after awaiting `asyncio.gather()` iterate over the results printing the result and its type.
+    1. In the second case, wrap `asyncio.gather()` in a try-except block and print the exception received.
+    1. In both cases, use `rich.print()` to colorize the results and report the execution time.
+
+Does using a reference to the `Future` returned by `asyncio.gather()` change the behavior?
+
+
+### 484: asyncio: invoking a coroutine doesn't execute it
+
+Confirm that calling/invoking a coroutine doesn't execute it. Instead, it returns a coroutine object.
+
+### 485: asyncio: hello, asyncio
+
+Creates the simplest asyncio program consisting of a coroutine that sleeps for one second and it's scheduled for execution using `asyncio.run()`.
+
+### 486: asyncio: hello, `Task`
+
+Create a simple asyncio program consisting of a coroutine that sleeps for a random number of seconds and returns that random number. Wrap it in a task, and await it. Then extract the result using the `Future`'s API.
+
+BONUS: make the coroutine fail and use additional `Future` APIs to understand whether the coroutine fail and retrieve the exception using the `Task` API. Implement the corresponding exception blocks to handle correctly the task exception while being awaited, and also while checking the results. What's the most succinct way to effectively control the task result without getting unexpected exceptions?
+
+### 487: asyncio: hello, `Task` callbacks
+
+You can add a callback to a task using `task.add_done_callback()`. The callback function must take the `Task` instance as an argument, and you can register as many callbacks as you want.
+
+Create a program that defines a coroutine `do_async(delay_sec, should_raise) -> str` that sleeps for the given amount of time and then either raises a `RuntimeError()` or returns a string informing that the task finished successfully.
+
+In the `main()` coroutine, create a task that wraps `do_async` passing the arguments delay_sec=2, should_raise = False, giving the task a name. Then register two callbacks for the task:
+1. `print_hello_when_done()` a simple callback that prints a message, the task's name and the task contents as a string.
+1. `print_some_task_info()` another callback that
+    1. prints the task name
+    1. prints whether the task was cancelled
+    1. prints whether the task transitioned to exception
+        1. if it did, print the corresponding exception
+        1. if it didn't, print the corresponding task result
+
+Add another invocation this time with `should_raise=True`. Register the same callbacks.
+
+Use `rich.print` to identify the print statements from the different callbacks.
+
+### 488: asyncio: `asyncio.current_task()` and `asyncio.all_tasks()`
+
+Familiarize yourself with the results returned by `asyncio.current_task()` and `asyncio.all_tasks()` by creating the following asyncio program.
+
+Start by creating a coroutine `long_running_task()` that implements an infinite loop with asyncio sleeps. That is, the coroutine should feature a `while True` loop and an `asyncio.sleep()`. The coroutine must accept the number of seconds to sleep.
+
+In the `main()` coroutine, create two tasks wrapping `long_running_task()` with different values, giving both tasks a friendly name. Then implement a while True loop that invokes `asyncio.current_task()`, `asyncio.all_tasks()`, and retrieve their friendly names using `task.get_name`. Then get the current time and print a report with
++ the current timestamp
++ the current task's friendly name
++ the current task's associated coroutine name (HINT: `use task.get_coro().__name__`)
+
+Print a report line every second.
+
+Then in the main program, implement a KeyboardInterrupt handler so that the user can type CTRL+C to terminate the program without getting an ugly stack trace dump.
+
+Also, use `rich.print()` to make the output information clearer.
+
+### 489: asyncio: asyncio.gather()
+
+Familiarize yourself with `asyncio.gather()`, which lets you schedule for execution and treat multiple coroutines/tasks as a single one by creating a program with the following specs.
+
+Create a coroutine `coro1()` which sleeps for a given number of seconds given as argument, announcing when it has started, and finished sleeping and returns a string indicating how many seconds it has slept.
+
+Create a second coroutine `coro2()` which accepts a number of seconds, and a boolean falg indicating whether the coroutine should raise a `RuntimeError` after having slept the given number of seconds. The coroutine should also announce itself and return a message specifying the number of seconds it has slept.
+
+Then, in the main coroutine, use `asyncio.gather()` to schedule the execution of `coro1(delay=1)`, `coro2(delay=2)`, and `coro2(delay=3, should_fail=False)` but do not await the results immediately after.
+
+Then, in your asyncio program await the execution of `coro1(delay=4)`
+
+Instead, use a block to handle it as a regular future:
+1. Check if `done()`, if not, await the futures represented by `asyncio.gather()`. Remember to include the await in a try-except block as awaiting a Future might raise an exceptio.
+
+1. Then, access the results. Remember to include a try-except block when invoking `result()` as if any of the tasks fail, the exception will be re-raised.
+
+1. If an exception was raised, get the exceptions, otherwise, print the results.
+
+### 490: asyncio: `asyncio.wait()`
+
+Familiarize yourself with `asyncio.wait()` which lets you multiple tasks/coroutines concurrently and will block until certain condition is met. The function also lets you pass an optional timeout argument.
+
+Start by creating a coroutine `coro1(may_raise)` which gets random value between 0 an 5 and sleeps for that amount of seconds. Then, if `may_raise` you should get another random value between 0 an 10, and if it's greater than 8 (20% of the times) raise a `RuntimeError`. Also print in the terminal that you're about to raise using the task's friendly name (HINT: you can use `asyncio.current_task()` and `get_name()` for that). Otherwise, return the initial random value.
+
+Then, in your `main()` coroutine, start by creating a list of 5 tasks that wrap `coro1()`, giving them a friendly name.
+
+Then use `asyncio.wait()` to wait for their completion, and afterwards, check the length of the `done` and `pending` tasks, making sure all tasks were done. Then print the results of all the tasks.
+
+Then, repeat the same exercise, but this time using a timeout of three seconds, printing the same report that identifies done and pending tasks by name, and getting the results from the done tasks.
+
+Then, repeat the exercise, this time waiting for the first task to be completed, with a timeout of 3 seconds.
+
+Finally, repeat the exercise with `may_raise` set to true and the condition `asyncio.FIRST_EXCEPTION`.
+
+Use `rich.print()` to identify the source of all the prints, and also use perf counters to report the amount taken to run each exercise.
+
+Can you simulate the same behavior with asyncio.gather()? And the other way around? Can you not await the `asyncio.wait()` call and create a sort of progress report of how the tasks are getting to completion.
+
+### 491: asyncio: hello, TaskGroup async context manager
+
+Familiarize yourself with the `TaskGroup` async context manager introduced in Python 3.11.
+
+Start by creating a coroutine `coro()` that accepts a sleep value in seconds, and a should_fail boolean flag. The coroutine sleeps for the given amount of time, and then raises or not a `RuntimeError` based on the flag.
+
+In the `main()` coroutine start by create a Taskgroup with a single task, ensuring that the task is completed once you are outside of the context manager.
+
+Then, to illustrate how to work with multiple tasks within the `TaskGroup` and explicitly awaiting some of them, create a group in which you create task with delay=3, and another one with delay=5. Await explicitly for the first one, printing a message while in the context manager. Then print another message when you're out of the context manager.
+
+Then, create another snippet to illustrate how to work with a `TaskGroup` à la `asyncio.gather()`. Create a list of 5 tasks with delay 0-4, then print a message when you're out of the context manager, and then use `task.result()` for each of the tasks created in the context manager.
+
+Finally, to see how the `TaskGroup` behaves when an exception is found, wrap a `TaskGroup` in a try-except block, and within the `TaskGroup` create a task with delay 3, a task with delay 5 which should fail, and a taks with delay 7. Check if the exception is caught, and outside of the context manager create a simple report announding whether the task was done or cancelled, and if it was done showing the result or the exception depending on how the task ended.
+
+Use performance counters across the board to report on the time taken to execute each of the parts.
+
+### 492: asyncio: hello, `asyncio.wait_for()`
+
+Familiarize yourself with `asyncio.wait_for()`, which lets you wait for the completion of a single task, within an established timeframe specified with a timeout.
+
+Start by creating a coroutine that accepts a sleep value, and a should_fail flag. The coroutine should sleep for the given amount of time, and fail after that if should_fail is true.
+
+Then in your main, create different snippets to validate different scenarios.
+
+Start by using wait_for with a timeout greater than the sleep value, so that it doesn't fail with a timeout.
+
+Then, create another snippet that waits for a coroutine that will timeout.
+
+Then, create another snippet that waits for a routine that will fail before the Timeout.
+
+Use rich.print and performance counters to report the program execution.
+
+### 493: asyncio: hello, asyncio.to_thread()
+
+Familiarize yourself with `asyncio.to_thread()` which lets you run blocking tasks in a thread different from the one running the event loop.
+
+Start by creating a coroutine `long_running_task(num_steps=5, delay_step=0.5)` which implements a for loop using the given num_steps consisting of printing a progress bar with `#` and releasing control to the event loop using `asyncio.sleep(delay_step)` after every `print()`.
+
+Then create a coroutine `blocking_call()` which is the same implementation, but using `time.sleep()` instead of `asyncio.sleep()`, which will effectively block the event loop.
+
+Then in your main coroutine create snippets for the following scenarios that will let you familiarize with what blocking the event loop means.
+
+In the first scenario, run 5 instances of `long_running_task()` and confirm that all the tasks cooperate to take the program to completion.
+
+Then, in the second scenario, run 5 instances of `long_running_task()` along with one instance of `blocking_call()` and see how `blocking_call()` prevent the program from progressing.
+
+Finally, run the same scenario as bove, but using `asyncio.to_thread()` so that the blocking call is run in a separate thread.
+
+### 494: asyncio: running concurrent blocking code
+
+Create a coroutine `counter(name: str)` that prints the numbers from 0 to 100.
+
+In the `main()`, setup 4 async tasks representing four instances of counter with different names and run them concurrently.
+
+Does this work as expected? How can you fix it?
+
+
+### XXX: asyncio: evaluating race conditions
+
+Consider the following asyncio program:
+
+```python
+import asyncio
+
+async def get_some_values_from_io():
+    # some I/O associated code which returns a list of values
+    ...
+
+vals = []
+
+async def fetcher():
+    while True:
+        io_vals = await get_some_values_from_io()
+
+        for val in io_vals:
+            vals.append(val)
+
+async def monitor():
+    while True:
+        print(len(vals))
+        await asyncio.sleep(1)
+
+async def main():
+    t1 = asyncio.create_task(fetcher())
+    t2 = asyncio.create_task(monitor())
+    await asyncio.gather(t1, t2)
+
+asyncio.run(main())
+```
+
+Do you think there's a chance of having race conditions? Explain why. Implement and test it
+
+
+### XXX: asyncio: `asyncio.gather()` with a timeout
+
+Run multiple tasks in parallel, and include an additional one that will signal when the timeout is done. At that point, try to cancel the tasks.
+
+### XXX: asyncio: `asyncio.wait()` to get a report of concurrent tasks
+
+Is it possible to use asyncio.wait() to get a report on the status of the tasks. Note that this would require not awaiting, or maybe using asyncio.gather, I really need to think about it a bit more.
+
+### XXX: asyncio: aiohttp library
+
+Familiarize yourself with [`aiohttp`](https://github.com/aio-libs/aiohttp) library which can make HTTP/WebSocket requests asynchronously. Additionally, the library supports the async context manager protocol.
+
+Start by making an HTTP request to https://example.com. Print the response status and text.
+
+Then, make a websocket request to wss://echo.websocket.org. Send the string `"hello {i}"` with i = 0..10. The server echoes your messages, and you can get them using `async for` statements.
+
+### XXX: asyncio: blocking the event loop with long-running piece of sync code
+
+To familiarize yourself with the fact that you can block the event loop by execute a long-running piece of sync code create a program that defines a `counter()` coroutine that iterates over the numbers 0-9 sleeping for 1 msec using `asyncio.sleep()` and therefore, yielding control to the event loop to allow other concurrent tasks to execute, while printing how long the coroutine was effectively asleep (it should be close to 1 msec).
+
+Then, in your main coroutine, wrap the `counter()` coroutine in a task so that it starts executing, then sleep for 0 to yield control to the event loop, and then make a synchronous http request (using `requests`) to http://example.com. Once you get the result, print the response status code.
+
+How long did the counter iteration stayed asleep?
+
+### XXX: asyncio: run_in_executor() and `to_thread()`.
+
+While `to_thread()` is the preferred way to do multithreading in asyncio, it's also possible to use `run_in_executor()`.
+
+Create a `counter()` coroutine that iterates over the numbers 0-9 sleeping for 1 msec, printing how long the coroutine was effectively asleep (it should be close to 1 msec).
+
+Then, in your main coroutine, wrap the `counter()` coroutine in a task so that it starts executing, then sleep for 0 to yield control to the event loop.
+
+Define a sync function `send_request()` that triggers an HTTP request to http://example.com and print the status code.
+
+Then, wrap this function in a task using `run_in_executor`.
+
+How long did the counter iteration stayed asleep?
+
+Repeat the exercise using `to_thread().`
+
+### XXX: asyncio: asyncio.run() with an unawaited task
+
+This exercise demonstrates that if you create a task in a coroutine, and do not await it, the program may finish before the task is completed.
+
+Create a coroutine `reverse_async()` that takes a list of integers. The coroutine will sleep async for the `max(lst)` seconds and then return the list reversed.
+
+Then, create a `main()` coroutine that wraps an invocation of `reverse_async([1, 2, 3])` without awaiting it.
+
+Then, in your program invoke `asyncio.run(main())` and check what happens. Why has it failed?
+
+HINT: `asyncio.run(main())` will translate behind the scenes in the lower-level call `loop.run_until_complete(main())`. That is, it is only concerned about `main()` gettind to `done` state, not about `t` being done.
+
+### XXX: asyncio: hello asyncio.as_completed()
+
+Familiarize yourself with the `asyncio.as_completed()` function which returns an iterator over a sequence of tasks and return their results as soon as they're ready, instead of waiting until all of them are ready.
+
+Note however that you can't use them to run things in parallel and discard some tasks as you will still need to iterate over the whole collection (otherwise you'll get a `RuntimeWarning`).
+
+Create a corotuine `reverse_async()` that takes a list of integer. In the body of the coroutine, implement a sleep for `max(lst)` and then return the reversed list.
+
+Then, in your main coroutine, create a couple of tasks and use `as_completed()`.
+
+Can you use break to get out of the iteration early?
+
+### XXX: asyncio: create_subprocess_exec()
+
+`asyncio.create_subprocess_exec()` lets you run a command directly (i.e., no shell) in a separate subprocess.
+
+Familiarize yourself with the way in which you can interact with subprocesses by writing the following `asyncio` program consisting of different subexercises that you'd separate by delimiters in the output.
+
+Execute the program `echo` with arguments "Hello, world", print the result of invoking `asyncio.create_subprocess_exec()`, which should be a process.
+
+Execute `echo` with arguments "Hello, world", piping the stdout, so that you can read the result of invoking it with `process.stdout.readline()`. Can you read the response using process.communicate()? if so, how?
+
+Execute `wc` with the argument "-c", piping stdin so that you can send the input `"the quick brown fox"` using `process.communicate()`. Is it really necessary to use pipe, or can you directly use process communicate? Is there a way to use process.stdin.write(), if so, how?
+
+### XXX: asyncio: create_subprocess_shell()
+
+`asyncio.create_subprocess_shell()` lets you run a command using the current user's shell.
+
+Familiarize yourself with the way in which you can interact with subprocesses by writing the following `asyncio` program consisting of different subexercises that you'd separate by delimiters in the output.
+
+Execute the program `echo` with arguments "Hello, world", print the result of invoking `asyncio.create_subprocess_shell()`, which should be a process.
+
+Execute `echo` with arguments "Hello, world", piping the stdout, so that you can read the result of invoking it with `process.stdout.readline()`. Can you read the response using process.communicate()? if so, how?
+
+Execute `wc` with the argument "-c", piping stdin so that you can send the input `"the quick brown fox"` using `process.communicate()`. Is it really necessary to use pipe, or can you directly use process communicate? Is there a way to use process.stdin.write(), if so, how?
+
+Execute the command `ls ~` and validate the shell takes care of mapping `~` to the user's current directory by piping the output and using `process.communicate()` to read the output of the command.
+
+### XXX: asyncio: socket streams to check HTTP status
+
+`asyncio` provides a non-blocking I/O socket programming interface. With it, you'll be able to use streams to send and receive data without using callbacks or low-level protocols and transports.
+
+Unfortunately, support for HTTP or FTP protocols are not supported, so you need to implement them yourself.
+
+Familiarize yourself with asyncio streams and asyncio socket programming by creating a program to check websites.
+
+Create a `get_status(url) -> int` that takes a url and return the status returned by an HTTP HEAD request to that url.
+
+Start by parsing the url and identifying if the scheme is HTTP or HTTPS. Depending on it, the `open_connection()` function will use different parameters.
+
+Then prepare a HEAD request. Because HTTP is not supported, you will need to craft it yourself:
+
+```
+HEAD {path} HTTP/1.1
+Host: {hostname}
+
+```
+
+Then, write the request into the socket, making sure that the bytes are effectively sent through the wire (HINT: use `drain()`).
+
+Then, wait for the response using `readline()`, and right afterwards close the underlying `StreamWriter` which will close the underlying socket.
+
+Afterwards, you will just need to decode the bytes, and then parse the result and return the status.
+
+Then, wrap `get_url_status(url) -> tuple[str, int]` in a higher-level coroutine that schedules the execution of `get_status()`. You can call `get_status()` within a try-except block for OSError to report anything that might go wrong.
+
+Then in your main coroutine, put this function to test under different scenarios.
+
+In the first scenario, sequentially check for the status of:
+
+```
+"https://google.com/",
+"http://example.com/",
+"https://example.com/",
+"http://localhost:5000/",
+"https://jwt.ms",  # note the missing /
+```
+
+print the time it takes to probe all the URLs.
+
+In the second scenario run the checks in parallel using `asyncio.gather()`.
+
+In the third scenario, use a `TaskGroup()` to run the checks in parallel.
+
+In the fourth scenario, use `as_completed()`.
+
+### XXX: asyncio: queues
+
+Familiarize yourself with the concept of `asyncio.Queue` and its interface by creating an example that uses queues to segregate coroutines that produce work and coroutines that consume work.
+
+Create a `worker()` coroutine that processes items from the queue. In the implementation, use a `while True` loop that gets an item from the queue (a sleep value), sleeps for that amount of time, and notifies the queue it's done with the sleep.
+
+In your main coroutine, create the queue, generate 20 sleep values between 0.05 and 1 and put them in the queue. Calculate also the total sleep time that will be taken if only one worked would be available.
+
+Then, create three workers. Those will be nothing more than tasks wrapping the `worker()` function.
+
+Finally, wait for the queue to be fully processed. Report the actual amount of time waited.
+
+Finally, cancel the workers (as those were while True loops) and wait for all of them to be in done state. Consider using `return_exceptions` argument so that the tasks cancellation do not fail on exceptions. What should be the correct value for that?
+

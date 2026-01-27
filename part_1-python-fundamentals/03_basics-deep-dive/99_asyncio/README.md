@@ -1,5 +1,8 @@
 # Async programming in Python with `asyncio`
-> notes from https://bbc.github.io/cloudfit-public-docs/
+> notes from https://bbc.github.io/cloudfit-public-docs/ and others
+
+**This section has been superseded by [asyncio basics](../../../part_1-python-fundamentals/00_basic-python-workout/projects/05_asyncio_basics/README.md)**
+
 
 An async program takes one execution step at a time, as in a regular sync program, but in this case, the system may not wait for an execution step to be completed before moving on to the next one.
 
@@ -222,8 +225,7 @@ async def fetcher():
 async def monitor():
     while True:
         print(len(vals))
-
-    await asyncio.sleep(1)
+        await asyncio.sleep(1)
 
 async def main():
     t1 = asyncio.create_task(fetcher())
@@ -235,7 +237,7 @@ asyncio.run(main())
 
 In the example above, even when both `fetcher()` and `monitor()` access the global variable `vals` they do so in two tasks that are running in the same event loop. This means that the `print()` statement in `monitor()` can only be executed when `fetcher()` is asleep waiting for I/O.
 
-This is guaranteed because there are not `await` statements involved.
+This is guaranteed because there are no `await` statements involved.
 
 Note also that the `create_task` is superfluous in the example above. It would have been possible to do:
 
@@ -366,7 +368,7 @@ In those rare cases, you can do:
 await asyncio.sleep(0)
 ```
 
-`asyncio.sleep(num_seconds)` takes a single parameter and returns a future which is not marked done, but will be when the specified number of seconds have passed. Specifying `0` as the number of seconds will make the current task to stop executing, giving a chance to the event loop to make some other task active. Specifying a number > 0 guarantess that your task won't be awakened before those number of seconds have passed.
+`asyncio.sleep(num_seconds)` takes a single parameter and returns a future which is not marked done, but will be when the specified number of seconds have passed. Specifying `0` as the number of seconds will make the current task to stop executing, giving a chance to the event loop to make some other task active. Specifying a number > 0 guarantees that your task won't be awakened before those number of seconds have passed.
 
 ### Summary: awaitables, coroutines, futures, and tasks
 
@@ -439,8 +441,6 @@ When dealing with exceptions you should also be aware of the protocol:
 | EXAMPLE: |
 | :------- |
 | See [02_sync-context-managers](02_sync-context-managers/) for a runnable example. |
-
-It is also possible to implement a context manager with a generator:
 
 
 ### Async context managers
@@ -543,7 +543,7 @@ In Python, there are three related concepts:
 
 An `Iterable` is any object which implements and `__iter__` or `__getitem__` method that returns an iterator or can take indexes. That is, an `Iterable` is any object that provides an **iterator**.
 
-In turn, and **iterator** is a Python object that implements the `__next__` method.
+In turn, an **iterator** is a Python object that implements the `__next__` method.
 
 Iteration is the process of taking an item from a container (e.g., a list). When we use a loop to loop over something it is called iteration.
 
@@ -742,7 +742,7 @@ async def advanced_gen(y):
 But you can't make use of that capability with an `async for` loop &mdash; you need to be more explicit:
 
 ```python
-it = advanced_generator(first_y)
+it = advanced_gen(first_y)
 x = await anext(it)
 
 while True:
@@ -826,7 +826,7 @@ Python's Global Interpreter Lock (GIL) prevents Python from really running multi
 
 Python's GIL is a mutex which is always held by any thread that is currently interpreting Python instructions within a single process. As a result, it's usually not possible for two Python threads to be actually running Python code simultaneously, though they can switch back and forth as often as individual instructions.
 
-The **usually** comes from the fact that when Python calls out native code, the GIL wil normally be released. This means that multiple threads can run simultatneously if all but one of them are running native code.
+The **usually** comes from the fact that when Python calls out native code, the GIL will normally be released. This means that multiple threads can run simultaneously if all but one of them are running native code.
 
 Thus:
 + The native code that implements blocking I/O in Python releases the GIL (i.e., I/O bound tasks using blocking I/O do not lock up other Python threads whilst they block).
@@ -924,7 +924,7 @@ In detail,
 
 1. `async def` introduces a coroutine or an async generator. A coroutine is a piece of single-threaded, linear code that can yield control when waiting for an external event to happen. Examples of these types of events are timeouts (as in JavaScript parlance) and completion signals of I/O operations (files, network, etc.).
 
-2. `await` is a keyword use to yield control back to the event loop, thus suspending the execution of the surrounding coroutine until the operation *awaited* on is completed.
+2. `await` is a keyword used to yield control back to the event loop, thus suspending the execution of the surrounding coroutine until the operation *awaited* on is completed.
 
 That is:
 
@@ -942,7 +942,7 @@ means:
 
 4. It is forbidden to use `await` outside of an `async def` coroutine.
 
-5. When using `await f()`, `f()` must be an awaitable object. That means, it should be either a coroutine, or a a Python object implementing the `__await__()` magic method.
+5. When using `await f()`, `f()` must be an awaitable object. That means, it should be either a coroutine, or a Python object implementing the `__await__()` magic method.
 
 | NOTE: |
 | :---- |
@@ -1168,7 +1168,7 @@ Core concepts of `asyncio`:
 
 ### The `await` keyword
 
-The purpose of `await` is to yield control back to the event loop until the awaited object is resolved. While the result is awaited, the event loop can scheduled other tasks for execution.
+The purpose of `await` is to yield control back to the event loop until the awaited object is resolved. While the result is awaited, the event loop can schedule other tasks for execution.
 
 The objects that can be used with `await` are called awaitables. The most common awaitable objects are the coroutines, but there are others like: tasks, futures, and any other object implementing the magic method `__await__()`.
 
@@ -1262,7 +1262,7 @@ coroutine_obj = my_coroutine()
 await my_coroutine()
 ```
 
-An **asynchronous iterator** is an iterator that yields awaitables. This is an object that implements `__aiter__()` and `__anext()` methods, with `__anext__()` returning an awaitable object which can be resolved with the `async for` construct:
+An **asynchronous iterator** is an iterator that yields awaitables. This is an object that implements `__aiter__()` and `__anext__()` methods, with `__anext__()` returning an awaitable object which can be resolved with the `async for` construct:
 
 ```python
 async for item in async_iterator:
@@ -1375,11 +1375,11 @@ While it is possible to have low-level interaction with the event loop, most dev
 
 An event loop is implemented as a Python object. It defines a common API for interacting with the loop in the different implementations (Unix, Windows, ...) on the `AbstractEventLoop` class.
 
-+ `asyncio.run()`: creates a new event loop and closes it at the end. it should be used as a main entry point for asyncio programs, and should ideally only be called once. The function takes a coroutine and will execute it to completion.
++ `asyncio.run()`: creates a new event loop and closes it at the end. It should be used as a main entry point for asyncio programs, and should ideally only be called once. The function takes a coroutine and will execute it to completion.
 
 + `asyncio.new_event_loop()`: create a new event loop and return access to it.
 
-+ `asyncio.get_running_loop()`: if an asyncio event loop is already running, returns a references to that event loop. If there's no running event loop a `RuntimeError` is raised. This function can only be called from a coroutine or a callback.
++ `asyncio.get_running_loop()`: if an asyncio event loop is already running, returns a reference to that event loop. If there's no running event loop a `RuntimeError` is raised. This function can only be called from a coroutine or a callback.
 
 ### Notes on Asyncio Tasks
 
@@ -1426,7 +1426,7 @@ Tasks are the fundamental concept of `asyncio`, so understanding their lifecycle
 
 1. **Created**: a task is created from a coroutine.
 2. **Scheduled**: the task is scheduled for execution in the event loop.
-    2a. Canceled: the task may be canceled before it has an opportunity to be executed. This might happen because a coroutine, using the task handle, can cancel the task, or the program may finish before the task is picked up by the event loop.
+    2a. Cancelled: the task may be canceled before it has an opportunity to be executed. This might happen because a coroutine, using the task handle, can cancel the task, or the program may finish before the task is picked up by the event loop.
 3. **Running**:
     3a. **Suspended**: the task may await some other coroutine, and therefore yields control of the event loop so that it can pick up another task to execute. This might happen when non-blocking I/O is involved and the task performs an `await file.write()` or similar.
     3b. Result: the task finishes successfully and returns the result.
@@ -1434,7 +1434,7 @@ Tasks are the fundamental concept of `asyncio`, so understanding their lifecycle
     3d. Cancelled: the task was picked up by the event loop, but at some point, some other coroutine cancelled the task.
 4. **Done**: The task has completed its execution and is not eligible to be executed by the event loop.
 
-The important states are the ones highlighted above, while Result, Exception, and Canceled are important points of transition.
+The important states are the ones highlighted above, while Result, Exception, and Cancelled are important points of transition.
 
 To check if task is done you can use `task.done()`
 
@@ -1500,9 +1500,9 @@ was_cancelled = task.cancel()
 The lifecycle for cancelled tasks needs some attention:
 + if the task is already done, it cannot be cancelled, and calling the `cancel()` method will have no effect and will return `False`.
 
-+ if the task is not done, the task will be set in the cancelled state, and when being picked up by the event loop, it will raise a `CancelledError` exception. If that error is not handled within the wrapped coroutine, the task will be canceled. However, if the `CancelledError` exception is handled, the task will not be canceled!
++ if the task is not done, the task will be set in the cancelled state, and when being picked up by the event loop, it will raise a `CancelledError` exception. If that error is not handled within the wrapped coroutine, the task will be canceled. However, if the `CancelledError` exception is handled, the task will not be cancelled!
 
-The `cancel()` method can take a message argument which will be used in the content of the `CancelledError`.
+The `cancel()` method can take a message argument which will be used in the context of the `CancelledError`.
 
 You can add a callback to a task that will be called once the task is done using the `task.add_done_callback()` method.
 
@@ -1605,7 +1605,7 @@ done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
 Additionally, `asyncio.wait()` lets you specify how long you are willing to wait for the given condition using a `timeout` argument, which is specified in seconds:
 
 ```python
-done, pending = await.asyncio.wait(tasks, timeout=3)
+done, pending = await asyncio.wait(tasks, timeout=3)
 ```
 
 Note that if the timeout is reached before the condition is met, an exception is not raised and the remaining tasks are not canceled either.
@@ -1720,7 +1720,7 @@ The task will not begin executing until the returned coroutine is given an oppor
 
 By contrast, `loop.run_in_executor()` is a low-level API that takes an executor and a function to execute. If passing `None` for the executor, then the default `ThreadPoolExecutor` will be used.
 
-The function returns an awaitable, but the given task will begin executed immediately (i.e., does not need to be awaited).
+The function returns an awaitable, but the given task will begin executing immediately (i.e., does not need to be awaited).
 
 ```python
 loop = asyncio.get_running_loop()
@@ -1890,7 +1890,7 @@ line = await process.stdout.readline()
 
 The function `asyncio.create_subprocess_shell()` takes a command and executes it using the current user shell. This means that you will not only run the command, but also that additional capabilities such as redirection, filename wildcards, environment variable expansion, etc. will be available.
 
-Note that using the shell is more unsafe that when running the command directly: it'll be the app responsibility to ensure that all whitespace and special characters are quoted appropriately to avoid shell injection vulnerabilities.
+Note that using the shell is more unsafe than running the command directly: it'll be the app responsibility to ensure that all whitespace and special characters are quoted appropriately to avoid shell injection vulnerabilities.
 
 The interaction is similar to the one provided for `asyncio.create_subprocess_exec()`
 
@@ -1952,7 +1952,7 @@ await writer.drain()
 
 #### Reading data using the `StreamReader`
 
-Data can be read from the socket using an `asyncio.StreamReader`. Data is written as bytes using the `read()`. Data is read in byte format, therefore, strings may need to be decoded before being used.
+Data can be read from the socket using an `asyncio.StreamReader`. Data is read as bytes using the `read()`. Data is read in byte format, therefore, strings may need to be decoded before being used.
 
 The method attempts to write the data to the underlying socket immediately. If that fails, the data is queued in an internal buffer until it can be sent.
 
