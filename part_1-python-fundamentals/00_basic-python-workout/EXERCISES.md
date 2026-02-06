@@ -7684,25 +7684,36 @@ with FileContextManager(file_path="my_file.txt", open_mode="w") as file:
 
 Check the exception logic by invoking a made-up method on the object returned by the context manager and test how the propagation works by returning `True` (exception could be handled by the context manager and should not be propagated) or something other than `True` (typically `None`, although `False` can also be used) when the exception should be bubbled up in the `__exit__()` method.
 
-### 482: asyncio: Async Context Manager with classes
+### 482: asyncio: hello, aiofiles
+
+`aiofiles` is a non-blocking package that resembles Python's blocking I/O library. It provides support for file operations with async context managers and async iterators (for read operations).
+
+Familiarize yourself with the package by writing a file with multiple lines, then reading the file contents in one shot, and then use an async iterator to read the lines one by one.
+
+How can you check that the package works on non-blocking mode?
+
+SOLUTION: You can create a clock coroutine that repors the current time with millisecond precision and let them run in the asyncio program cooperatively.
+
+
+### 483: asyncio: Async Context Manager with classes
 
 Familiarize yourself with the concept of async context managers by implementing yourself an `AsyncFile` context manager using classes.
 
-In order to make it real, use `aiofiles` instead of the regular blocking file libraries.
+In order to benefit from non-blocking libraries, use `aiofiles` package instead of the regular blocking file libraries (pathlib, etc.).
 
 The resulting context manager must support the following DX:
 
 ```python
 async def main() -> None:
     """Application entry point."""
-    async with AsyncFile("my_file.txt", "w") as file:
+    async with AsyncFileManager("my_file.txt", "w") as file:
         await file.write("Hello to Jason Isaacs!")
 
-    async with AsyncFile("my_file.txt", "r") as file:
+    async with AsyncFileManager("my_file.txt", "r") as file:
         await file.made_up_method("hello, hello!")
 ```
 
-### 483: asyncio: Async Context Manager with a generator
+### 484: asyncio: Async Context Manager with a generator
 
 Familiarize yourself with the concept of async context managers by implementing yourself an `AsyncFile` context manager using a generator.
 
@@ -7720,36 +7731,18 @@ async def main() -> None:
         await file.made_up_method("hello, hello!")
 ```
 
-#### 484: generator: fibonacci sequence
+#### 485: generator: fibonacci sequence
 
 Write a generator `fibonacci(n)` that returns the numbers of the Fibonacci sequence up to the nth element.
 
 Consume the generator using both a for loop and instantiating the generator and calling `next()` on it.
 
-#### 485: strings: iterable, iterators and iteration
+#### 486: strings: iterable, iterators and iteration
 
 Illustrate that a string supports iteration, it is iterable, but that a string is not an iterator. Then, benefit from the fact that it is an iterable to create an iterator and iterate over it using `next()`.
 
-### 481: asyncio: chaining pattern
 
-Familiarize yourself with the concept of chaining coroutines. Because a coroutine is an awaitable object, a coroutine can await on another coroutine, effectively creating a chain.
-
-Create the following program first to illustrate the problem chaining solves by create a coroutine `big_process(n: int) -> str` which:
-1. generates a random number between 0 and 10
-1. sleeps for the number of seconds obtained in the previous step
-1. generates another random number between 0 and 10
-1. sleeps again for the number of seconds obtained in the previous step
-1. returns the string "result{n}"
-
-In the `main()` coroutine, enable receiving a variable number of int arguments, and use `asyncio.gather()` to invoke `big_process()` for each of the arguments received.
-
-In the body of the *main guard* invoke the `main()` coroutine passing the arguments 1, 2, 3.
-
-BONUS: to facilitate tracking the execution of the different instances of bing process use `rich.print()`. This function lets you colorize your print statements using `print("[color(n)]text colorized here[/color(n)]")`
-
-Then, create a second version of the program in which you split the `big_process()` into `process_part1()` with the first two steps and `process_part2()` with the remaining steps. Create an additional `chain()` coroutine the orchestrates the invocation of `process_part1()` and `process_part2()`.
-
-### 482: asyncio: hello, `asyncio.gather()`
+### 487: asyncio: hello, `asyncio.gather()`
 
 The function `asyncio.gather()` executes all the provided coroutines concurrently returning an `asyncio.Future` that represents the results after executing them.
 
@@ -7762,9 +7755,11 @@ Familiarize yourself with `asyncio.gather()` by creating a simple program that:
 
 When would you say the last point would be more appropriate than the third one?
 
-BONUS: Use `rich.print()` to colorize the execution of the coroutines and include execution times. You can use `rich.print("[color]text in green[/color]")` to colorize your print statements using red, green, blue, etc.
+BONUS: Use `rich.print()` to colorize the execution of the coroutines and include execution times. You can use `rich.print("[green]text in green[/green]")` to colorize your print statements using red, green, blue, etc. You can also use: rich.print("[color{i}]text in color[/color{i}]").
 
-### 483: asyncio: `asyncio.gather()` dealing with exceptions
+SOLUTION: It depends on the type of processing you're doing. Awaiting the result of `asyncio.gather()` is far cleaner than working with the `Future` returned by it, checking if `done()`, making sure you're not calling result on a potential task ended in exceptions, etc., but it provides the capability of working with other tasks while the ones sent to `asyncio.gather()` are still progressing.
+
+### 488: asyncio: `asyncio.gather()` dealing with exceptions
 
 `asyncio.gather()` provides a `return_exceptions` argument that when set to `True` will make `asyncio.gather()` not to raise exceptions and instead return the exception in the results list. By doing so, all the coroutines will be executed (even if some of them fails).
 
@@ -7780,28 +7775,32 @@ Familiarize yourself with this behavior by creating a program that:
 
 Does using a reference to the `Future` returned by `asyncio.gather()` change the behavior?
 
+SOLUTION: Essentially, when using `return_exceptions=True` the exceptions while execution the tasks are suppressed, and instead, you will get them as part of the results. It doesn't matter whether you await for `gather()` or you work with the `Future`.
 
-### 484: asyncio: invoking a coroutine doesn't execute it
+
+### 489: asyncio: invoking a coroutine doesn't execute it
 
 Confirm that calling/invoking a coroutine doesn't execute it. Instead, it returns a coroutine object.
 
-### 485: asyncio: hello, asyncio
+### 490: asyncio: hello, asyncio
 
-Creates the simplest asyncio program consisting of a coroutine that sleeps for one second and it's scheduled for execution using `asyncio.run()`.
+Create the simplest asyncio program consisting of a coroutine that sleeps for one second and it's scheduled for execution using `asyncio.run()`.
 
-### 486: asyncio: hello, `Task`
+### 491: asyncio: hello, `Task`
 
 Create a simple asyncio program consisting of a coroutine that sleeps for a random number of seconds and returns that random number. Wrap it in a task, and await it. Then extract the result using the `Future`'s API.
 
 BONUS: make the coroutine fail and use additional `Future` APIs to understand whether the coroutine fail and retrieve the exception using the `Task` API. Implement the corresponding exception blocks to handle correctly the task exception while being awaited, and also while checking the results. What's the most succinct way to effectively control the task result without getting unexpected exceptions?
 
-### 487: asyncio: hello, `Task` callbacks
+### 492: asyncio: hello, `Task` callbacks
 
 You can add a callback to a task using `task.add_done_callback()`. The callback function must take the `Task` instance as an argument, and you can register as many callbacks as you want.
 
 Create a program that defines a coroutine `do_async(delay_sec, should_raise) -> str` that sleeps for the given amount of time and then either raises a `RuntimeError()` or returns a string informing that the task finished successfully.
 
-In the `main()` coroutine, create a task that wraps `do_async` passing the arguments delay_sec=2, should_raise = False, giving the task a name. Then register two callbacks for the task:
+In the `main()` coroutine, create a task that wraps `do_async` passing the arguments delay_sec=2, should_raise = False, giving the task a name.
+
+Then register two callbacks for the task:
 1. `print_hello_when_done()` a simple callback that prints a message, the task's name and the task contents as a string.
 1. `print_some_task_info()` another callback that
     1. prints the task name
@@ -7814,7 +7813,7 @@ Add another invocation this time with `should_raise=True`. Register the same cal
 
 Use `rich.print` to identify the print statements from the different callbacks.
 
-### 488: asyncio: `asyncio.current_task()` and `asyncio.all_tasks()`
+### 493: asyncio: `asyncio.current_task()` and `asyncio.all_tasks()`
 
 Familiarize yourself with the results returned by `asyncio.current_task()` and `asyncio.all_tasks()` by creating the following asyncio program.
 
@@ -7831,7 +7830,21 @@ Then in the main program, implement a KeyboardInterrupt handler so that the user
 
 Also, use `rich.print()` to make the output information clearer.
 
-### 489: asyncio: asyncio.gather()
+Is the result of `asyncio.current_task()` what you expected?
+
+SOLUTION: I was (naively) expecting to `asyncio.current_task()` to switch between the different tasks in the event loop, but it makes sense for `asyncio.current_task()` to return the task in which you're invoking it, so rather than to check what's running on the event loop, it serves more of an introspection call.
+
+That was used to set the printing color within `long_running_task()`:
+
+```python
+match = re.match(
+    r"long-runner-(?P<task_id>\d+)s",
+    asyncio.current_task().get_name(),  # ty:ignore[possibly-missing-attribute]
+)
+color_id = match.group("task_id") if match else 0
+```
+
+### 494: asyncio: asyncio.gather()
 
 Familiarize yourself with `asyncio.gather()`, which lets you schedule for execution and treat multiple coroutines/tasks as a single one by creating a program with the following specs.
 
@@ -7839,18 +7852,21 @@ Create a coroutine `coro1()` which sleeps for a given number of seconds given as
 
 Create a second coroutine `coro2()` which accepts a number of seconds, and a boolean falg indicating whether the coroutine should raise a `RuntimeError` after having slept the given number of seconds. The coroutine should also announce itself and return a message specifying the number of seconds it has slept.
 
-Then, in the main coroutine, use `asyncio.gather()` to schedule the execution of `coro1(delay=1)`, `coro2(delay=2)`, and `coro2(delay=3, should_fail=False)` but do not await the results immediately after.
+Then, in the main coroutine, use `asyncio.gather()` to schedule the execution of `coro1(delay=1)`, `coro2(delay=2, )`, and `coro2(delay=3)` but do not await the results immediately after.
 
 Then, in your asyncio program await the execution of `coro1(delay=4)`
 
-Instead, use a block to handle it as a regular future:
+Instead of awaiting `asyncio.gather()`, use a block to handle it as a regular future:
 1. Check if `done()`, if not, await the futures represented by `asyncio.gather()`. Remember to include the await in a try-except block as awaiting a Future might raise an exceptio.
 
 1. Then, access the results. Remember to include a try-except block when invoking `result()` as if any of the tasks fail, the exception will be re-raised.
 
 1. If an exception was raised, get the exceptions, otherwise, print the results.
 
-### 490: asyncio: `asyncio.wait()`
+1. Then play with `should_fail` to test the negative path.
+
+
+### 495: asyncio: `asyncio.wait()`
 
 Familiarize yourself with `asyncio.wait()` which lets you multiple tasks/coroutines concurrently and will block until certain condition is met. The function also lets you pass an optional timeout argument.
 
@@ -7870,7 +7886,14 @@ Use `rich.print()` to identify the source of all the prints, and also use perf c
 
 Can you simulate the same behavior with asyncio.gather()? And the other way around? Can you not await the `asyncio.wait()` call and create a sort of progress report of how the tasks are getting to completion.
 
-### 491: asyncio: hello, TaskGroup async context manager
+SOLUTION:
+No, you cannot easily simulate the timeout behavior with `asyncio.gather()` because that one waits until all tasks are completed. You could potentially inject a timeout task in `asyncio.gather()`, and use callbacks, and manage the result of `asyncio.gather()` as a future instead of awaiting its results, but it's not worth it.
+
+The inverse is direct, `asyncio.wait()` works in essence just like gather, but it doesn't raise when awaiting.
+
+No, you cannot create a progress report of how tasks are progressing: it doesn't work like that. You get the results for `done` and `pending` tasks only when the condition for `wait()` is found.
+
+### 496: asyncio: hello, TaskGroup async context manager
 
 Familiarize yourself with the `TaskGroup` async context manager introduced in Python 3.11.
 
@@ -7886,7 +7909,7 @@ Finally, to see how the `TaskGroup` behaves when an exception is found, wrap a `
 
 Use performance counters across the board to report on the time taken to execute each of the parts.
 
-### 492: asyncio: hello, `asyncio.wait_for()`
+### 497: asyncio: hello, `asyncio.wait_for()`
 
 Familiarize yourself with `asyncio.wait_for()`, which lets you wait for the completion of a single task, within an established timeframe specified with a timeout.
 
@@ -7902,23 +7925,23 @@ Then, create another snippet that waits for a routine that will fail before the 
 
 Use rich.print and performance counters to report the program execution.
 
-### 493: asyncio: hello, asyncio.to_thread()
+### 498: asyncio: hello, asyncio.to_thread()
 
 Familiarize yourself with `asyncio.to_thread()` which lets you run blocking tasks in a thread different from the one running the event loop.
 
 Start by creating a coroutine `long_running_task(num_steps=5, delay_step=0.5)` which implements a for loop using the given num_steps consisting of printing a progress bar with `#` and releasing control to the event loop using `asyncio.sleep(delay_step)` after every `print()`.
 
-Then create a coroutine `blocking_call()` which is the same implementation, but using `time.sleep()` instead of `asyncio.sleep()`, which will effectively block the event loop.
+Then create a regular function `blocking_call()` which is the same implementation, but using `time.sleep()` instead of `asyncio.sleep()`, which will effectively block the event loop.
 
-Then in your main coroutine create snippets for the following scenarios that will let you familiarize with what blocking the event loop means.
+Then in your main coroutine create snippets for the following scenarios that will let you familiarize with what blocking the event loop means. (Note: you might need to create a wrapping coroutine to be able to mix asyncio coroutines with invocations of sync `blocking_call` functions).
 
 In the first scenario, run 5 instances of `long_running_task()` and confirm that all the tasks cooperate to take the program to completion.
 
 Then, in the second scenario, run 5 instances of `long_running_task()` along with one instance of `blocking_call()` and see how `blocking_call()` prevent the program from progressing.
 
-Finally, run the same scenario as bove, but using `asyncio.to_thread()` so that the blocking call is run in a separate thread.
+Finally, run the same scenario as above, but using `asyncio.to_thread()` for the blocking call so that it is run in a separate thread.
 
-### 494: asyncio: running concurrent blocking code
+### 499: asyncio: running concurrent blocking code
 
 Create a coroutine `counter(name: str)` that prints the numbers from 0 to 100.
 
@@ -7926,8 +7949,9 @@ In the `main()`, setup 4 async tasks representing four instances of counter with
 
 Does this work as expected? How can you fix it?
 
+SOLUTION: No, it doesn't work as expected as tasks do not coperate and instead, they are sequenced and each one run to completion before the other starts executing. To fix it, you just need to add a `await async.sleep(0)` to yield control to the event loop, so that other coroutines can be picked up by the event loop.
 
-### XXX: asyncio: evaluating race conditions
+### 500: asyncio: evaluating race conditions
 
 Consider the following asyncio program:
 
@@ -7960,18 +7984,16 @@ async def main():
 asyncio.run(main())
 ```
 
-Do you think there's a chance of having race conditions? Explain why. Implement and test it
+Do you think there's a chance of having race conditions? Explain why. Implement and test it.
+
+SOLUTION: It doesn't seem so. asyncio programs are single-threaded, so there's only a single task executing on the event loop, and `fetcher()` and `monitor()` are only writing, and only reading, and they use cooperative multitasking (it's not as if `monitor()` would take the length, and then take `fetcher()` take control).
 
 
-### XXX: asyncio: `asyncio.gather()` with a timeout
+### 501: asyncio: `asyncio.timeout()` to run `asyncio.gather()` with a timeout
 
 Run multiple tasks in parallel, and include an additional one that will signal when the timeout is done. At that point, try to cancel the tasks.
 
-### XXX: asyncio: `asyncio.wait()` to get a report of concurrent tasks
-
-Is it possible to use asyncio.wait() to get a report on the status of the tasks. Note that this would require not awaiting, or maybe using asyncio.gather, I really need to think about it a bit more.
-
-### XXX: asyncio: aiohttp library
+### 502: asyncio: aiohttp library
 
 Familiarize yourself with [`aiohttp`](https://github.com/aio-libs/aiohttp) library which can make HTTP/WebSocket requests asynchronously. Additionally, the library supports the async context manager protocol.
 
@@ -7979,7 +8001,7 @@ Start by making an HTTP request to https://example.com. Print the response statu
 
 Then, make a websocket request to wss://echo.websocket.org. Send the string `"hello {i}"` with i = 0..10. The server echoes your messages, and you can get them using `async for` statements.
 
-### XXX: asyncio: blocking the event loop with long-running piece of sync code
+### 503: asyncio: blocking the event loop with long-running piece of sync code
 
 To familiarize yourself with the fact that you can block the event loop by execute a long-running piece of sync code create a program that defines a `counter()` coroutine that iterates over the numbers 0-9 sleeping for 1 msec using `asyncio.sleep()` and therefore, yielding control to the event loop to allow other concurrent tasks to execute, while printing how long the coroutine was effectively asleep (it should be close to 1 msec).
 
@@ -7987,7 +8009,7 @@ Then, in your main coroutine, wrap the `counter()` coroutine in a task so that i
 
 How long did the counter iteration stayed asleep?
 
-### XXX: asyncio: run_in_executor() and `to_thread()`.
+### 504: asyncio: `run_in_executor()` and `to_thread()`.
 
 While `to_thread()` is the preferred way to do multithreading in asyncio, it's also possible to use `run_in_executor()`.
 
@@ -8003,7 +8025,7 @@ How long did the counter iteration stayed asleep?
 
 Repeat the exercise using `to_thread().`
 
-### XXX: asyncio: asyncio.run() with an unawaited task
+### 505: asyncio: asyncio.run() with an unawaited task
 
 This exercise demonstrates that if you create a task in a coroutine, and do not await it, the program may finish before the task is completed.
 
@@ -8011,35 +8033,49 @@ Create a coroutine `reverse_async()` that takes a list of integers. The coroutin
 
 Then, create a `main()` coroutine that wraps an invocation of `reverse_async([1, 2, 3])` without awaiting it.
 
-Then, in your program invoke `asyncio.run(main())` and check what happens. Why has it failed?
+Then, in your program invoke `asyncio.run(main())` and check what happens. Why does the program end without any RuntimeError reported and without `reverse_async()` completed?
 
-HINT: `asyncio.run(main())` will translate behind the scenes in the lower-level call `loop.run_until_complete(main())`. That is, it is only concerned about `main()` gettind to `done` state, not about `t` being done.
+HINT: `asyncio.run(main())` will translate behind the scenes in the lower-level call `loop.run_until_complete(main())`. That is, it is only concerned about `main()` getting to `done` state, not about `t` being done.
 
-### XXX: asyncio: hello asyncio.as_completed()
+SOLUTION: `asyncio.run(main())` wraps a more complicated construct behind the scenes. In earlier versions of Python, when `asyncio.run(main())` wasn't available, you had to do:
+
+```python
+loop = asyncio.get_event_loop()
+try:
+    loop.run_until_complete(main())
+finally:
+    loop.close()
+```
+
+That is, code in the `__main__` guard is only concerned about `main()` being done, and it is, so the program ends without `reverse_async()` having executed.
+
+Note that an additional sleep in main won't help either: that would allow `reverse_async()` to start executing, but it won't finish and the program will.
+
+### 506: asyncio: hello asyncio.as_completed()
 
 Familiarize yourself with the `asyncio.as_completed()` function which returns an iterator over a sequence of tasks and return their results as soon as they're ready, instead of waiting until all of them are ready.
 
 Note however that you can't use them to run things in parallel and discard some tasks as you will still need to iterate over the whole collection (otherwise you'll get a `RuntimeWarning`).
 
-Create a corotuine `reverse_async()` that takes a list of integer. In the body of the coroutine, implement a sleep for `max(lst)` and then return the reversed list.
+Create a coroutine `reverse_async()` that takes a list of integer. In the body of the coroutine, implement a sleep for `max(lst)` and then return the reversed list.
 
 Then, in your main coroutine, create a couple of tasks and use `as_completed()`.
 
 Can you use break to get out of the iteration early?
 
-### XXX: asyncio: create_subprocess_exec()
+### 507: asyncio: create_subprocess_exec()
 
 `asyncio.create_subprocess_exec()` lets you run a command directly (i.e., no shell) in a separate subprocess.
 
 Familiarize yourself with the way in which you can interact with subprocesses by writing the following `asyncio` program consisting of different subexercises that you'd separate by delimiters in the output.
 
-Execute the program `echo` with arguments "Hello, world", print the result of invoking `asyncio.create_subprocess_exec()`, which should be a process.
+Execute the program `echo` with arguments "Hello, world", print the result of invoking `asyncio.create_subprocess_exec()`, which should be a process, and wait for it to finish using `process.wait()`. Note that you won't be able to read the output, as you haven't piped STDOUT.
 
 Execute `echo` with arguments "Hello, world", piping the stdout, so that you can read the result of invoking it with `process.stdout.readline()`. Can you read the response using process.communicate()? if so, how?
 
 Execute `wc` with the argument "-c", piping stdin so that you can send the input `"the quick brown fox"` using `process.communicate()`. Is it really necessary to use pipe, or can you directly use process communicate? Is there a way to use process.stdin.write(), if so, how?
 
-### XXX: asyncio: create_subprocess_shell()
+### 508: asyncio: create_subprocess_shell()
 
 `asyncio.create_subprocess_shell()` lets you run a command using the current user's shell.
 
@@ -8053,17 +8089,17 @@ Execute `wc` with the argument "-c", piping stdin so that you can send the input
 
 Execute the command `ls ~` and validate the shell takes care of mapping `~` to the user's current directory by piping the output and using `process.communicate()` to read the output of the command.
 
-### XXX: asyncio: socket streams to check HTTP status
+### 509: asyncio: socket streams to check HTTP status
 
 `asyncio` provides a non-blocking I/O socket programming interface. With it, you'll be able to use streams to send and receive data without using callbacks or low-level protocols and transports.
 
-Unfortunately, support for HTTP or FTP protocols are not supported, so you need to implement them yourself.
+Unfortunately, support for HTTP or FTP protocols is not given, so you need to implement them yourself.
 
 Familiarize yourself with asyncio streams and asyncio socket programming by creating a program to check websites.
 
-Create a `get_status(url) -> int` that takes a url and return the status returned by an HTTP HEAD request to that url.
+Create a `get_status(url) -> int` coroutine that takes a url and return the status returned by an HTTP HEAD request to that url (HINT: use `urllib3` to parse the url and get the components).
 
-Start by parsing the url and identifying if the scheme is HTTP or HTTPS. Depending on it, the `open_connection()` function will use different parameters.
+Start by parsing the url and identifying if the scheme is HTTP or HTTPS. Depending on it, the `open_connection()` function will use different parameters. Besides, only the `hostname` should be used when opening the connection.
 
 Then prepare a HEAD request. Because HTTP is not supported, you will need to craft it yourself:
 
@@ -8073,13 +8109,19 @@ Host: {hostname}
 
 ```
 
-Then, write the request into the socket, making sure that the bytes are effectively sent through the wire (HINT: use `drain()`).
+Then, write the request into the socket, making sure that the bytes are effectively sent through the wire (HINT: the `write` statement should be followed by an `await writer.drain()`).
 
-Then, wait for the response using `readline()`, and right afterwards close the underlying `StreamWriter` which will close the underlying socket.
+Then, wait for the response using `readline()`, and right afterwards close the underlying `StreamWriter` which will close the underlying socket. While in this case it's not strictly necessary as you're not doing anything with the socket, it's a good practice to include an `await writer.wait_closed()`.
 
 Afterwards, you will just need to decode the bytes, and then parse the result and return the status.
 
-Then, wrap `get_url_status(url) -> tuple[str, int]` in a higher-level coroutine that schedules the execution of `get_status()`. You can call `get_status()` within a try-except block for OSError to report anything that might go wrong.
+Note that the first line returned by the HEAD request (known as status line) should look like the following:
+
+```
+HTTP/1.1 200 OK
+```
+
+Then, create a `get_url_status(url) -> tuple[str, int]` coroutine which should be a higher-level coroutine that schedules the execution of `get_status()`. You can call `get_status()` within a try-except block for OSError to report anything that might go wrong.
 
 Then in your main coroutine, put this function to test under different scenarios.
 
@@ -8101,7 +8143,26 @@ In the third scenario, use a `TaskGroup()` to run the checks in parallel.
 
 In the fourth scenario, use `as_completed()`.
 
-### XXX: asyncio: queues
+### 510: asyncio: chaining pattern
+
+Familiarize yourself with the concept of chaining coroutines. Because a coroutine is an awaitable object, a coroutine can await on another coroutine, effectively creating a chain.
+
+Create the following program first to illustrate the problem chaining solves by creating a coroutine `big_process(n: int) -> str` which:
+1. generates a random number between 0 and 10
+1. sleeps for the number of seconds obtained in the previous step
+1. generates another random number between 0 and 10
+1. sleeps again for the number of seconds obtained in the previous step
+1. returns the string "result{n}" (`n` being the value received as argument).
+
+In the `main()` coroutine, enable receiving a variable number of int arguments, and use `asyncio.gather()` to invoke `big_process()` for each of the arguments received.
+
+In the body of the *main guard* invoke the `main()` coroutine passing the arguments 1, 2, 3.
+
+BONUS: to facilitate tracking the execution of the different instances of bing process use `rich.print()`. This function lets you colorize your print statements using `print("[color(n)]text colorized here[/color(n)]")`
+
+Then, create a second lab within the program in which you split the `big_process()` into `process_part1()` with the first two steps and `process_part2()` with the remaining steps. Create an additional `chain()` coroutine the orchestrates the invocation of `process_part1()` and `process_part2()`.
+
+### 511: asyncio: queues
 
 Familiarize yourself with the concept of `asyncio.Queue` and its interface by creating an example that uses queues to segregate coroutines that produce work and coroutines that consume work.
 
@@ -8114,4 +8175,6 @@ Then, create three workers. Those will be nothing more than tasks wrapping the `
 Finally, wait for the queue to be fully processed. Report the actual amount of time waited.
 
 Finally, cancel the workers (as those were while True loops) and wait for all of them to be in done state. Consider using `return_exceptions` argument so that the tasks cancellation do not fail on exceptions. What should be the correct value for that?
+
+SOLUTION: The correct value to supress exceptions when invoking `asyncio.gather()` is `return_exceptions=True`. That way, when a task raises, instead of making `asyncio.gather()` break, the exception is returned in the result. You can then inspect whether the result is an actual value or an exception. In this case, we can just ignore the result of invoking `asyncio.gather()` as we were only interested in cancelling the worker tasks.
 

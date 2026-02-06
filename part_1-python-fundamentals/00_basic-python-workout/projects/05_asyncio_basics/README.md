@@ -36,6 +36,7 @@
         + [async context manager](#async-context-manager)
     + [async comprehensions](#async-comprehensions)
     + [await comprehensions](#await-comprehensions)
+    + [`asyncio.timeout()`: an async context manager to run tasks with timeout](#asynciotimeout-an-async-context-manager-to-run-tasks-with-timeout)
     + [`asyncio.sleep()`: yielding control to the event loop](#asynciosleep-yielding-control-to-the-event-loop)
     + [`asyncio.Queue`: synchronizing producers and consumers](#asyncioqueue-synchronizing-producers-and-consumers)
     + [`asyncio.Event`: notifying tasks that an event has happened](#asyncioevent-notifying-tasks-that-an-event-has-happened)
@@ -50,6 +51,7 @@
         + [`create_subprocess_shell()`: run commands on the shell](#create_subprocess_shell-run-commands-on-the-shell)
 + [Notable libraries supporting asyncio](#notable-libraries-supporting-asyncio)
     + [`aiohttp`: async HTTP requests](#aiohttp-async-http-requests)
+    + [`aiofiles` non-blocking file IO](#aiofiles-non-blocking-file-io)
 + [asyncio patterns and techniques](#asyncio-patterns-and-techniques)
     + [Non-blocking I/O and periodic polling](#non-blocking-io-and-periodic-polling)
     + [Chaining coroutines](#chaining-coroutines)
@@ -715,13 +717,28 @@ except asyncio.TimeoutError:
     # ... handle the timeout ...
 ```
 
-Note that [`asyncio.wait()`](#asynciowait-waiting-for-a-collection-of-tasks-to-meet-a-condition) provides a superset of these capabilities.
+Note that [`asyncio.wait()`](#asynciowait-waiting-for-a-collection-of-tasks-to-meet-a-condition) provides a superset of these capabilities, but `asyncio.wait()` does not cancel the tasks in case of timeout as `asyncio.wait_for()` does.
 
 ### `asyncio.as_completed()`: getting the results as soon as they're ready
 
 You can use `asyncio.as_completed()` to get the results from tasks as soon as they're done, instead of waiting until all of them are done.
 
 Note that `as_completed()` returns an iterator over the awaitable, but you will still need to iterate over the whole collection. Failing to do so will trigger a `RuntimeWarning`.
+
+```python
+tasks = [
+    coro1(),
+    coro2(),
+    coro3(),
+]
+for completed_tasks in asyncio.as_completed(tasks):
+    result = await completed_task
+    # you will get the results "as completed" instead
+    # of in the order established in tasks
+    print("Got result for task:", result)
+```
+
+
 
 ### `asyncio.shield()`: protecting a task from cancellation
 
@@ -747,8 +764,12 @@ You can prevent blocking the event loop using `asyncio.to_thread()` and `loop.ru
 The function `asyncio.to_thread()` is a high-level API created for app developers that want to run blocking code in `asyncio` programs.
 
 ```python
-await asyncio.to_thread(blocking_task, *args, **kwargs)
+await asyncio.to_thread(sync_blocking_fn, *args, **kwargs)
 ```
+
+| NOTE: |
+| :---- |
+| `asyncio.to_thread()` expects a function, not a coroutine. |
 
 The task will not begin executing until the returned coroutine is given an opportunity to run in the event loop. The function creates a `ThreadPoolExecutor` behind the scenes to execute the blocking code.
 
@@ -1140,6 +1161,28 @@ results = [await a for a in awaitables]
 
 When using this construct, the current coroutine will be suspended to execute the awaitable sequentially, which may lead to worse performance and the same results that `asyncio.gather()` would provide, so you won't see them much.
 
+### `asyncio.timeout()`: an async context manager to run tasks with timeout
+
+You can use `async with asyncio.timeout(seconds)` to run a set of tasks within a given timeout.
+
+The tasks you run within the `async with asyncio.timeout()` block will be subject to the timeout. If the timeout error occurs, an `asyncio.TimeoutError` will be raised, and all the tasks will be cancelled.
+
+```python
+tasks = [
+    asyncio.create_task(...),
+    asyncio.create_task(...),
+    asyncio.create_task(...),
+    ...
+]
+
+try:
+    async with asyncio.timeout(5):
+        asyncio.gather(*tasks)
+except TimeoutError:
+    print("Operation timed out - all operations cancelled.")
+
+# ... all operations are done here ...
+```
 
 ### `asyncio.sleep()`: yielding control to the event loop
 
@@ -1165,13 +1208,16 @@ These queues don't have a timeout parameter. Therefore, it's recommended to use 
 # create an asyncio queue
 item = asyncio.Queue()
 
-# publish tasks
+# publish tasks synchronously
 queue.put_nowait(item)
+
+# publish tasks asynchronously
+await queue.put(item)
 
 # get a task from the queue
 item = await queue.get()
 
-# acknowledge the item has been processed
+# acknowledge the item obtained with queue.get() has been processed
 queue.task_done()
 
 # wait until queue is fully processed
@@ -1304,22 +1350,39 @@ The following snippet illustrates the most common interactions:
 process = await asyncio.create_subprocess_exec("ls", "-la")
 
 # wait for the subprocess to finish using the `wait()` method
+# (this should be done once you're done interacting with the process,
+# for example, after having read and written from/to stdout/stdoin)
 await process.wait()
 
 # terminate the subprocess
 process.terminate()
 
 # start a subprocess redirecting output
-process = await asyncio.create_subprocess_exec("ls", stdout=asyncio.subprocess.PIPE)
+process = await asyncio.create_subprocess_exec(
+    "ls",
+    stdout=asyncio.subprocess.PIPE
+)
 
-# read data from the subprocess
-line = process.communicate()
+# read data from the subprocess (after having redirected stdout/stderr)
+stdout, stderr = await process.communicate()
+
+# alt wat to read data from the subprocess (after having redirected stdout)
+stdout = await process.stdout.readline()
 
 # start a subprocess redirecting input
-process = await asyncio.create_subprocess_exec("ls", stdin=asyncio.subprocess.PIPE)
+process = await asyncio.create_subprocess_exec(
+    "wc",
+    "-c"
+    stdin=asyncio.subprocess.PIPE
+)
 
-# send data to the subprocess
-process.communicate(input=b"Hello, world\n")
+# send data to the subprocess's stdin
+await process.communicate(input=b"Hello, world\n")
+
+# alt way to send data to the subprocess's stdin
+process.stdin.write(b"Hello, world\n")
+await process.stdin.drain()
+process.stdin.close()
 ```
 
 if `PIPE` is passed as the stdin argument, the `Process.stdin` attribute will point to a `StreamWriter` instance. If `PIPE` is passed to stdout or stderr arguments, the `Process.stdout` and `Process.stderr` attributes will point to `StreamReader` instances.
@@ -1335,9 +1398,20 @@ line = await process.stdout.readline()
 
 The function `asyncio.create_subprocess_shell()` takes a command and executes it using the current user shell. This means that you will be able to rely on the additional capabilities provided by the shell such as redirection, filename wildcards, environment variable expansion, etc.
 
+```python
+process = await asyncio.create_subprocess_shell(
+    "wc -c",
+    stdin=asyncio.subprocess.PIPE,
+    stdout=asyncio.subprocess.PIPE,
+    stderr=asyncio.subprocess.PIPE,
+)
+```
+
+Note that `asyncio.create_subprocess_shell()` takes a single command, instead expecting a program and then the arguments as `asyncio.create_subprocess_shell()` does.
+
 Running commands using the shell is *more unsafe* than running the command directly: it'll be your program's responsibility to ensure any sort of shell injection vulnerabilities are addressed by quoting/escaping all whitespace and special characters appropriately.
 
-The type of interactions supported are similar to the ones available in [`create_subprocess_exec()`](#create_subprocess_exec-run-commands-directly).
+Once you've send the command, the type of interactions supported are similar to the ones available in [`create_subprocess_exec()`](#create_subprocess_exec-run-commands-directly).
 
 
 ## Notable libraries supporting asyncio
@@ -1353,6 +1427,32 @@ It is worth noting that when working with network requests, it is usually useful
 You might be also interested in having a look at [`aiohttp_retry`](https://github.com/inyutin/aiohttp_retry).
 
 
+### [`aiofiles`](https://github.com/Tinche/aiofiles): non-blocking file IO
+
+[`aiofiles`](https://github.com/Tinche/aiofiles) is a library for handling local disk files in asyncio applications.
+
+The library provides asyncio compatible versions of files that don't block the executing thread.
+
+It provides a familiar interface with async context managers:
+
+```python
+# read a file using non-blocking I/O
+async with aiofiles.open("filename", mode="r") as f:
+    contents = await f.read()
+
+# write a file using non-blocking I/O
+async with aiofiles.open("filename", mode="w") as f:
+    await f.write("Hello to Jason!")
+
+# read a file using an async iterator
+async with aiofiles.open("filename", mode="r") as f:
+    async for line in f:
+        print(line)
+
+# async interface to tempfile module
+async with aiofiles.tempfile.TemporaryFile("wb") as f:
+    await f.write(b"Hello to Jason!")
+```
 
 
 ## asyncio patterns and techniques
