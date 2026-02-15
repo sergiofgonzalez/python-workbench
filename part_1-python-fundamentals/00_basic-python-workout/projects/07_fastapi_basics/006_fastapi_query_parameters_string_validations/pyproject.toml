@@ -1,0 +1,45 @@
+[project]
+name = "006_fastapi_query_parameters_string_validations"
+version = "0.1.0"
+description = "Illustrates how to apply string validations to query parameters"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Sergio F. Gonzalez", email = "sergio.f.gonzalez@gmail.com" },
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard-no-fastapi-cloud-cli]>=0.128.4",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.0",
+]
+
+[tool.ruff]
+
+ignore = [
+    "T201", # Allow print statements
+]
+
+# Enable all rules
+select = ["ALL"]
+
+# Specific per-file-ignores for the tests directory
+per-file-ignores = { "tests/**/*.py" = [
+    "S101", # Allow assert in tests
+    "PLR2004", # Allow len() comparisons in tests
+], "main.py" = [
+    "S101", # Allow assert in main application
+] }
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pytest.ini_options]
+addopts = "--verbosity=3 --cov --cov-report=html"
+pythonpath = ["."]
+
+[tool.coverage.run]
+omit = ["tests/*"]

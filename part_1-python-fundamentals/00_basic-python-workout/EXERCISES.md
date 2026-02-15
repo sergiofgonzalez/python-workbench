@@ -10,6 +10,8 @@ The following labels are used to prefix the exercises. Many of the exercises cov
 1. ctxmngrs: context manager (sync interface)
 1. pathlib: file operations using pathlib
 1. generators: generator functions
+1. types: types, type hints, annotations, etc.
+1. os: OS related functions
 
 
 ## 01: Shakedown test
@@ -8178,3 +8180,18 @@ Finally, cancel the workers (as those were while True loops) and wait for all of
 
 SOLUTION: The correct value to supress exceptions when invoking `asyncio.gather()` is `return_exceptions=True`. That way, when a task raises, instead of making `asyncio.gather()` break, the exception is returned in the result. You can then inspect whether the result is an actual value or an exception. In this case, we can just ignore the result of invoking `asyncio.gather()` as we were only interested in cancelling the worker tasks.
 
+### 512: types: type hints with metadata annotations
+
+Python allows you to put additional metadata in type hints using `typing.Annotated`.
+
+Python itself won't do anything with the metadata you put when giving a type hint, but editors, tools, or other frameworks might use it.
+
+When using `Annotated` the first argument you pass will be the type of the variable, and that won't change.
+
+Define a function `say_hello()` that receives an argument `name` that should be a string. Use annotated to provide some metadata.
+
+### 513: os: reading environment variables
+
+Create a program that reads the environment variable `MY_NAME` using `"World"` as the default value and prints the message: "Hello {env-var-value} from Python".
+
+Test the program with and without the variable being defined.
