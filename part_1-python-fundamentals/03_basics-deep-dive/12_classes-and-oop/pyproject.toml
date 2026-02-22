@@ -34,6 +34,3 @@ ignore = [
 
 
 select = ["ALL"]
-
-[tool.uv.workspace]
-members = ["mini-projects/01_clarifying-scope"]

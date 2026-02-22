@@ -37,6 +37,3 @@ ignore = [
 
 
 select = ["ALL"]
-
-[tool.uv.workspace]
-members = ["00_hello-mathproj"]

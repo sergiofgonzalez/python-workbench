@@ -83,9 +83,75 @@
         + [Declaring a response to be an arbitrary dict](#declaring-a-response-to-be-an-arbitrary-dict)
     + [Response status code](Response status code)
         + [HTTP status codes](#http-status-codes)
-    + [Form data](#form-data) -> 018:ready
+    + [Form data](#form-data)
         + [Form models](#form-models)
         + [Forbidding extra form fields](#forbidding-extra-form-fields)
+    + [Request files](#request-files)
+        + [Using `File()`](#using-file)
+        + [Using `UploadFile`](#using-uploadfile)
+        + [Optional file upload](#optional-file-upload)
+        + [Including additional metadata](#including-additional-metadata)
+        + [Multiple file uploads](#multiple-file-uploads)
+    + [Mixing forms and files](#mixing-forms-and-files)
+    + [Handling errors](#handling-errors)
+        + [Using FastAPI's `HTTPException`](#using-fastapis-httpexception)
+        + [Adding custom headers to the error response](#adding-custom-headers-to-the-error-response)
+        + [Registering custom exception handlers](#registering-custom-exception-handlers)
+        + [Overriding the default exception handlers](#overriding-the-default-exception-handlers)
+            + [Overriding request validation exceptions](#overriding-request-validation-exceptions)
+            + [Overriding the HTTPException error handler](#overriding-the-httpexception-error-handler)
+            + [Using the `RequestValidationError` body](#using-the-requestvalidationerror-body)
+        + [Reusing FastAPI's exception handlers](#reusing-fastapis-exception-handlers)
+    + [Path operation configuration](#path-operation-configuration)
+        + [Response status code](#response-status-code-1)
+        + [Tags](#tags)
+        + [Summary and description](#summary-and-description)
+        + [Deprecating a path operation](#deprecating-a-path-operation)
+    + [JSON compatible encoder: `jsonable_encoder()`](#json-compatible-encoder-jsonable_encoder)
+    + [Performing updates with `PUT` and `PATCH`](#performing-updates-with-put-and-patch)
+        + [Using `PUT` for full updates](#using-put-for-full-updates)
+        + [Using `PATCH` for partial updates](#using-patch-for-partial-updates)
+    + [Dependencies](#dependencies)
+        + [FastAPI dependency injection 101](#fastapi-dependency-injection-101)
+            + [Sharing Annotated dependencies](#sharing-annotated-dependencies)
+        + [To `async` or not to `async`](#to-async-or-not-to-async)
+        + [OpenAPI integration](#openapi-integration)
+        + [Simple usage](#simple-usage)
+        + [FastAPI plug-ins](#fastapi-plug-ins)
+    + [Classes as dependencies](#classes-as-dependencies)
+    + [Sub-dependencies](#sub-dependencies)
+        + [Using the same dependency multiple times](#using-the-same-dependency-multiple-times)
+    + [Dependencies in path operation decorators](#dependencies-in-path-operation-decorators)
+    + [Global dependencies](#global-dependencies)
+    + [Dependencies with yield](#dependencies-with-yield)
+        + [Sub-dependencies with yield](#sub-dependencies-with-yield)
+        + [Dependencies with `yield` and HTTPException](#dependencies-with-yield-and-httpexception)
+        + [Dealing with exceptions in dependencies with `yield`](#dealing-with-exceptions-in-dependencies-with-yield)
+        + [Execution of dependencies with `yield`](#execution-of-dependencies-with-yield)
+        + [Early exit and `scope`](#early-exit-and-scope)
+        + [`scope` for sub-dependencies](#scope-for-sub-dependencies)
+        + [Using context managers in dependencies with yield](#using-context-managers-in-dependencies-with-yield)
+    + [Security](#security)
+        + [OAuth2](#oauth2)
+        + [OpenID Connect (OIDC)](#openid-connect-oidc)
+        + [OpenAPI security schemes](#openapi-security-schemes)
+        + [FastAPI utilities](#fastapi-utilities)
+    + [The basics of OAuth2 Password flow with FastAPI](#the-basics-of-oauth2-password-flow-with-fastapi)
+        + [The `password` flow](#the-password-flow)
+        + [FastAPI's `OAuth2PasswordBearer`](#fastapis-oauth2passwordbearer)
+        + [Wrapping it up with a user model and get user dependency](#wrapping-it-up-with-a-user-model-and-get-user-dependency)
+        + [Getting the `username` and `password` with `OAuth2PasswordRequestForm`](#getting-the-username-and-password-with-oauth2passwordrequestform)
+    + [OAuth2 Password flow using JWT tokens](#oauth2-password-flow-using-jwt-tokens)
+        + [Using PyJWT](#using-pyjwt)
+        + [Using pwdlib](#using-pwdlib)
+        + [Hashing and verifying the passwords](#hashing-and-verifying-the-passwords)
+        + [The revised OAuth2 password flow with password hashing and JWT](#the-revised-oauth2-password-flow-with-password-hashing-and-jwt)
+        + [Hashing and verifying the passwords](#hashing-and-verifying-the-passwords)
+        + [Handling JWT tokens](#handling-jwt-tokens)
+        + [Updating the dependency `get_current_user()`](#updating-the-dependency-get_current_user)
+        + [Updating the `POST /token` operation](#updating-the-post-token-operation)
+        + [A word about scopes](#a-word-about-scopes)
+    + [Middleware](#middleware)
 
 
 
@@ -2343,7 +2409,7 @@ You can use `Form()` when you need to receive form fields instead of JSON.
 
 | NOTE: |
 | :---- |
-| To use forms, you must first install [python-multipart](https://github.com/Kludex/python-multipart). |
+| To use forms, you may need to first install [python-multipart](https://github.com/Kludex/python-multipart). |
 
 ```python
 from type import Annotated
@@ -2407,3 +2473,1657 @@ async def login(data: Annotated[FormData, Form()]):
 
 If the client tries to send an extra form field, it will receive a 422 (Unprocessable Content) error, and a body describing the error.
 
+### Request files
+
+You can define files to be uploaded by the client using `File()` and `UploadFile` (with the latter being more appropriate in most cases).
+
+```python
+from typing import Annotated
+
+from fastapi import FastAPI, File, UploadFile
+
+app = FastAPI()
+
+@app.post("/files/")
+async def create_file(file: Annotated[bytes, File()]):
+    return {"file_size": len(file)}
+
+@app.post("/uploadfile/")
+async def create_upload_file(file: UploadFile):
+    return {"filename": file.filename}
+```
+
+#### Using `File()`
+
+In the `POST /files/` operation, you define `file` as `bytes` and annotate it with `File`, which is a class inheriting from `Form`.
+
+To declare file bodies you need to use `File`, so that FastAPI picks that parameter as file form data.
+
+Note that when using:
+
+```python
+@app.post("/files/")
+async def create_file(file: Annotated[bytes, File()]):
+    return {"file_size": len(file)}
+```
+
+the whole contents of `file` will be stored in memory as a block of bytes. This is only appropriate for small files.
+
+#### Using `UploadFile`
+
+Conversely, when using `UploadFile`:
+
+```python
+@app.post("/uploadfile/")
+async def create_upload_file(file: UploadFile):
+    return {"filename": file.filename}
+```
+
++ You don't have to use `File` to let FastAPI know it's not a query parameter.
++ It uses a *spooled* file which will be stored in disk if its size goes over a certain size limit.
++ It's appropriate to manage large files.
++ You can get metadata out of the `UploadFile` instance.
++ It provides a file-like `async` interface.
++ It exposes a `SpooledTemporaryFile` object that you can pass directly to other libraries that expect a file-like object.
+
+`UploadFile` has the following attributes:
++ `filename`: str with the original file name that was uploaded.
++ `content_type`: str with the content type (e.g., image/jpeg).
++ `file`: A `SpooledTemporaryFile`, a file-like object. This is the actual Python file object that you can pass directly to other functions or libraries that expect a file-like object.
+
+And the following `async` methods:
++ `write(data)`: writes `data` to the file (`str` or `bytes`).
++ `read(size)`: Reads `size` bytes/characters of the file.
++ `seek(offset)`: Goes to the byte position offset in the file. For example, `await myfile.seek(0)` would go to the start of the file.
++ `close()`: closes the file.
+
+If you are inside of a normal `def` instead of a `async def` coroutine, you can access the `UploadFile.file` directly:
+
+```python
+contents = myfile.file.read()
+```
+
+Otherwise, you can directly using async methods on `UploadFile` instances:
+
+```python
+contents = await myfile.read()
+```
+
+#### Optional file upload
+
+You can make a file optional using the standard type annotations and setting a default value of `None`:
+
+```python
+@app.post("/files/")
+async def create_file(file: Annotated[bytes | None, File()] = None):
+    if not file:
+        return {"message": "No file sent"}
+    return {"file_size": len(file)}
+
+@app.post("/uploadfile/")
+async def create_upload_file(file: UploadFile | None = None):
+    if not file:
+        return {"message": "No upload file sent"}
+    return {"filename": file.filename}
+```
+
+#### Including additional metadata
+
+```python
+@app.post("/files/")
+async def create_file(file: Annotated[bytes, File(description="A file read as bytes")]):
+    return {"file_size": len(file)}
+
+@app.post("/uploadfile/")
+async def create_upload_file(file: Annotated[UploadFile, File(description="A file read as UploadFile")]):
+    return {"filename": file.filename}
+```
+
+#### Multiple file uploads
+
+It's possible to upload several files at the same time. They would be associated to the same *form field* sent using form data. This can be done with either `File()` or `UploadFile()`.
+
+```python
+from typing import Annotated
+
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import HTMLResponse
+
+app = FastAPI()
+
+@app.post("/files/")
+async def create_file(files: Annotated[list[bytes], File()]):
+    return {"file_sizes": [len(file) for file in files]}
+
+@app.post("/uploadfiles/")
+async def create_upload_file(file: list[UploadFile]):
+    return {"filenames": [file.filename for file in files]}
+
+@app.get("/")
+async def main():
+    content = """
+<body>
+  <form action="/files/" enctype="multipart/form-data" method="post">
+    <input name="files" type="file" multiple>
+    <input type="submit">
+  </form>
+  <form action="/uploadfiles/" enctype="multipart/form-data" method="post">
+    <input name="files" type="file" multiple>
+    <input type="submit">
+  </form>
+</body>
+    """
+    return HTMLResponse(content=content)
+```
+
+You can use `File()` to set additional metadata parameters as well:
+
+```python
+@app.post("/files/")
+async def create_file(files: Annotated[list[bytes], File(description="Multiple files as bytes")]):
+    return {"file_sizes": [len(file) for file in files]}
+
+@app.post("/uploadfile/")
+async def create_upload_file(file: Annotated[list[UploadFile], File(description="Multiple files as UploadFile")]):
+    return {"filenames": [file.filename for file in files]}
+
+@app.get("/")
+async def main():
+    content = """
+<body>
+  <form action="/files/" enctype="multipart/form-data" method="post">
+    <input name="files" type="file" multiple>
+    <input type="submit">
+  </form>
+  <form action="/uploadfiles/" enctype="multipart/form-data" method="post">
+    <input name="files" type="file" multiple>
+    <input type="submit">
+  </form>
+</body>
+    """
+    return HTMLResponse(content=content)
+```
+
+### Mixing forms and files
+
+You can define files and form fields at the same time using `File()` and `Form()`.
+
+```python
+@app.post("/files/")
+async def create_file(
+    file: Annotated[bytes, File()],
+    fileb: Annotated[UploadFile, File()],
+    token: Annotated[str, Form()],
+):
+    return {
+        "file_size": len(file),
+        "token": token,
+        "fileb_content_type": fileb.content_type,
+    }
+```
+
+### Handling errors
+
+In many scenarios you will need to notify an error to a client that is using your API because:
++ the client doesn't have enough privileges for that operation.
++ the client doesn't have access to the resource (i.e., path operation).
++ the item the client was trying to access doesn't exist.
++ ...
+
+In these cases, your path operation should return an HTTP status code in the range 400-499 to signal there was an error from the client.
+
+#### Using FastAPI's `HTTPException`
+
+To return HTTP responses with errors to the client you can use the `HTTPException` class from FastAPI:
+
+```python
+from fastapi import FastAPI, HTTPException
+
+app = FastAPI()
+
+items = {"foo": "bar"}
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: str):
+    if item_id not in items:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"item": items[item_id]}
+```
+
+In the example above, when the client requests something other than `GET /items/foo`, it will receive an HTTP status code of 404 ("Not Found") and a JSON response:
+
+```json
+{
+    "detail": "Item not found"
+}
+```
+
+#### Adding custom headers to the error response
+
+In some situations, it might be useful to add custom headers to the HTTP error:
+
+```python
+@app.get("/items/{item_id}")
+async def read_item(item_id: str):
+    if item_id not in items:
+        raise HTTPException(
+            status_code=404,
+            detail="Item not found",
+            headers={"X-Error": "error header contents"}
+        )
+    return {"item": items[item_id]}
+```
+
+#### Registering custom exception handlers
+
+You can add custom exception handlers using the exception utilities from Starlette (a lower-level framework FastAPI relies on).
+
+For example, you can do:
+
+```python
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+
+class MyException(Exception):
+    def __init__(self, name: str):
+        self.name = name
+
+app = FastAPI()
+
+@app.exception_handler(MyException)
+async def my_exception_handler(request: Request, exc: MyException):
+    return JSONResponse(
+        status_code=418,
+        content={"message": f"Oops {exc.name} happened."}
+    )
+
+@app.get("/items/{item_id}")
+async def read_item(name: str):
+    if name == "yolo":
+        raise MyException(name=name)
+    return {"item_id": item_id, "message": "not a yolo"}
+```
+
+#### Overriding the default exception handlers
+
+FastAPI has some default exception handlers.
+
+These handlers are the ones that get activated when you raise an `HTTPException` when the request has invalid data and a JSON response needs to be generated.
+
+##### Overriding request validation exceptions
+
+When a request contains invalid data, FastAPI internally raises a `RequestValidationError` which activates a default exception handler FastAPI provides for it.
+
+You can override it in your code by importing `RequestValidationError` and using `@app.exception_handler(RequestValidationError)` in your custom exception handler.
+
+The exception handler will receive a `Request` and the exception.
+
+```python
+from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import PlainTextResponse
+
+
+app = FastAPI()
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc: RequestValidationError):
+    message = "Validation errors:"
+    for error in exc.errors():
+        message += f"\nField: {error['loc']}, Error: {error['msg']}"
+    return PlainTextResponse(message, status_code=400)
+
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: int):
+    if item_id == 3:
+        raise HTTPException(status_code=418, detail="Querying item #3 raises exception")
+```
+
+Now, if the client hits `GET /items/foo`, instead of getting the familiar JSON error response, you'll get:
+
+```
+Validation errors:
+Field: ('path', 'item_id'), Error: Input should be a valid integer, unable to parse string as integer.
+```
+
+##### Overriding the HTTPException error handler
+
+The `HTTPException` handler can also be overridden.
+
+The example below is used to return a plain text response instead of JSON in case of HTTPException:
+
+```python
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import PlainTextResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+
+app = FastAPI()
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
+
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: int):
+    if item_id == 3:
+        raise HTTPException(status_code=418, detail="Item #3 can't be queried")
+    return {"item_id": item_id}
+```
+
+Note that in this case, you had to import the HTTPException from Starlette (a lower-level framework FastAPI relies on).
+
+##### Using the `RequestValidationError` body
+
+The `RequestValidationError` contains the `body` it received with invalid data.
+
+You can use that in your logs, return to the user for informational purposes, etc.
+
+```python
+from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+
+app = FastAPI()
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content=jsonable_encoder({"detail": exc.errors(), "body": exc.body})
+    )
+
+class Item(BaseModel):
+    title: str
+    size: int
+
+@app.post("/items/")
+async def create_item(item: Item):
+    return item
+```
+
+By creating your own exception handler that includes the body information, when a client tries to hit `POST /items/` with something like:
+
+```json
+{
+    "title": "towel",
+    "size": "XL"
+}
+```
+
+You'll get an extra `"body"` object in the error response with the provided payload:
+
+
+FastAPI's `HTTPException` inherits from Starlette's `HTTPException` error class. The only difference between them is that FastAPI's one accepts any JSON-able data for the `detail`, while Starlette's one only accepts strings for it.
+
+Therefore, the guidance is:
++ when you register an exception handler, register it using Starlette's `HTTPException`.
++ When you raise an exception, use FastAPI's `HTTPException`.
+
+#### Reusing FastAPI's exception handlers
+
+You can import and reuse the default exception handlers from `fastapi.exception_handlers` and reuse them in your own custom exception handlers:
+
+```python
+from fastapi import FastAPI, HTTPException
+from fastapi.exception_handlers import (
+    http_exception_handler,
+    request_validation_exception_handler
+)
+from fastapi.exception import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+app = FastAPI()
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request, exc):
+    print(f"HTTP error identified: {repr(exc)}")
+    # delegate to the internal handler
+    return await http_exception_handler(request, exc)
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    print(f"Request validation error identified: {exc}")
+    return await request_validation_exception_handler(request, exc)
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: int):
+    if item_id == 3:
+        raise HTTPException(status_code=418, detail="Item #3 can't be queried")
+    return {"item_id": item_id}
+```
+
+### Path operation configuration
+
+There are several parameters you can use in your path operation decorator to configure the behavior and metadata of the path operation it decorates.
+
+#### Response status code
+
+You can define the HTTP status code to be used in the response of your path operation. It accept int, and enums like FastAPI's status or http.HTTPStatus instances:
+
+```python
+@app.post("/items/", status_code=status.HTTP_201_CREATED)
+async def create_item(item: Item) -> Item:
+    return item
+```
+
+#### Tags
+
+You can add tags to your path operation by passing the `tags` parameter. It accepts a list of strings:
+
+```python
+@app.post("/items/", tags=["items"])
+async def create_item(item: Item) -> Item:
+    return item
+
+@app.post("/items/", tags=["items"])
+async def read_items() -> list[Item]:
+    return [Item(name="foo", price=1.23), Item(name="bar", price=3.45)]
+
+@app.get("/users/", tags=["users"])
+async def read_items() -> dict[str, str]:
+    return [{"username": "user1"}, {"username": "user2"}]
+```
+
+Tags will be used to organize your endpoints in /docs.
+
+You can use an enum instead of str tags:
+
+```python
+from enum import Enum
+...
+
+class Tags(Enum):
+    items = "items"
+    users = "users"
+
+@app.post("/items/", tags=[Tags.items])
+async def create_item(item: Item) -> Item:
+    return item
+
+@app.post("/items/", tags=[Tags.items])
+async def read_items() -> list[Item]:
+    return [Item(name="foo", price=1.23), Item(name="bar", price=3.45)]
+
+@app.get("/users/", tags=[Tags.users])
+async def read_items() -> dict[str, str]:
+    return [{"username": "user1"}, {"username": "user2"}]
+```
+
+#### Summary and description
+
+You can add a summary and description to describe your path operation:
+
+```python
+@app.post(
+    "/items/",
+    summary="Create an item",
+    description="Create an item with all its information, name, description, price, tax, and a list of tags",
+)
+async def read_items() -> list[Item]:
+    return [Item(name="foo", price=1.23), Item(name="bar", price=3.45)]
+```
+
+![Summary and description](docs/002_summary_description_docs.png)
+
+Because descriptions can become really verbose and make your code more difficult to read, FastAPI will include the function's docstring as its description:
+
+```python
+@app.post("/items/", summary="Create an item")
+async def create_item(item: Item) -> Item:
+    """
+    Create an item with all the information:
+
+    - **name**: each item must have a name
+    - **description**: a long description
+    - **price**: required
+    - **tax**: if the item doesn't have tax, you can omit this
+    - **tags**: a set of unique tag strings for this item
+    """
+    return Item(name="foo", price=1.23)
+```
+
+![Summary and description (docstrings)](docs/003_summary_description_docstrings.png)
+
+FastAPI will allow you to use Markdown and will use it for the /docs.
+
+You can also include the description of the response:
+
+```python
+@app.post(
+    "/items/",
+    summary="Create an item",
+    response_description="The created item",
+)
+async def create_item(item: Item) -> Item:
+    """
+    Create an item with all the information:
+
+    - **name**: each item must have a name
+    - **description**: a long description
+    - **price**: required
+    - **tax**: if the item doesn't have tax, you can omit this
+    - **tags**: a set of unique tag strings for this item
+    """
+    return Item(name="foo", price=1.23)
+```
+
+#### Deprecating a path operation
+
+You can mark a path operation as deprecated by using the `deprecated=True` parameter:
+
+```python
+@app.get("/users/", tags=["users"], deprecated=True)
+async def read_items() -> dict[str, str]:
+    return [{"username": "user1"}, {"username": "user2"}]
+```
+
+### JSON compatible encoder: `jsonable_encoder()`
+
+There are some cases where you might need to convert a data type (like a Pydantic model) to something compatible with JSON (like a `dict`, `list`, etc.).
+
+FastAPI provides a `jsonable_encoder()` function for that.
+
+Let's imagine that you have a database `fake_db` that only receives JSON compatible data.
+
+For example, JSON doesn't accept `datetime` objects, so you will have to convert them to a type compatible with JSON, such as `str`.
+
+```python
+from datetime import datetime
+
+from fastapi import FastAPI
+from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel
+
+fake_db = {} # json only database
+
+class Item(BaseModel):
+    title: str
+    timestamp: datetime
+    description: str | None = None
+
+app = FastAPI()
+
+@app.put("/items/{item_id}")
+def update_item(item_id: str, item: Item):
+    json_compatible_item_data = jsonable_encoder(item)
+    fake_db[item_id] = json_compatible_item_data
+```
+
+In the example above, it would convert the Pydantic model to a `dict` and the `datetime` to a `str`. And the result is something that can be encoded with `json.dumps()` (i.e., a `dict` with values and subvalues that are all compatible with JSON).
+
+### Performing updates with `PUT` and `PATCH`
+
+#### Using `PUT` for full updates
+
+To update an item, you can use HTTP `PUT` operation.
+
+You can use `jsonable_encoder` to convert the input data to something that can be stored as JSON, as might be required in certain scenarios (e.g., when using a NoSQL database).
+
+```python
+class Item(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    price: float | None = None
+    tax: float = 10.5
+    tags: list[str] = []
+
+items = {
+    "foo": {"name": "Foo", "price": 50.2},
+    "bar": {"name": "Bar", "description": "The bartenders", "price": 62, "tax": 20.2},
+    "baz": {"name": "Baz", "description": None, "price": 50.2, "tax": 10.5, "tags": []},
+}
+
+@app.get("/items/{item_id}", response_model=Item)
+async def read_item(item_id: str):
+    return items[item_id]
+
+@app.put("/items/{item_id}", response_model=Item)
+async def update_item(item_id: str, item: Item):
+    update_item_encoded = jsonable_encoder(item)
+    items[item_id] = update_item_encoded
+    return update_item_encoded
+```
+
+`PUT` in the example above is used to replace the existing data.
+
+Note that if you update the item with id `bar` using the following body:
+
+```json
+{
+    "name": "Barz",
+    "price": 3,
+    "description": null,
+}
+```
+
+because it doesn't include the already stored attribute "tax": 20.2, the input model would take the default value, and the new record would be saved with the default model value.
+
+#### Using `PATCH` for partial updates
+
+You can use HTTP `PATCH` operation to perform partial updates on the data. This is typically used to update only the data received in the request, leaving the rest intact.
+
+If you want to receive partial updates, it's very useful to include the `exclude_unset` parameter when using `model_dump()`, as that will generate a `dict` with only the data that was set when creating the `item` model, excluding default values.
+
+Then you can use this to generate a `dict` with only the data that was set and perform the update with those values:
+
+```python
+class Item(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    price: float | None = None
+    tax: float = 10.5
+    tags: list[str] = []
+
+items = {
+    "foo": {"name": "Foo", "price": 50.2},
+    "bar": {"name": "Bar", "description": "The bartenders", "price": 62, "tax": 20.2},
+    "baz": {"name": "Baz", "description": None, "price": 50.2, "tax": 10.5, "tags": []},
+}
+
+@app.get("/items/{item_id}", response_model=Item)
+async def read_item(item_id: str):
+    return items[item_id]
+
+@app.patch("/items/{item_id}")
+async def update_item(item_id: str, item: Item) -> Item:
+    stored_item_data = items[item_id]
+    stored_item_model = Item(**stored_item_data)
+    update_data = item.model_dump(exclude_unset=True)
+    updated_item = stored_item_model.model_copy(update=update_data)
+    items[item_id] = jsonable_encoder(updated_item)
+    return updated_item
+```
+
+See how in the example above, `model_copy(update=...)` is used to create a copy of the existing model and make updates on the copy.
+
+### Dependencies
+
+FastAPI includes a *Dependency Injection system* designed to facilitate the integration of components in your application.
+
+In this context, Dependency Injection means a mechanism by which you can declare components required for your path operation to work, and FastAPI takes core of doing whatever is needed to provide your code with those declared components, called dependencies.
+
+This becomes useful in many situations:
++ when you have shared logic (authentication, authorization, logging...)
++ When sharing database connections
++ ...
+
+#### FastAPI dependency injection 101
+
+Let's understand how this Dependency Injection mechanism works in FastAPI by creating our first *dependency*: a coroutine that can take the same parameters as your path operation, and return a dictionary with the values received.
+
+```python
+async def common_parameters(
+    q: str | None = None,
+    skip: int = 0,
+    limit: int = 100
+):
+    return {"q": q, "skip": skip, "limit": limit}
+```
+
+Note that it looks like a path operation, only that it doesn't have any decorator.
+
+Then, you can tell your path operation that `common_parameters` is a dependency for it by using `fastapi.Depends()`. By doing so, you will be able to work with the result of executing the logic of the dependency, as seen below:
+
+```python
+from typing import Annotated
+
+from fastapi import Depends, FastAPI
+
+app = FastAPI()
+
+async def common_parameters(
+    q: str | None = None,
+    skip: int = 0,
+    limit: int = 100
+):
+    return {"q": q, "skip": skip, "limit": limit}
+
+@app.get("/items/")
+async def read_items(commons: Annotated[dict, Depends(common_parameters)]):
+    return commons
+
+@app.get("/users/")
+async def read_users(commons: Annotated[dict, Depends(common_parameters)]):
+    return commons
+```
+
+##### Sharing Annotated dependencies
+
+While the previous example works well, there's still a bit of duplication on the way in which the different path operations *consume* the common dependency.
+
+This can be improved by creating a variable that store that common dependency (technically, this is known as creating a "type alias"):
+
+```python
+async def common_parameters(
+    q: str | None = None,
+    skip: int = 0,
+    limit: int = 100
+):
+    return {"q": q, "skip": skip, "limit": limit}
+
+CommonsDep = Annotated[dict, Depends(common_parameters)]
+
+@app.get("/items/")
+async def read_items(commons: CommonsDep):
+    return commons
+
+@app.get("/users/")
+async def read_users(commons: CommonsDep):
+    return commons
+
+```
+
+#### To `async` or not to `async`
+
+As dependencies will be called by FastAPI, the same rules used for your path operations apply:
+
+1. If you're using async 3rd party libraries that you call using async / await, then declare your dependencies as coroutines.
+
+2. Instead, if you're using a 3rd party library that doesn't support async calls, declare your dependencies as functions.
+
+3. If you're not using any 3rd party library in your depedencies (that is, only regular Python logic), use coroutines.
+
+Note that in any case, FastAPI will still work asynchronously and be extremely fast.
+
+#### OpenAPI integration
+
+When using dependency injection, your OpenAPI documentaion will still be updated to reflect what you're receiving in your path operation.
+
+In the example above, the /docs will show that the path operations receive `q`, `skip`, and `limit` parameters.
+
+#### Simple usage
+
+When using Dependency Injection, you will be telling FastAPI that your path operation function depends on something else to be executed before your path operation function is scheduled for execution.
+
+FastAPI will take care of executing the provided dependency, and injecting your results into your path operations in the parameter you've declared.
+
+Additionally, you can define dependencies that in turn define dependencies for themselves (remember: dependencies are like regular path operation without the decorator).
+
+#### FastAPI plug-ins
+
+Integrations and plug-ins can be built on top of FastAPI's Dependency Injection system.
+
+Because dependencies can be created in a very simple way (they're just functions or coroutines), and can be easily integrated into your path operations, you will see quite frequently the following approach:
++ You identify a package with your required dependencies (even as published packages).
++ You import those packages into your apps.
++ You make them available to your path operations.
+
+That's why dependencies are perfectly compatible with
++ Relational or NoSQL dbs.
++ External packages.
++ External APIs.
++ Authentication and authorization systems.
++ API usage monitoring systems
++ Response data injection systems
+
+### Classes as dependencies
+
+Functions/coroutines are not the only solution to declare dependencies. Any *callable* object (e.g., classes) can also be used as dependencies.
+
+If you pass a callable as a dependency in FastAPI, it will analyze the parameters for that callable, and process them in the same way as the parameters for a path operation funcion, including sub-dependencies, no matter whether those are coroutines or classes.
+
+For example:
+
+```python
+fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
+
+
+class CommonQueryParams:
+    def __init__(self, q: str | None = None, skip: int = 0, limit = 100):
+        self.q = q
+        self.skip = skip
+        self.limit = limit
+
+@app.get("/items/")
+async def read_items(commons: Annotated[CommonQueryParams, Depends(CommonQueryParams)]):
+    response = {}
+    if commons.q:
+        response.update({"q": commons.q})
+    items = fake_items_db[common.skip:commons.skip + commons.limit]
+    response.update({"items": items})
+    return response
+```
+
+Note that the class initializer parameters match the parameters of our dependency coroutine used in the previous section.
+
+| NOTE: |
+| :---- |
+| FastAPI only reliess on the second argument of `Annotated`. This means you could do: `Annotated[Any, Depends(CommonQueryParams)]`, and it would still work. However, it's better for your IDE to use the `Annotated[CommonQueryParams, Depends(CommonQueryParams)]`. |
+
+### Sub-dependencies
+
+FastAPI supports dependencies that have sub-dependencies and so on and so forth with no limits on how deep they can be.
+
+```python
+def query_extractor(q: str | None = None):
+    return q
+
+def query_or_cookie_extractor(
+    q: Annotated[str, Depends(query_extractor)],
+    last_query: Annotated[str | None, Cookie()] = None
+):
+    if not q:
+        return last_query
+    return q
+
+@app.get("/items/")
+async def read_query(query_or_default: Annotated[str, Depends(query_or_cookie_extractor)]):
+    return "q_or_cookie": query_or_default
+```
+
+See how `query_or_cookie_extractor()` depends on `query_extractor()` to provide the query parameter named `q`. It also declares the parameter `last_query` which is a cookie that if present, may contain the latest query used.
+
+The sub-dependency is used as if `query_or_cookie_extractor` was a regular first-level dependency.
+
+#### Using the same dependency multiple times
+
+If one of your dependencies is declared multiple times for the same path operation (e.g., a scenario in which you have dependencies with a common sub-dependency), FastAPI by default will call your sub-dependency only once per request. The result of calling that sub-dependency will be stored in a cache, and use whenever that sub-dependency is needed again.
+
+That default behavior can be disabled by using `Depends(use_cache=False)` parameter.
+
+### Dependencies in path operation decorators
+
+In some cases, you don't need the return value of the dependency inside your path operation function/coroutine, or the dependency doesn't return a value and you just need it for its side effects.
+
+In those cases, you can add a list of dependencies to the path operation decorator. It should be a list of `Depends()`.
+
+```python
+async def verify_token(x_token: Annotated[str, Header()]):
+    if x_token != "fake-super-secret-token":
+        raise HTTPException(status_code=400, detail="X-Token header is invalid")
+
+async def verify_key(x_key: Annotated[str, Header()]):
+    if x_key != "fake-super-secret-key"
+        raise HTTPException(status_code=400, detail="X-Key header is invalid")
+    return x_key
+
+@app.get("/items/", dependencies=[Depends(verify_token), Depends(verify_key)])
+async def read_items():
+    return [{"item": "foo", "item": "bar"}]
+```
+
+The dependencies will be invoked as if they had been defined in the path operation, but their return value (if any) won't be passed to your path operation.
+
+### Global dependencies
+
+In some applications, you might want to add dependencies to the whole application, so that their side effects are applied to all the path operations.
+
+This can be done by declaring the dependencies on the `FastAPI()` invocation:
+
+```python
+async def verify_token(x_token: Annotated[str, Header()]):
+    if x_token != "fake-super-secret-token":
+        raise HTTPException(status_code=400, detail="X-Token header is invalid")
+
+async def verify_key(x_key: Annotated[str, Header()]):
+    if x_key != "fake-super-secret-key"
+        raise HTTPException(status_code=400, detail="X-Key header is invalid")
+    return x_key
+
+app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
+```
+
+### Dependencies with `yield`
+
+FastAPI supports a mechanism to allow dependencies to do some extra steps after the request has been processed by FastAPI.
+
+These dependencies need to use `yield` (only once per dependency) and write the extra steps after the `yield`.
+
+| NOTE: |
+| :---- |
+| Any function that could be decorated with `@contextlib.contextmanager` or `@contextlib.asynccontextmanager` would be valid FastAPI dependencies. |
+
+For example, the following coroutine would be a valid dependency:
+
+```python
+async def get_db():
+    db = DBSession():
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+The code before `yield` would be executed before creating a response, and the code afterwards, after the response is ready.
+
+Note that if you use `try` in a dependency, you'll receive any exception that was thrown when using the dependency.
+
+And, as seen in the example, you can use `finally` to make sure that certain steps are always executed even if an exception is thrown.
+
+#### Sub-dependencies with yield
+
+You can build a tree of sub-dependencies of any size and shape using `yield`. FastAPI will ensure that the *exit code* (the logic after the `yield`) is executed in the correct order.
+
+```python
+async def dependency_a():
+    dep_a = generate_dep_a()
+    try:
+        yield dep_a()
+    finally:
+        dep_a.close()
+
+async def dependency_b(dep_a: Annotated[DepA, Depends(dependency_a)]):
+    dep_b = generate_dep_b()
+    try:
+        yield dep_b
+    finally dep_b.close(dep_a)
+
+async def dependency_c(dep_b: Annotated[DepB, Depends(dependency_b)]):
+    dep_c = generate_dep_c()
+    try:
+        yield dep_c
+    finally:
+        dep_c.close(dep_b)
+```
+
+In the snippet above, `dependency_c` can have a dependency on `dependency_b`, and `dependency_b` on `dependency_a`.
+
+| NOTE: |
+| :---- |
+| You can have some dependencies with `yield` and some other dependencies with `return`, and have some of those depend on some of the others. |
+
+#### Dependencies with `yield` and HTTPException
+
+Dependencies using `yield` can implement try-except blocks to catch exceptions that were raised in the process and then transform then into different exceptions if needed, like `HTTPException`.
+
+```python
+data = {
+    "plumbus": {"description": "Freshly pickled plumbus", "owner": "Morty"},
+    "portal-gun": {"description": "Gun to create portals", "owner": "Rick"},
+}
+
+class OwnerError(Exception):
+    ...
+
+async def get_username():
+    try:
+        yield "Rick"
+    except OwnerError as e:
+        raise HTTPException(status_code=400, detail=f"Owner error: {e}")
+
+@app.get("/items/{item_id}")
+async def get_item(item_id: str, username: Annotated[str, Depends(get_username)]):
+    if item_id not in data:
+        raise HTTPException(status_code=404, detail="Item not found")
+    item = data[item_id]
+    if item["owner"] != username:
+        raise OwnerError(username)
+    return item
+```
+
+In the example above, the `OwnerError` exception is caught and mapped into a regular HTTPException to send a 400 (Bad Request) to the client.
+
+#### Dealing with exceptions in dependencies with `yield`
+
+If you catch an exception in a dependency with `yield`, unless you are raising another `HTTPException`, you should always re-raise the original exception.
+
+```python
+class InternalError(Exception):
+    ...
+
+async def get_username():
+    try:
+        yield "Rick"
+    except InternalError:
+        print("An internal error occurred: re-raising...")
+        raise
+
+@app.get("/items/{item_id}")
+async def get_item(item_id: str, username: Annotated[str, Depends(get_username)]):
+    if item_id == "portal-gun":
+        raise InternalError(f"The portal gun is too dangerous for {username}")
+    if item_id != "plumbus":
+        raise HTTPException(
+            status_code=404,
+            detail="Item not found, there's only a plumbus here",
+        )
+    return item_id
+```
+
+In the example above, the client will get HTTP 500 (Internal Server Error), but the server will keep the InternalError in the logs.
+
+#### Execution of dependencies with `yield`
+
+The following diagram illustrates the sequence diagram for a FastAPI application when exception handling is involved:
+
+![Sequence diagram: exception handling](docs/004_seq_diagram_exc_handling.png)
+
+Note that only one response will be sent to the client: either the response from the path operation, or one crafted by an exception handler.
+
+After one of these responses is sent, no other responses can be sent.
+
+If you raise any exception from your path operation, it will be passed to the dependencies with yield. In most cases, you will want to re-raise the same exception or raise a new one to make sure the exceptional situation is handled.
+
+#### Early exit and `scope`
+
+By default, the *exit code* (code after the `yield`) is executed after the response is sent to the client.
+
+However, you can disable that behavior by using `Depends(scope="function")`. In that case, the *exit code* will be executed right after the path operation function returns, but before the response is sent.
+
+```python
+async def get_username():
+    try:
+        yield "Rick"
+    except InternalError:
+        print("An internal error occurred: re-raising...")
+        raise
+
+@app.get("/users/me")
+async def get_user_me(username: Annotated[str, Depends(get_username, scope="function")]):
+    if item_id == "portal-gun":
+        raise InternalError(f"The portal gun is too dangerous for {username}")
+    if item_id != "plumbus":
+        raise HTTPException(
+            status_code=404,
+            detail="Item not found, there's only a plumbus here",
+        )
+    return item_id
+```
+
+The technical detail is:
+
++ `Depends(scope="function")`: start the dependency before the path operation function that handles the request, end the dependency after the path operation function ends, but before the response is sent back to the client. The dependency function will be executed around the path operation function.
+
++ `Depends(scope="request")`: start the dependency before the path operation function that handles the request (exactly the same as in `scope="function"`), but end after the response is sent back to the client. The dependency function will be executed around the request-response cycle. This is the default behavior.
+
+#### `scope` for sub-dependencies
+
+When you declare a dependency with `scope="request"`, any sub-dependency needs to also have `scope="request"`.
+
+Conversely, a dependency with `scope="function"` can have dependencies with `"function"` or `"request"` scope. This is because any dependency needs to be able to run its exit code before the subdependencies, as it might need to still use them during its exit code.
+
+#### Using context managers in dependencies with yield
+
+You can use context managers or async context managers as dependencies with yield using the technique below:
+
+```python
+class MyContextManager:
+    def __init__(self):
+        self.db = DBSession()
+
+    def __enter__(self):
+        return self.db
+
+    def __exit__(self):
+        self.db.close()
+
+async def get_db():
+    with MyContextManager as dbcm:
+        yield dbcm
+```
+
+### Security
+
+FastAPI provides several tools to help you deal with security easily, rapidly, and in a standard way.
+
+#### OAuth2
+
+OAuth2 is a specification that defines several ways to handle authentication and authorization. It is quite an extensive specification and covers several complex use cases.
+
+In essence, the specification explains different ways in which you can authorize a 3rd party.
+
+#### OpenID Connect (OIDC)
+
+OpenID Connect is another specification based on OAuth2 that extends and clearly specifies certain parts that are relatively ambiguous in OAuth2, especially with respect to authentication.
+
+#### OpenAPI security schemes
+
+OpenAPI has a way to define multiple security schemes:
+
++ `apiKey`: an application specific key that can come from a query parameter, a header, or a cookie.
++ `http`: standard HTTP authentication systems, including:
+    + `bearer`: based on an `Authorization` header with the value `Bearer` followed by an OAuth2 token.
+    + HTTP basic authentication
+    + HTTP digest
+    + ...other HTTP based authentication variants, far less popular...
++ `oauth2`: all the OAuth2 ways to handle security (called flows in OAuth2 parlance), such as:
+    + `implicit`
+    + `clientCredentials`
+    + `authorizationCode`
+    + `password`
++ `openIdConnect`: which defines a way to discover OAuth2 authentication details automatically.
+
+#### FastAPI utilities
+
+FastAPI provides several tools for each of these security schemes in the `fastapi.security` module that simplify using the security mechanisms available in the framework.
+
+### The basics of OAuth2 Password flow with FastAPI
+
+Let's imagine that you have a backend API in some domain, and you have a frontend in another domain, or in a different path of the same domain.
+
+You want to enable a way for the frontend to authenticate with the backend using a username and a password.
+
+This can be done in FastAPI using:
+
+```python
+from typing import Annotated
+
+from fastapi import Depends, FastAPI
+from fastapi.security import OAuth2PasswordBearer
+
+app = FastAPI()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+@app.get("/items/")
+async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
+    return {"token": token}
+```
+
+If you run it, and visit /docs you will see a shiny "Authorize" button that you can click on to provide your authorization details.
+
+#### The `password` flow
+
+The `password` flow is one of the flows defined in OAuth2 to handle the authentication/authorization. While OAuth2 was designed to segregate the user authentication from the backend API, in this case we'll use the same FastAPI app to handle both the API and the authentication.
+
+The simplified flow is:
++ **User** types the `username` and `password` in the frontend and sends them in a request.
++ **Client** sends the `username` and `password` to a specific URL declared in our API through the `tokenUrl` parameter.
++ **Server** checks that `username` and `password` match, and responds with a **token**.
+    + A **token** is just a string with some content that we can use later to verify the user.
+    + **Tokens** expire after some time, so the user will have to log in again then.
+    + If the **token** is stolen, the risk is mitigated as it won't be valid after it has expired.
++ **Client** stores the token in some temporary storage.
++ **User** clicks in some section of the frontend app, which requires data to be pulled from the **server**.
++ **Client** sends a reques with the `Authorization` HTTP header set to `Bearer token`.
+
+#### FastAPI's `OAuth2PasswordBearer`
+
+FastAPI's `OAuth2PasswordBearer` class is the security tool that lets you use OAuth2 password flow, using a bearer token.
+
+When creating an instance of the `OAuth2PasswordBearer` class, you need to pass in the `tokenUrl` parameter. This parameter contains the URL that the **client** will use to send the `username` and `password` in order to get a token.
+
+```python
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+```
+
+`tokenUrl="token"` refers to the relative URL `token` (i.e., `./token`).
+
+Because we are using a relative URL, if your API was located at https://example.com/, then setting `tokenUrl=token` would refer to https://example.com/token. Similarly, if your API is located at https://example.com/api/v1/, then then setting `tokenUrl=token` would refer to https://example.com/api/v1/token.
+
+| NOTE: |
+| :---- |
+| The name `tokenUrl` (instead of `token_url`) was chosen to make it match the names used in the OpenAPI spec. |
+
+Note that this parameter doesn't create the endpoint, it declares the URL the **client** will have to use to get the token.
+
+The `OAuth2PasswordBearer` class returns a callable instance, so that you can use `oauth2_scheme` as a dependency.
+
+When configuring a path operation with such dependency, FastAPI will go and look at whether `Authorization` header is present, and if so, check if the value is `Bearer token`, and if so, it will just return the token as a str.
+
+If it doesn't see an `Authorization` HTTP header, or if the value doesn't follow the `Bearer token` sharpe, it will response with a 401 status code (Unathorized).
+
+#### Wrapping it up with a user model and get user dependency
+
+As the next step you should create Pydantic user model and a `get_current_user()` dependency that returns a user from the token returned by `oauth2_scheme`.
+
+```python
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+class User(BaseModel):
+    username: str
+    email: str | None = None
+    full_name: str | None = None
+    disabled: bool | None = None
+
+async def fake_decode_token(token):
+    return User(username=token + "fakedecoded", email="alice@example.com", full_name="Alice B. Cooper")
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    user = await fake_decode_token(token)
+    return user
+
+@app.get("/users/me")
+async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
+    return current_user
+```
+
+#### Getting the `username` and `password` with `OAuth2PasswordRequestForm`
+
+OAuth2 states that when using the "password flow" the client must send `username` and `password` fields as form data (i.e., the fields have to be named exactly like that, and no JSON is allowed).
+
+The spec also says that the client can send another form field called `"scope"`.
+
+The field will contain a string with space-separated values containing individual scope values thata are normally used to declare specific security permissions such as:
+
++ `users:read`
++ `instagram_basic`
++ `https://www.googleapis.com/auth/drive`
+
+Note that the only requirement for those individual scope items is that they don't have spaces within them.
+
+FastAPI provides `OAuth2PasswordRequestForm` which you can use as a dependency for the path operation you need to build for `/token`.
+
+The following program implements a FastAPI app with an OAuth2 password flow, on which the `/token` endpoint is implemented with `OAuth2PasswordRequestForm`.
+
+Note that the token generation and decoding use the simplest of strategies to illustrate the flow.
+
+```python
+from typing import Annotated
+
+from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
+
+fake_users_db = {
+    "johndoe": {
+        "username": "johndoe",
+        "full_name": "John Doe",
+        "email": "johndoe@example.com",
+        "hashed_password": "****",
+        "disabled": False,
+    },
+    "alice": {
+        "username": "alice",
+        "full_name": "Alice Wonderson",
+        "email": "alice@example.com",
+        "hashed_password": "****",
+        "disabled": True,
+    }
+}
+
+app = FastAPI()
+
+def fake_hash_password(password: str):
+    return "fake_hashed_" + password
+
+oauth2scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+class User(BaseModel):
+    username: str
+    email: str | None = None
+    full_name: str | None = None
+    disabled: bool | None = None
+
+class UserInDB(user):
+    hashed_password: str
+
+def get_user(db, username: str):
+    if username in db:
+        user_dict = db[username]
+        return UserInDB(**user_dict)
+
+def fake_decode_token(token):
+    # in this simplistic implementation token == username
+    user = get_user(fake_users_db, token)
+    return user
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    user = fake_decode_token(token)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+
+async def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+
+@app.post("/token")
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    user_dict = fake_users_db.get(form_data.username)
+    if not user_dict:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    user = UserInDB(**user_dict)
+    hashed_password = fake_hash_password(form_data.password)
+    if not hashed_password == user.hashed_password:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    return {"access_token": user.username, "token_type": "bearer"}
+
+@app.get("/users/me")
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    return current_user
+```
+
+The `OAuth2PasswordRequestForm` is a class dependency that declares a form body with the following fields:
++ `username`: required str
++ `password`: required str
++ `scope`: optional str, prepared to receive a list of space-separated scope values
++ `grant_type`: optional str, which should be set to `"password"` according the OAuth2 specs, but `OAuth2PasswordRequestForm` doesn't enforce it.
++ `client_id`: optional str
++ `client_secret`: optional str
+
+This is used in the implementation of the `POST /token` endpoint:
+
+```python
+@app.post("/token")
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    user_dict = fake_users_db.get(form_data.username)
+    if not user_dict:
+        raise HTTPException(status_code=400, detail="Incorrent username or password")
+    user = UserInDB(**user_dict)
+    hashed_password = fake_hash_password(form_data.password)
+    if not hashed_password == user.hashed_password:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    return {"access_token", user.username, "token_type": "bearer"}
+```
+
+The response of the `POST /token` endpoint must be a JSON object featuring:
++ a `token_type` field indicating the type of token, in our case, as it's a bearer token, `"bearer"` should be used.
++ an `access_token` field with the content of the token that should be used to access the APIs.
+
+Note that in the example above, we identity the token with the username.
+
+The `get_current_active_user()` dependency establishes the security context for the path operations. In essence, the coroutine relies on a sub-dependency `get_current_user()` to exchange the token by a username, and then checks if the user is active or not, raising an error if the user is disabled:
+
+```python
+async def get_current_user(token: Annotated[str, Depends[oauth2_scheme]]):
+    user = fake_decode_token(token)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    return user
+
+async def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    if current_user.disabled:
+        raise HTTPException(
+            status_code=400,
+            detail="Inactive user"
+        )
+    return current_user
+
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    return current_user
+```
+
+Note that `get_current_user()` is returning a 401 (Unauthorized) and the standard dictates that you should also return an HTTP header `WWW-Authenticate` with the value `"Bearer"`.
+
+Now, you can test the FastAPI app from Swagger UI, by clicking on the Authenticate icon and typing the user's password.
+
+### OAuth2 Password flow using JWT tokens
+
+JWT stands for JSON Web Token, a standard to codify a JSON object in a long dense string without spaces.
+
+It's not encrypted, so anyone can recover the information from the contents, but it's signed, so you can validate that it hasn't been tampered with since issued.
+
+#### Using PyJWT
+
+You can use [PyJWT](https://github.com/jpadilla/pyjwt) to generate and verify JWT tokens in Python.
+
+| NOTE: |
+| :---- |
+| If you're planning to use certain digital signature algorithms such as RSA or ECDSA you need to install the optional cryptographic dependencies `pyjwt[crypto]`. |
+
+#### Using pwdlib
+
+Because you're going to handle the passwords yourself, and storing the password in plain text is a bad idea, you'll need to *hash* the passwords.
+
+*Hashing* means converting some content (e.g., a password) into a sequence of bytes in a deterministic way. That it, whenever you pass exactly the same content (i.e., the same password) you'll get the exact same sequence of bytes. Additionally, there's no way to convert the sequence of bytes back to the original text &mdash; it's a one-way operation.
+
+[pwdlib](https://github.com/frankie567/pwdlib) is a Python package to handle password hashing. You will need to install it with the `argon2` dependencies (i.e., `pwdlib[argon2]`).
+
+#### The revised OAuth2 password flow with password hashing and JWT
+
+The following snippet is the revision of the OAuth2 password flow, but this time using password hashing and JWT:
+
+```python
+from datetime import datetime, timedelta, timezone
+from typing import Annotated
+
+import jwt
+from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jwt.exceptions import InvalidTokenError
+from pwdlib import PasswordHash
+from pydantic import BaseModel
+
+# generated with `openssl rand -hex 32`
+SECRET_key = "****"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+fake_users_db = {
+    "johndoe": {
+        "username": "johndoe",
+        "full_name": "John Doe",
+        "email": "johndoe@example.com",
+        "hashed_password": "****",
+        "disabled": False,
+    }
+}
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+class User(BaseModel):
+    username: str
+    email: str | None = None
+    full_name: str | None = None
+    disabled: bool | None = None
+
+class UserInDB(User):
+    hashed_password: str
+
+password_hash = PasswordHash.recommended()
+
+DUMMY_HASH = password_hash.hash("****")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+app = FastAPI()
+
+def verify_password(plain_password, hashed_password):
+    return password_hash.verify(plain_password, hashed_password)
+
+def get_password_hash(password):
+    return password_hash.hash(password)
+
+def get_user(db, username):
+    if username in db:
+        user_dict = db[username]
+        return UserInDB(**user_dict)
+
+def authenticate_user(fake_db, username: str, password: str):
+    user = get_user(fake_db, username)
+    if not user:
+        # disable time-based attacks
+        verify_password(password, DUMMY_HASH)
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    credentials_exception = HTTPException(
+        status_code = status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"}
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except InvalidTokenError:
+        raise credentials_exception
+    user = get_user(fake_users_db, username=token_data.username)
+    if user is None:
+        raise credentials_exception
+    return user
+
+async def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+
+@app.post("/token")
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+) -> Token:
+    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail = "Incorrect username or password",
+            headers = {"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data = {"sub": user.username},
+        expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
+
+@app.get("/users/me")
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> User:
+    return current_user
+
+@app.get("/users/me/items")
+async def read_own_items(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    return [{"item_id": "Foo", "owner": current_user.username}]
+```
+
+#### Hashing and verifying the passwords
+
+Note that for password hashing we import `pwdlib.PasswordHash` which we will use to convert a password into its corresponding hash.
+
+Note that when `authenticate_user()` is called, you still have to do the password verification against a dummy hash if the user is not found in the db.
+
+```python
+def authenticate_user(fake_db, username: str, password: str):
+    user = get_user(fake_db, username)
+    if not user:
+        # disable time-based attacks
+        verify_password(password, DUMMY_HASH)
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
+```
+
+
+
+That way, you ensure the endpoint takes roughly the same amount of time to respond whether the username is valid or not, preventing timing attacks to enumerate existing usernames.
+
+#### Handling JWT tokens
+
+The first thing you might've noticed is that we have declared a secret key. That secret key is random sequence that will be used to sign the JWT tokens.
+
+This can be done using:
+
+```bash
+$ openssl rand -hex 32
+```
+
+We also declare the algorithm that we will use to sign the token (HS256), and the expiration time for the token.
+
+Then you can define your function to generate the token, which is very simple as all the heavy lifting is done by pyJWT (`import jwt`):
+
+```python
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+```
+
+#### Updating the dependency `get_current_user()`
+
+Now, it's only necessary to update th `get_current_user()` dependency, as we can rely on a better strategy for the token (in the previous installment, the token was equal to the username).
+
+However, the purpose of the code is the same, extract the username from the token, and validate that the user is in the database:
+
+```python
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    credentials_exception = HTTPException(
+        status_code = status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"}
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except InvalidTokenError:
+        raise credentials_exception
+    user = get_user(fake_users_db, username=token_data.username)
+    if user is None:
+        raise credentials_exception
+    return user
+```
+
+#### Updating the `POST /token` operation
+
+Now the path operation in charge of `POST /token` needs to create a real JWT (instead of the simplistic *access_token* from the previous version) and return it:
+
+
+```python
+@app.post("/token")
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+) -> Token:
+    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail = "Incorrect username or password",
+            headers = {"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data = {"sub": user.username},
+        expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
+```
+
+The JWT specifications says that there's a key `sub` with the *subject* of the token. While it's optional to use it, that's where you would put the user's identification.
+
+Note that it is recommended for the `sub` key to have a unique identifier across the entire application, and that it should be a string. That's why in some cases you might find `sub=username:johndoe` to clearly make `sub` unique.
+
+#### A word about scopes
+
+OAuth2 has the notion of scopes. You can use them to add a specific set of permissions to a JWT token. Then you can give a token to a user directly, or to a third party, to interact with your API with a set of restrictions.
+
+### Middleware

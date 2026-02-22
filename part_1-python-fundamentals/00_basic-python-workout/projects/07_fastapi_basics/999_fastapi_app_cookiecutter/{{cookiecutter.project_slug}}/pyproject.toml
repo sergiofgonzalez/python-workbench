@@ -9,7 +9,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi[stanard-no-fastapi-cloud-cli]>=0.129.0",
+    "fastapi[standard-no-fastapi-cloud-cli]>=0.129.0",
 ]
 
 [dependency-groups]

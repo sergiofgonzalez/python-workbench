@@ -161,3 +161,21 @@ $ http :5000/v2/items/ X-Token:1 X-Token:2
 $ http post :5000/items/1 --raw '{"user":{"username": "jason", "full_name":"Jason Isaacs"},"item":{"name":"foo", "description":"foobar", "price":1.23, "tax":3.21, "tags":["baz", "foobar"]}}
 ```
 
+## Forms
+
+### Form fields
+```bash
+$ http --form POST :5000/login username="sergio" password="secret"
+```
+
+### Form with file fields
+
+```bash
+http --form POST :5000/files/ file@./main.py
+```
+
+### Mixing form fields and file fields
+
+```bash
+$ http --form :5000/files/ file_a@main.py file_b@main.py token=token1
+```

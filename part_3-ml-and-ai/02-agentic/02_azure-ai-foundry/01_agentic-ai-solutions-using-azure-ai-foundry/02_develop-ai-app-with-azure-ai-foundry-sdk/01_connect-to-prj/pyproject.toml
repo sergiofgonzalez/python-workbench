@@ -18,7 +18,3 @@ ignore = [
 
 select = ["ALL"]
 
-[tool.uv.workspace]
-members = [
-    "02_list-connections",
-]

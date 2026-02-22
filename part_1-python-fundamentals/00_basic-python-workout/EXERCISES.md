@@ -8195,3 +8195,50 @@ Define a function `say_hello()` that receives an argument `name` that should be 
 Create a program that reads the environment variable `MY_NAME` using `"World"` as the default value and prints the message: "Hello {env-var-value} from Python".
 
 Test the program with and without the variable being defined.
+
+SOLUTION:
+
+You need to use `os.getenv("env-var-name", "env-var-default-value")`.
+
+You can test it with:
+
+```bash
+# setting the variable
+$ MY_NAME="stranger" uv run 513_os_env_vars.py
+Hello, stranger!
+
+# using the provided default value
+$ uv run 513_os_env_vars.py
+Hello, world!
+```
+
+### 514: ctxmngrs: creating context managers with contextlib's @contextmanager
+
+Python's `contextlib` module provides utilities for working with context managers. For example, you can use `contextlib.contextmanager` decorator to create context mangers without making use of classes.
+
+The approach is as follows:
+
+1. Create function and annotate it with `@contextmanager`. The function name will be the name of the context manager.
+
+1. Write the *entry logic* before using `yield`.
+
+1. Use `yield` to return the value to be assigned to the variable after `as` in `with ctx_manager() as var`.
+
+1. Write the *exit logic* right after `yield`.
+
+Create a simple context manager using this approach that:
++ prints "Entry logic" as the entry code.
++ yields an int
++ prints "Exit logic" as the exit code.
+
+### 515: ctxmngrs: Implementing a writable file context manager with `@contextmanager`
+
+Create a context manger function for a writable text file (i.e., the context manager should yield a file that is ready to be written on).
+
+As the *entry logic*, print some message in the terminal, open the file received as argument in write mode, and write some header information.
+
+Then yield the file, so that the consumer can work on it, and in the *exit logic*, write some trailing message in the file, print a message in the terminal, and then close the file.
+
+| NOTE: |
+| :---- |
+| This exercise is for informational purposes and to get you familiarized with context mangers. `pathlib` already provides production-grade context managers you can use to deal with files. |

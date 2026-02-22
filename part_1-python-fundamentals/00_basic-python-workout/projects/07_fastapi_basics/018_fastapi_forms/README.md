@@ -17,6 +17,14 @@ Create a path operation for a `POST /login/` form containing the fields:
 
 In the implementation of the coroutine, return the dictionary `{"username": username}`.
 
+SOLUTION:
+
+You can test it with:
+
+```bash
+$ http --form POST :5000/login username="sergio" password="secret"
+```
+
 ### Using form models
 
 Create a path operation for a `POST /v2/login/` form containing using a Pydantic model `FormData` containing the fields:
@@ -34,6 +42,8 @@ Create a path operation for a `POST /v3/login/` form containing using a Pydantic
 Configure the model to forbid extra fields.
 
 In the implementation of the coroutine, return the instance of the `FormData` instance.
+
+Check that it fails when trying to send more fields, but it works in `/login` and `/v2/login`.
 
 ## Running the program
 
