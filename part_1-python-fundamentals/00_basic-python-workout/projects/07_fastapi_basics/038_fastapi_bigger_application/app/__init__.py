@@ -1,0 +1,1 @@
+"""FastAPI bigger application package."""

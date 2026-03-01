@@ -1,4 +1,5 @@
 #!/bin/bash -e
 
 # Invoke uv to run the cookiecutter template and create a new project
-cookiecutter 999_fastapi_app_cookiecutter/cookiecutter.zip
+VERSION=$(grep '^version = ' 999_fastapi_app_cookiecutter/{{cookiecutter.project_slug}}/pyproject.toml | awk -F'"' '{print $2}')
+cookiecutter 999_fastapi_app_cookiecutter/cookiecutter-${VERSION}.zip

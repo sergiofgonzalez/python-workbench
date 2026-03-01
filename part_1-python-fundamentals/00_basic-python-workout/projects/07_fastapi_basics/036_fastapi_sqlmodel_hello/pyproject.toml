@@ -1,7 +1,7 @@
 [project]
-name = "{{cookiecutter.project_slug}}"
-version = "0.1.2"
-description = "{{cookiecutter.project_description}}"
+name = "036_fastapi_sqlmodel_hello"
+version = "0.1.1"
+description = "Illustrates the basics of SQLModel with a FastAPI app"
 readme = "README.md"
 license = "MIT"
 authors = [
@@ -9,7 +9,8 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi[standard-no-fastapi-cloud-cli]>=0.134.0",
+    "fastapi[standard-no-fastapi-cloud-cli]>=0.131.0",
+    "sqlmodel>=0.0.37",
 ]
 
 [dependency-groups]

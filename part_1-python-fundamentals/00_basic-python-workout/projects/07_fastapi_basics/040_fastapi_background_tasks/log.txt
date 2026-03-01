@@ -1,0 +1,4 @@
+2026-03-01 08:01:11.858606+00:00 | Notification sent to sergiofg
+2026-03-01 08:07:52.571540+00:00 | Items read with query: None
+2026-03-01 08:08:24.812175+00:00 | Query received: the query
+2026-03-01 08:08:24.813165+00:00 | Items read with query: the query

@@ -179,3 +179,12 @@ http --form POST :5000/files/ file@./main.py
 ```bash
 $ http --form :5000/files/ file_a@main.py file_b@main.py token=token1
 ```
+
+## Streams
+
+### Streaming response
+
+```bash
+# explicit use of streaming
+$ http --stream :5000/items/stream-sync --verbose
+```

@@ -1,7 +1,7 @@
 [project]
-name = "{{cookiecutter.project_slug}}"
+name = "040_fastapi_background_tasks"
 version = "0.1.2"
-description = "{{cookiecutter.project_description}}"
+description = "Illustrates the basics of FastAPI's background tasks"
 readme = "README.md"
 license = "MIT"
 authors = [
@@ -9,6 +9,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "aiofiles>=25.1.0",
     "fastapi[standard-no-fastapi-cloud-cli]>=0.134.0",
 ]
 
