@@ -868,7 +868,7 @@ In summary:
 
 #### async iterator
 
-An iterable representa a source of data that can be looped over with a for loop. An async iterable represents a source of data which can be looped over with an `async for` loop:
+An iterable represents a source of data that can be looped over with a for loop. An async iterable represents a source of data which can be looped over with an `async for` loop:
 
 ```python
 async for value in reader.get_values():

@@ -60,6 +60,14 @@ You can run the application with:
 uv run fastapi dev main.py --port {port}
 ```
 
+## Running your tests
+
+You can run the tests from your IDE or from the command line using:
+
+```bash
+uv run pytest
+```
+
 ## Project management
 
 This project is managed using `uv`.

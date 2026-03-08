@@ -186,6 +186,7 @@
         + [What is a stream?](#what-is-a-stream)
         + [JSON Lines](#json-lines)
         + [Streaming JSON Lines with FastAPI](#streaming-json-lines-with-fastapi)
+    + [Server-Sent Events (SSE)](#server-sent-events-sse)
     + [Background tasks](#background-tasks)
         + [Using `BackgroundTasks`](#using-backgroundtasks)
         + [Dependency injection](#dependency-injection)
@@ -204,6 +205,8 @@
         + [Testing: an extended example](#testing-an-extended-example)
     + [Debugging](#debugging)
         + [VSCode debugging configuration](#vscode-debugging-configuration)
+
++ [FastAPI with microservices]()
 
 
 
@@ -5064,6 +5067,196 @@ async def stream_items_sync() -> Iterable[Item]:
         yield item
 ```
 
+### Server-Sent Events (SSE)
+
+You can stream data to the client using a mechanism known as Server-Sent Events (SSE).
+
+This is similar to [Stream JSON lines](#stream-json-lines), but using the `text/event-stream` format, which is supported natively by browsers using the [EventSource API](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
+
+
+#### What are Server-Sent Events?
+
+SSE is a standard for streaming data from the server to the client over HTTP.
+
+Each event is a small text block with fields, separated by blank lines such as:
+
+```
+data: {"name": "Portal Gun", "price": 999.99}
+
+data: {"name": "Plumbus", "price": 32.99}
+```
+
+SSE is commonly used for AI chat streaming, live notifications, logs and observability, and other cases where the server pushes updates to the client.
+
+#### Stream SSE with FastAPI
+
+To stream SSE with FastAPI, you use `yield` in your path operation function and set `response_class=EventSourceResponse`.
+
+```python
+from collections.abc import AsyncIterable, Iterable
+
+from fastapi import FastAPI
+from fastapi.sse import EventSourceResponse
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class Item(BaseModel):
+    name: str
+    description: str | None
+
+items = [
+    Item(name="Plumbus", description="A multi-purpose household device."),
+    Item(name="Portal Gun", description="A portal opening device."),
+    Item(name="Meeseeks Box", description="A box that summons a Meeseeks."),
+]
+
+@app.get("/items/stream", response_class="EventSourceResponse")
+async def sse_items() -> AsyncIterable[Item]:
+    for item in items:
+        yield item
+```
+
+| NOTE: |
+| :---- |
+| An `Iterable` is any object which implements `__iter__` or `__getitem__` method (legacy fallback). Those methods return an iterator or return the element at the given index respectively. An `Iterable` is any object that provides an iterator.<br>An async iterable represents a source of data which can be looped over with an `async for` loop.<br>Note that the coroutine returns an `AsyncIterable` but within the coroutine, you can use the regular `for` loop. |
+
+##### Non-async path operation functions
+
+You can also use regular functions instead of coroutines:
+
+```python
+@app.get("/items/stream-no-async", response_class="EventSourceResponse")
+def sse_items() -> Iterable[Item]:
+    for item in items:
+        yield item
+```
+
+#### ServerSentEvent
+
+If you need SSE fields like `event`, `id`, `retry`, or `comment`, you can yield `ServerSentEvent` objects instead of plain data.
+
+```python
+from collections.abc import AsyncIterable
+
+from fastapi import FastAPI
+from fastapi.sse import EventSourceResponse, ServerSentEvent
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class Item(BaseModel):
+    name: str
+    price: float
+
+items = [
+    Item(name="Plumbus", price=32.99),
+    Item(name="Portal Gun", price=999.99),
+    Item(name="Meeseeks Box", price=49.99),
+]
+
+@app.get("/items/stream", response_class="EventSourceResponse")
+async def sse_items() -> AsyncIterable[ServerSentEvent]:
+    yield ServerSentEvent(comment="stream of item updates")
+    for i, item in enumerate(items):
+        yield ServerSentEvent(data=item, event="item update", id=str(i + 1), retry=5000)
+```
+
+#### Raw data
+
+If you need so send data without JSON encoding (e.g., log lines), you need to use `ServerSentEvent` instances with `raw_data` field populated:
+
+```python
+from collections.abc import AsyncIterable
+
+from fastapi import FastAPI
+from fastapi.sse import EventSourceResponse, ServerSentEvent
+
+app = FastAPI()
+
+@app.get("/logs/stream", response_class="EventSourceResponse")
+async def sse_items() -> AsyncIterable[ServerSentEvent]:
+    logs = [
+        "2025-01-01 INFO  Application started",
+        "2025-01-01 DEBUG Connected to database",
+        "2025-01-01 WARN  High memory usage detected",
+    ]
+
+    for log_line in logs:
+        yield ServerSentEvent(raw_data=log_line)
+```
+
+#### Resuming with `Last-Event-ID`
+
+When a browser reconnects after a connection drop, it sends the last received `id` in the `Last-Event-ID` header.
+
+The following snippet illustrates how you can read it as a header parameter and then use it to resume the stream from where the client left off:
+
+```python
+from collections.abc import AsyncIterable
+from typing import Annotated
+
+from fastapi import FastAPI, Header
+from fastapi.sse import EventSourceResponse, ServerSentEvent
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class Item(BaseModel):
+    name: str
+    price: float
+
+items = [
+    Item(name="Plumbus", price=32.99),
+    Item(name="Portal Gun", price=999.99),
+    Item(name="Meeseeks Box", price=49.99),
+]
+
+@app.get("/items/stream", response_class="EventSourceResponse")
+async def sse_items(
+    last_event_id: Annotated[int | None, Header()] = None,
+) -> AsyncIterable[ServerSentEvent]:
+    start = last_event_id + 1 if last_event_id is not None else 0
+    for i, item in enumerate(items):
+        if i < start:
+            continue
+        yield ServerSentEvent(data=item, id=str(i + 1))
+```
+
+#### SSE with POST
+
+SSE works with any HTTP method, not just with `GET`.
+
+This is useful for protocols like [MCP](https://modelcontextprotocol.io/) that stream SSE over `POST` requests.
+
+```python
+from collections.abc import AsyncIterable
+
+from fastapi import FastAPI
+from fastapi.sse import EventSourceResponse, ServerSentEvent
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class Prompt(BaseModel):
+    text: str
+
+@app.post("/chat/stream", response_class="EventSourceResponse")
+async def stream_chat() -> AsyncIterable[ServerSentEvent]:
+    words = prompt.text.split()
+    for word in words:
+        yield ServerSentEvent(data=word, event="token")
+    yield ServerSentEvent(raw_data="[DONE]", event="done")
+```
+
+#### A few additional technical details
+
+FastAPI implements some SSE best practices out of the box:
++ Send a keep alive ping comment every 15 seconds when there hasn't been any message, to prevent some proxies from closing the connection (as recommended in https://html.spec.whatwg.org/multipage/server-sent-events.html#authoring-notes).
++ Set the `Cache-Control: no cache` HTTP header to prevent caching of the stream.
++ Set a special header `X-Accel-Buffering: no` to prevent buffering in some proxies (like NGINX).
+
+
 ### Background tasks
 
 You can define background tasks to be run after returning a response.
@@ -5588,6 +5781,69 @@ With `launch.json` being:
   ]
 }
 ```
+
+## FastAPI microservices
+
+This section includes specific topics about building microservice based applications with FastAPI.
+
+### FastAPI: Basic underlying architecture
+
+One of the best choices for your microservice-based application is [FastAPI](https://github.com/tiangolo/fastapi).
+
+FastAPI is a web API framework built on top of [Starlette](https://github.com/encode/starlette) &mdash; a high-performance, lightweight, async server gateway interface (ASGI). When using Starlette, you implement your services as a collection of async tasks.
+
+Additionally, there's a deep integration between FastAPI and [Pydantic](https://docs.pydantic.dev/), a Python library to perform data validation.
+
+![FastAPI - Starlette](docs/010_fastapi-starlette.png)
+
+| NOTE: |
+| :---- |
+| The Web Server Gateway Interface (WSGI) is a synchronous Python standard specification to connect application code to servers in a synchronous fashion.<br>Because concurrency has become more important in recent years, the Python Asynchronous Server Gateway Interface (ASGI) specification was developed.<br>Uvicorn, the request handler that FastAPI uses, is an implementation of ASGI. |
+
+### Using Pydantic for schema validation
+
+When building a microservice based application, you would typically find yourself building three layers:
++ API layer
++ Business/Application Logic layer
++ Data layer
+
+Therefore, having a single set of models used for receiving requests from your clients, representing objects in your business domain logic, and used in the persistence interactions with your data layer is not enough.
+
+Instead, it is recommended to keep them separate.
+
+For example, for the API layer, it is recommended to start from the bigger application template, and then:
+
+1. Create a `schemas.py` file into the `app/routers/` (or `app/api`) directory.
+1. Define every schema as a class that inherits from Pydantic's `BaseModel` using type hints for every model field.
+1. Define enumeration classes for the attributes that can only have a fixed number of values.
+1. Reevaluate the models to understand if duplication can be avoided using inheritance.
+
+
+The resulting application structure for a toy application with no application and no data layer would be:
+
+```
+001_fastapi_orders_in_memory_fake_db/
+├── README.md
+├── app
+│   ├── __init__.py
+│   ├── main.py
+│   └── routers
+│       ├── __init__.py
+│       ├── orders.py
+│       └── schemas.py
+├── pyproject.toml
+├── tests
+│   ├── __init__.py
+│   └── unit
+│       ├── __init__.py
+│       └── test_orders.py
+└── uv.lock
+```
+
+| EXAMPLE: |
+| :------- |
+| See [044_fastapi_orders_in_memory_fake_db](044_fastapi_orders_in_memory_fake_db/README.md) for an example. |
+
 
 ## FastAPI: advanced concepts
 

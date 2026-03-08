@@ -161,6 +161,12 @@ $ http :5000/v2/items/ X-Token:1 X-Token:2
 $ http post :5000/items/1 --raw '{"user":{"username": "jason", "full_name":"Jason Isaacs"},"item":{"name":"foo", "description":"foobar", "price":1.23, "tax":3.21, "tags":["baz", "foobar"]}}
 ```
 
+## Sending `null` or `None`
+
+```bash
+$ http post :5050/orders/ items[0][product]="latte" items[0][size]="large" items[0][quantity]:=null
+```
+
 ## Forms
 
 ### Form fields

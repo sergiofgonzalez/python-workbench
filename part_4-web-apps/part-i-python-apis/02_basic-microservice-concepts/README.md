@@ -63,8 +63,8 @@ Now, we map each business team to a microservice.
 | Microservice | Aligned Team | Responsibilities |
 | :----------- | :----------- | :--------------- |
 | Products | Products Team | Owns the product catalog data. The team uses this service to maintain the catalog, add new products, update existing ones, etc. |
-| Ingredients | Inventory Team | Owns data about stock of ingredients. The Ingredients team is in charge of keeping the ingredients db in sync with warehouse stocks. |
-| Sales | Sales Team | Guides customers through the journey to place orders and keep track of them. It owns data about customer orders and lifecycle of each order. |
+| Ingredients | Inventory Team | Owns data about stock of ingredients. The Inventory team is in charge of keeping the ingredients db in sync with warehouse stocks. |
+| Sales | Sales Team | Guides customers through the journey to place orders and keeps track of them. It owns data about customer orders and lifecycle of each order. |
 | Finance | Finance Team | Implements the payment processors. Owns data about user payment details and payment history. The Finance Team uses this service to keep the company accounts up to date and to ensure payments work correctly. |
 | Kitchen | Kitchen Team | Sends orders to the kitchen systems and keeps track of its progress. It also monitors the performance of the kitchen system. |
 | Delivery | Delivery Team | Arranges the delivery of the order to the customer once it has been produced by the kitchen. It provides additional services such as translate the user location into coordinates and calculates the best route to get there. It owns data about each delivery made. |

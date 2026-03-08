@@ -1,7 +1,7 @@
 [project]
-name = "042_fastapi_testing_test_dir"
+name = "001_fastapi_orders_in_memory_fake_db"
 version = "0.1.2"
-description = "Illustrates the basics of FastAPI testing when using a /test dir"
+description = "A simple FastAPI application for managing orders with an in-memory fake database."
 readme = "README.md"
 license = "MIT"
 authors = [

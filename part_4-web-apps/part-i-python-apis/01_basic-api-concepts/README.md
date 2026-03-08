@@ -51,7 +51,7 @@ The API spec describes a REST API with four main URL paths and each path impleme
 + `/orders/{order_id}/pay`
   + POST &mdash; pays for an order
 
-The specification also includes the the data models describing what the data exchanged over those endpoints looks like (schemas).
+The specification also includes the data models describing what the data exchanged over those endpoints looks like (schemas).
 
 For example, the `OrderItemSchema` describe the shape of the payload to order items:
 
@@ -231,7 +231,7 @@ The procedure is:
 
 1. Create a `schemas.py` file into the `orders/api/` directory.
 2. Define every schema as a class that inherits from pydantic's `BaseModel` class, and specify the type of every attribute using Python type hints.
-3. Define en enumeration class for attributes that can only have a limited.
+3. Define en enumeration class for attributes that can only have a fixed number of values.
 
 ## Validating Request Payloads with Pydantic
 
