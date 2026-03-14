@@ -1,0 +1,218 @@
+# OpenAPI schema document for Kitchen API
+
+# Step 4: Referencing the models in the #/components/paths section
+
+openapi: 3.1.0
+
+info:
+  title: Kitchen API
+  version: 0.1.0
+  description: API for managing the production of customer orders.
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+paths:
+  /kitchen/schedules/:
+    get:
+      summary: Get a list of all orders scheduled for production
+      operationId: readSchedules
+      parameters:
+        - name: progress
+          in: query
+          description: Filter schedules by progress status
+          required: false
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          description: Limit the number of schedules returned
+          required: false
+          schema:
+            type: integer
+            default: null
+        - name: since
+          in: query
+          description: Filter schedules by start time
+          required: false
+          schema:
+            type: string
+            format: date-time
+            default: null
+      responses:
+        "200":
+          description: A list of orders scheduled for production
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetScheduleOrdersSchema"
+
+    post:
+      summary: Create a new schedule for an order
+      operationId: createSchedule
+      requestBody:
+        description: Order details to create a new schedule for production
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleOrderSchema"
+      responses:
+        "201":
+          description: Schedule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetScheduleOrderSchema"
+
+  /kitchen/schedules/{schedule_id}:
+    parameters:
+      - name: schedule_id
+        in: path
+        description: Unique identifier for the schedule
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get details of a specific schedule
+      operationId: readSchedule
+      responses:
+        "200":
+          description: Details of the specified schedule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetScheduleOrderSchema"
+
+
+    put:
+      summary: Update the details of a schedule
+      operationId: updateSchedule
+      requestBody:
+        description: Updated schedule details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleOrderSchema"
+      responses:
+        "200":
+          description: Schedule updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetScheduleOrderSchema"
+
+    delete:
+      summary: Delete a schedule
+      operationId: deleteSchedule
+      responses:
+        "204":
+          description: Schedule deleted successfully
+
+  /kitchen/schedules/{schedule_id}/status:
+    parameters:
+      - name: schedule_id
+        in: path
+        description: Unique identifier for the schedule
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Return the status of a schedule
+      operationId: readScheduleStatus
+      responses:
+        "200":
+          description: Current status of the specified schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleOrderStatusSchema'
+
+  /kitchen/schedules/{schedule_id}/cancel:
+    parameters:
+      - name: schedule_id
+        in: path
+        description: Unique identifier for the schedule
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      summary: Cancel a schedule
+      operationId: cancelSchedule
+      responses:
+        "200":
+          description: Schedule cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleOrderStatusSchema'
+
+components:
+  schemas:
+    ScheduleOrderItemSchema:
+      description: Schema for an item in an order
+      type: object
+      properties:
+        product:
+          type: string
+          description: Name of the product
+          required: true
+        size:
+          type: string
+          description: Size of the product (e.g., small, medium, large)
+          enum: [small, medium, large]
+          required: true
+        quantity:
+          type: integer
+          description: Quantity of the product ordered
+          required: false
+          minimum: 1
+          default: 1
+    ScheduledOrderSchema:
+      description: Schema for an order scheduled for production
+      type: object
+      properties:
+        order:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleOrderItemSchema'
+    GetScheduleOrderSchema:
+      description: Schema for an order scheduled for production
+      type: object
+      properties:
+        order_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the order
+        scheduled:
+          type: string
+          format: date-time
+          description: Scheduled start time for the order
+        status:
+          $ref: '#/components/schemas/ScheduleOrderStatusSchema'
+    GetScheduleOrdersSchema:
+      description: Schema for a list of orders scheduled for production
+      type: object
+      properties:
+        schedules:
+          type: array
+          description: List of orders scheduled for production
+          items:
+            $ref: '#/components/schemas/GetScheduleOrderSchema'
+    ScheduleOrderStatusSchema:
+      description: Schema for the status of a schedule
+      type: object
+      properties:
+        status:
+          type: string
+          description: Current status of the schedule
+          enum:
+            - pending
+            - progress
+            - cancelled
+            - finished

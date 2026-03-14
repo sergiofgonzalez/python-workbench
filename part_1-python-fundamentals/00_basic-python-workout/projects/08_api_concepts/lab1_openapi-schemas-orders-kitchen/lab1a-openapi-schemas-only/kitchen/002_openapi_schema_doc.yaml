@@ -1,0 +1,95 @@
+# OpenAPI schema document for Kitchen API
+
+# Step 2: Document the path and query parameters in the #/paths section
+
+openapi: 3.1.0
+
+info:
+  title: Kitchen API
+  version: 0.1.0
+  description: API for managing the production of customer orders.
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+paths:
+  /kitchen/schedules/:
+    get:
+      summary: Get a list of all orders scheduled for production
+      operationId: readSchedules
+      parameters:
+        - name: progress
+          in: query
+          description: Filter schedules by progress status
+          required: false
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          description: Limit the number of schedules returned
+          required: false
+          schema:
+            type: integer
+            default: null
+        - name: since
+          in: query
+          description: Filter schedules by start time
+          required: false
+          schema:
+            type: string
+            format: date-time
+            default: null
+
+    post:
+      summary: Create a new schedule for an order
+      operationId: createSchedule
+
+  /kitchen/schedules/{schedule_id}:
+    parameters:
+      - name: schedule_id
+        in: path
+        description: Unique identifier for the schedule
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get details of a specific schedule
+      operationId: readSchedule
+
+    put:
+      summary: Update the details of a schedule
+      operationId: updateSchedule
+
+    delete:
+      summary: Delete a schedule
+      operationId: deleteSchedule
+
+  /kitchen/schedules/{schedule_id}/status:
+    parameters:
+      - name: schedule_id
+        in: path
+        description: Unique identifier for the schedule
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Return the status of a schedule
+      operationId: readScheduleStatus
+
+  /kitchen/schedules/{schedule_id}/cancel:
+    parameters:
+      - name: schedule_id
+        in: path
+        description: Unique identifier for the schedule
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      summary: Cancel a schedule
+      operationId: cancelSchedule
+
+components:

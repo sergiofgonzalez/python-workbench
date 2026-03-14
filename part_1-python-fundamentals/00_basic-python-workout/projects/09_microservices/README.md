@@ -377,3 +377,73 @@ We will use Decomposition by subdomain for the simplest use cases in the the Wat
     + One deployable application, but internally structured as separate modules, each with its own clearly defined interface and data layer (one module per subdomain).
     + No inter-module direct data access: modules communicate through their APIs, as if they were separate services, but we can omit authentication details when doing service-to-service communication.
     + The solution would be ready to convert into a true microservice application later once you find a concrete reason: scaling, indeependent deployment, team ownership.
+
+## Building REST microservices with FastAPI
+
+In this section, we'll discuss best practices for creating the Orders and Kitchen services identified for our fictitious company called *Mama Jane's Pizza*.
+
++ **Orders**: Manages the lifecycle of each order. This subdomain owns data about the user's orders, and exposes an interface to manage orders and check their status. This subdomain also needs to take care of passing the order details to the **Kitchen** once the payment is done. It also needs to allow the user to check the status of the order while it is being processed. Finally, it also needs to interact with the **Delivery** system to arrange the delivery and expose the status of the delivery.
+
++ **Kitchen**: Manages the production of the customer order. This subdomain owns data related to the production of the customer order, exposing an interface to enable receiving orders and exposes their status. It also notifies the **Orders** subdomain when the order is ready, so that it can be delivered.
+
+### Overview of a microservice API: Orders
+
+Let's review what are the API endpoint the service will need to implement:
+
++ `/orders/`: Retrieve a list of orders (GET) and place an order (POST).
++ `/orders/{order_id}`: Read the details of a given order (GET), update an order (PUT), or remove one (DELETE).
++ `/orders/{order_id}/cancel`: Cancel an order (POST).
++ `/orders/{order_id}/pay`: Pay for an order (POST).
+
+Additionally, you have gathered the following requirements that will dictate some of the implementation decisions when listing orders:
++ it has to be possible to filter orders based on their cancellation status.
++ it has to be possible to limit the maximum number of orders returned
+
+Those requirements, can be translated into a couple of query parameters for our `GET /orders/` path operation:
+
++ `cancelled`: optional boolean. If not specified, all results are to be retrieved. If true, only cancelled orders are retrieved; if false, only not cancelled orders are retrieved.
++ `limit`: optional int. Establishes the limit for the number of records returned. It can be a fewer number. Default is None, which will return all the items.
+
+Additionally, it is considered a good practice to raise an error if a payload includes fields that haven't been defined in your schema.
+
+
+### Overview of a microservice API: Kitchen
+
+The Kitchen service will be in charge on managing the production of the customer's order. It will expose an interface enable receiving orders, and exposing their status.
+
+In practice, it will also make sense to enable an administrative interface to manage the internal status of the Kitchen service.
+
+![Kitchen service](pics/007_kitchen-service-hl.png)
+
+In light of this, the endpoints will be:
+
++ `/kitchen/schedules/`: Schedule an order for production in the kitchen (POST), and to retrieve a list of orders scheduled for production (GET).
+
++ `/kitchen/schedules/{schedule_id}`: Retrieve the details of a scheduled order (GET), update its details (PUT), remove it (DELETE.)
+
++ `/kitchen/schedules/{schedule_id}/status`: Read the status of an order scheduled for production (GET).
+
++ `/kitchen/schedules/{schedule_id}/cancel`: Cancel a scheduled order (POST).
+
+The necessary models will be:
++ `OrderItemSchema`: Represents the details of each item in an order:
+    + `product`: required str.
+    + `size`: required str enum with values "small", "medium", "big".
+    + `quantity`: optional int, default value 1.
++ `ScheduleOrderSchema`: Represents the payload required to schedule an order for production.:
+    + `order`: required array of `OrderItemSchema` items, with at least one item.
++ `GetScheduledOrderSchema`: Represents the details of an order that has been scheduled.
+    + `id`: required UUID
+    + `scheduled`: required datetime
+    + `status`: required str enum with values "pending", "progress", "cancelled", "finished".
++ `GetScheduledOrdersSchema`: Represents the response when listing a collection of orders that have been scheduled.
+    + `schedules`: required array of `GetScheduledOrderSchema`
+
+
+Additionally, we have the following information for `GET /kitchen/schedules`: it needs to be able to filter the orders that are in progress, limit the number of results returned, and allow filtering the results with a start datetime.
+
+Therefore, we will need to enable that endpoint with:
++ `progress`: optional boolean, to filter the orders that are in progress. If not sent, all orders will be retrieved; if true, only orders in progress will be retrieved; if false, only orders not in progress will be returned.
++ `limit`: optional int, limits the number of results in the response.
++ `since`: optional datetime, filters the results by the time the the orders were scheduled.
+

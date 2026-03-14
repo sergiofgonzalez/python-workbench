@@ -14,8 +14,6 @@ OpenAPI uses JSON Schema to describe an API's structure and models. In this chap
 
 OpenAPI uses an extended subset of the JSON Schema specification for defining the structure of JSON documents and the types and formats of its properties.
 
-JSON Schema is a specification standard for defining the structure of a JSON document and the types and formats of its properties.
-
 This will have two main purposes:
 + Document interfaces that use JSON to represent data
 + Validate that the data being exchanged is correct.
@@ -191,7 +189,7 @@ paths:
     post:
       operationId: payOrder
 
-  /orders/{order_id}/cance:
+  /orders/{order_id}/cancel:
     post:
       operationId: cancelOrder
 ```
@@ -540,11 +538,11 @@ paths:
   /orders/{order_id}:
     parameters:
         - in: path            # URL path parameter specification
-        name: order_id
-        required: true
-        schema:
-          type: string
-          format: uuid
+          name: order_id
+          required: true
+          schema:
+            type: string
+            format: uuid
     get:
       summary: Returns the details of a specific order
       operationId: getOrder

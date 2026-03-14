@@ -1,0 +1,152 @@
+# OpenAPI schema document for Kitchen API
+
+# Step 3: Document the models in the #/components/schemas section
+
+openapi: 3.1.0
+
+info:
+  title: Kitchen API
+  version: 0.1.0
+  description: API for managing the production of customer orders.
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+paths:
+  /kitchen/schedules/:
+    get:
+      summary: Get a list of all orders scheduled for production
+      operationId: readSchedules
+      parameters:
+        - name: progress
+          in: query
+          description: Filter schedules by progress status
+          required: false
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          description: Limit the number of schedules returned
+          required: false
+          schema:
+            type: integer
+            default: null
+        - name: since
+          in: query
+          description: Filter schedules by start time
+          required: false
+          schema:
+            type: string
+            format: date-time
+            default: null
+
+    post:
+      summary: Create a new schedule for an order
+      operationId: createSchedule
+
+  /kitchen/schedules/{schedule_id}:
+    parameters:
+      - name: schedule_id
+        in: path
+        description: Unique identifier for the schedule
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get details of a specific schedule
+      operationId: readSchedule
+
+    put:
+      summary: Update the details of a schedule
+      operationId: updateSchedule
+
+    delete:
+      summary: Delete a schedule
+      operationId: deleteSchedule
+
+  /kitchen/schedules/{schedule_id}/status:
+    parameters:
+      - name: schedule_id
+        in: path
+        description: Unique identifier for the schedule
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Return the status of a schedule
+      operationId: readScheduleStatus
+
+  /kitchen/schedules/{schedule_id}/cancel:
+    parameters:
+      - name: schedule_id
+        in: path
+        description: Unique identifier for the schedule
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      summary: Cancel a schedule
+      operationId: cancelSchedule
+
+components:
+  schemas:
+    ScheduleOrderItemSchema:
+      description: Schema for an item in an order
+      type: object
+      properties:
+        product:
+          type: string
+          description: Name of the product
+          required: true
+        size:
+          type: string
+          description: Size of the product (e.g., small, medium, large)
+          enum: [small, medium, large]
+          required: true
+        quantity:
+          type: integer
+          description: Quantity of the product ordered
+          required: false
+          minimum: 1
+          default: 1
+    ScheduledOrderSchema:
+      description: Schema for an order scheduled for production
+      type: object
+      properties:
+        order:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleOrderItemSchema'
+    GetScheduleOrderSchema:
+      description: Schema for an order scheduled for production
+      type: object
+      properties:
+        order_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the order
+        scheduled:
+          type: string
+          format: date-time
+          description: Scheduled start time for the order
+        status:
+          type: string
+          description: Current status of the order in the production process
+          enum:
+            - pending
+            - progress
+            - cancelled
+            - finished
+    GetScheduleOrdersSchema:
+      description: Schema for a list of orders scheduled for production
+      type: object
+      properties:
+        schedules:
+          type: array
+          description: List of orders scheduled for production
+          items:
+            $ref: '#/components/schemas/GetScheduleOrderSchema'

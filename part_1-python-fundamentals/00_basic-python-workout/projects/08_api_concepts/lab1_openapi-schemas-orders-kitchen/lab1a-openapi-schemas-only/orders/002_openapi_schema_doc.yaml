@@ -1,0 +1,88 @@
+# OpenAPI schema document for Orders API
+
+# Step 2: Document the path and query parameters in the #/paths section
+
+openapi: 3.1.0
+
+info:
+  title: Orders API
+  version: 0.1.0
+  description: API for managing life cycle of customer orders.
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+paths:
+  /orders/:
+    get:
+      summary: Get a list of all orders
+      operationId: readOrders
+      parameters:
+        - name: cancelled
+          in: query
+          description: Filter orders by cancellation status
+          required: false
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          description: Limit the number of orders returned
+          required: false
+          schema:
+            type: integer
+            default: null
+
+    post:
+      summary: Create a new order
+      operationId: createOrder
+
+  /orders/{order_id}:
+    parameters:
+      - name: order_id
+        in: path
+        description: Unique identifier for the order
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get details of a specific order
+      operationId: readOrder
+
+    put:
+      summary: Update an existing order
+      operationId: updateOrder
+
+    delete:
+      summary: Delete an order
+      operationId: deleteOrder
+
+  /orders/{order_id}/cancel:
+    parameters:
+      - name: order_id
+        in: path
+        description: Unique identifier for the order
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      summary: Cancel an order
+      operationId: cancelOrder
+
+  /orders/{order_id}/pay:
+    parameters:
+      - name: order_id
+        in: path
+        description: Unique identifier for the order
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      summary: Pay for an order
+      operationId: payOrder
+
+
+components:

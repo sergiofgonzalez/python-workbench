@@ -13,8 +13,8 @@ REST is an architectural style for loosely coupled and highly scalable applicati
 REST APIs are structured around resources. Resources are entities that can be manipulated through the API and that are referenced by a unique URL.
 
 There are two types of resources:
-+ singletons: represent a single entity. For example `orders/{order_id}` represents the URL path of a singleton resource.
-+ collections: represent lists of entities. For example `orders/` represents the URL path of a collection resource.
++ singletons: represent a single entity. For example `/orders/{order_id}` represents the URL path of a singleton resource.
++ collections: represent lists of entities. For example `/orders/` represents the URL path of a collection resource.
 
 Resources can be nested within another resource. For example, an order may contain a list of several items:
 
@@ -48,11 +48,11 @@ The resource-oriented nature of REST APIs is limiting when you need model action
 
 ## Architectural Constraints of REST Applications
 
-The following lists specify how a server should process and respond to a client request.
+The following list specifies how a server should process and respond to a client request.
 
 + Client-Server architecture: The UI must be decoupled from the backend.
 + Statelessness: The server must not manage states between requests. In other words, every request to the server must contain all the information necessary to process it.
-+ Cacheability: Requests that always returns the same response must be cacheable.
++ Cacheability: Requests that always return the same response must be cacheable.
 + Layered system: The API may be architected in layers, but such complexity must be hidden from the user. This includes the microservices that might be available in the backend: you will typically use an API gateway which provides a single entry point to all the services that might be hosted on the backend side.
 + Code on demand: The server can inject code into the UI on demand.
 + Uniform interface: The API must provide a consistent interface for accessing and manipulating resources.
@@ -66,7 +66,7 @@ The following picture illustrates the concept of the API gateway to abstract awa
 
 ## Hypermedia as the engine of application state (HATEOAS)
 
-Another important concept in REST is Hypermedia As The Engine Of the Application Atate (HATEOAS).
+Another important concept in REST is Hypermedia As The Engine Of the Application State (HATEOAS).
 
 HATEOAS is a paradigm in the design of REST APIs that emphasizes the concept of discoverability. HATEOAS makes APIs easier to use by enriching responses with all the information users need to interact with a resource. For example, if a client requests the details of an order, the response must include the links to cancel and pay for the order.
 
@@ -103,7 +103,7 @@ While this will make APIs easier to use and learn, in practice many APIs are not
 + The information of the links should already be available in the API documentation.
 + It's not clear what should be returned. For example, I might not have permission to cancel an order.
 + Certain actions might not be available depending on the state of the sytem, which is continuously changing. Generating the links will incur in a large overhead if you need to check all those details for generating the links, and might not be relevant when the user tries to use those links.
-+ I makes the payloads bulkier.
++ It makes the payloads bulkier.
 
 ## Analyzing the maturity of an API with the Richardson maturity model
 
@@ -138,7 +138,7 @@ The recommended semantics are:
 | POST | Creates a new resource. |
 | PUT | Performs a full update by replacing a resource. |
 | PATCH | Updates specific properties of a resource. |
-| DELETES | Deletes a resource. |
+| DELETE | Deletes a resource. |
 
 
 ### PUT vs. PATCH
@@ -183,7 +183,7 @@ This follows the JSON Patch specification.
 
 | NOTE: |
 | :---- |
-| While implementing PATCH endpoints is a good practice for public-facing APIS, most APIs tend to implement only PUT endpoint for updates because they're easier to handle. |
+| While implementing PATCH endpoints is a good practice for public-facing APIs, most APIs tend to implement only PUT endpoint for updates because they're easier to handle. |
 
 ## Using HTTP status codes to create expressive HTTP responses
 
@@ -288,7 +288,7 @@ It's a good practice to return a full representation of the resource that has be
 
 #### Response payloads for PUT and PATCH requests
 
-It's a good practive to return a full representation of the resource being updated by a PUT/PATCH request, so that the client can validate the result of the update.
+It's a good practice to return a full representation of the resource being updated by a PUT/PATCH request, so that the client can validate the result of the update.
 
 
 #### Response payloads for GET requests
@@ -365,7 +365,7 @@ It's a best practice for endpoints returning a list of resources to allow users 
 
 For example, when using `GET /orders`, we may want to limit the results to only the five most recent orders, or to list only cancelled orders (e.g., `GET /orders?cancelled=true`).
 
-These sort of scenarios can be accomplished with URL query parmeters. URL query parameters should always be optional, and when appropriate, the server may assign default values for them (e.g., when paginating a large number of results).
+These sort of scenarios can be accomplished with URL query parameters. URL query parameters should always be optional, and when appropriate, the server may assign default values for them (e.g., when paginating a large number of results).
 
 When returning a large number of results, it is a common practice to use a `page` and `per_page` combination of parameters:
 + `page` &mdash; represents the set of data to be retrieved

@@ -5845,6 +5845,34 @@ The resulting application structure for a toy application with no application an
 | See [044_fastapi_orders_in_memory_fake_db](044_fastapi_orders_in_memory_fake_db/README.md) for an example. |
 
 
+### Overriding FastAPI's dynamically generated documentation
+
+Leaving FastAPI generate the OpenAPI schema specification for your should be your default option.
+
+However, under certain circumstances you might want to generate the OpenAPI schema yourself manually (e.g., you might be learning about OpenAPI, or familiarizing yourself with the API before building the final implementation).
+
+In those case, you can do the following to make your FastAPI project use an OpenAPI schema you've created.
+
+```python
+from pathlib import Path
+
+import yaml
+from fastapi import FastAPI
+
+app = FastAPI()
+
+openapi_schema_doc = yaml.safe_load(
+    (Path(__file__).parent.parent / "openapi_schema_doc.yaml").read_text(),
+)
+
+app.openapi_schema = openapi_schema_doc
+```
+
+Note that this requires PyYAML dependency to be added to your project.
+
+You can find an example in [Overriding the generated OpenAPI schema doc](../08_api_concepts/lab1_openapi-schemas-orders-kitchen/lab1b-openapi-microservices/001b_orders_service/README.md).
+
+
 ## FastAPI: advanced concepts
 
 The following sections are deep dives of specific aspects of FastAPI framework. It is assumed that you are familiar with the basic FastAPI concepts.

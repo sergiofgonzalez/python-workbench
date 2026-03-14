@@ -1,13 +1,15 @@
 [project]
-name = "001_fastapi_orders_in_memory_fake_db"
-version = "0.1.2"
-description = "A simple FastAPI application for managing orders with an in-memory fake database."
+name = "{{cookiecutter.project_slug}}"
+version = "0.1.0"
+description = "{{cookiecutter.project_description}}"
 readme = "README.md"
 license = "MIT"
 authors = [
     { name = "Sergio F. Gonzalez", email = "sergio.f.gonzalez@gmail.com" },
 ]
+
 requires-python = ">=3.12"
+
 dependencies = ["fastapi[standard-no-fastapi-cloud-cli]>=0.135.1"]
 
 [dependency-groups]

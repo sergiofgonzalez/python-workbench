@@ -1,0 +1,50 @@
+# OpenAPI schema document for Orders API
+
+# Step 1: Initial population of the #/paths section
+
+openapi: 3.1.0
+
+info:
+  title: Orders API
+  version: 0.1.0
+  description: API for managing life cycle of customer orders.
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+paths:
+  /orders/:
+    get:
+      summary: Get a list of all orders
+      operationId: readOrders
+
+    post:
+      summary: Create a new order
+      operationId: createOrder
+
+  /orders/{order_id}:
+    get:
+      summary: Get details of a specific order
+      operationId: readOrder
+
+    put:
+      summary: Update an existing order
+      operationId: updateOrder
+
+    delete:
+      summary: Delete an order
+      operationId: deleteOrder
+
+  /orders/{order_id}/cancel:
+    post:
+      summary: Cancel an order
+      operationId: cancelOrder
+
+  /orders/{order_id}/pay:
+    post:
+      summary: Pay for an order
+      operationId: payOrder
+
+
+components:

@@ -1,0 +1,13 @@
+# OpenAPI schema document for Orders API
+
+# Step 0: skeleton of the OpenAPI schema document
+
+openapi: 3.1.0
+
+info:
+
+servers:
+
+paths:
+
+components:
