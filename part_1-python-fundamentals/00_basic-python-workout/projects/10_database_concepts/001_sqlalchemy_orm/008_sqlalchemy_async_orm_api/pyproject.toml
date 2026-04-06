@@ -1,0 +1,31 @@
+[project]
+name = "008_sqlalchemy_async_orm_api"
+version = "0.1.0"
+description = "Illustrates the basics of SQLAlchemy ORM API"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Sergio F. Gonzalez", email = "sergio.f.gonzalez@gmail.com" },
+]
+requires-python = ">=3.12"
+dependencies = [
+    "aiosqlite>=0.22.1",
+    "rich>=14.3.3",
+    "sqlalchemy>=2.0.48",
+]
+
+[dependency-groups]
+dev = ["ruff>=0.15.0"]
+
+[tool.ruff]
+
+ignore = [
+    "T201", # Allow print statements
+]
+
+# Enable all rules
+select = ["ALL"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+

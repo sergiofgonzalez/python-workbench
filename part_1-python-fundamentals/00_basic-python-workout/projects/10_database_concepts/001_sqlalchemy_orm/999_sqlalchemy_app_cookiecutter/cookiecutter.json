@@ -1,0 +1,7 @@
+{
+  "project_index": "999",
+  "project_name": "FastAPI Query Parameters",
+  "project_slug": "{{ cookiecutter.project_index }}_{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+  "project_description": "Illustrates the basics of FastAPI query parameters",
+  "project_readme_title": "Hello, FastAPI query parameters"
+}

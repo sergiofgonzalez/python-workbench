@@ -447,3 +447,82 @@ Therefore, we will need to enable that endpoint with:
 + `limit`: optional int, limits the number of results in the response.
 + `since`: optional datetime, filters the results by the time the the orders were scheduled.
 
+## Patterns for the service layer
+
+In a service implementation:
+
++ Business layer: implements the capabilities of the service. For example, in our fictitious *Mama Jane's Pizza*'s Order service, the capabilities will be taking orders, processing payments, or scheduling orders for production.
+
++ Data layer: implements the data management capabilities. The Orders service owns and manages data about orders, so you'll implement a persistent storage solution and an interface to it.
+
+In this section, you'll learn patterns to:
++ Fetch data from other services
++ Handle integrations with other microservices
+
+Additionally, you'll learn the required architecture layout required to keep your microservices loosely coupled, so that you can change the implementation of a component without affecting the ones that rely on the one that's been changed.
+
+### Hexagonal architecture for microservices
+
+Alistair Cockburn introduced in 2005 the concept of hexagonal architecture, also called the architecture of ports and adapters, as a way to help structure apps into loosely coupled components.
+
+![Hexagonal architecture](pics/008_hexagonal-arch.png)
+
+In this architecture, you distinguish the core layer in your application (business layer) in charge of the service's capabilities, from other components such as the Web API interface or the database interface, which are considered adapters that depend on the business layer.
+
+When using this architecture, you attach *adapters* that help the core (business layer) communicate with external components.
+
+This ideas helps you build loosely coupled services, as you keep the core logic of the service and the logic for the adapters strictly separated:
++ The implementation of the Web API layer shouldn't interfere with the implementation of the core business logic.
++ The database, regardless of the technology or approach uses, shouldn't interfere with the core business logic.
+
+The separation is achieved through ports. Ports are technology agnostic interfaces that connect the business layer with the adapters.
+
+When working out the relationships between the core business logic and the adapters, you must apply the **Dependency Inversion Principle** which states:
++ High-level modules shouldn't depend on low-level details. Instead, both should depend on abstractions such as interfaces.
+
+    For example, when the core (business) layer requires saving data, it shouldn't care whether the database is SQL or NoSQL.
+
++ Abstractions shouldn't depend on details. Instead, details should depend on abstractions.
+
+    For example, when designing the interface between the business layer and the data layer, we want to make sure that the interface doesn't change based on the implementation details of the database. That is, the data layer must depend on the interface, not the other way around.
+
+![Dependency Inversion Principle](pics/009_dependency-inversion-principle.png)
+
+The picture above illustrates the idea: the adapters will depend on the interface exposed by the *core business layer*. The *data layer* will be implemented agains that interface.
+
+| NOTE: |
+| :---- |
+| While related, **Inversion of Control Principle (IoC)** is different from **Dependency Inversion Principle**. IoC is about supplying code dependencies through the execution context. Dependency Inversion is about promoting a loosely-coupled design. |
+
+You will apply this technique not only to the *data layer* but also to the *Web API layer*, which you will structure as packages:
+
+![Architecture design](pics/010_arch-design.png)
+
+### Project structure
+
+The recommended project structure to reinforce this separation of concerns between the core business layer, the web API adapter, and the database adapter is the following:
+
+![Project structure](pics/011_project_structure.png)
+
++ Business layer: it will be found in `orders/orders_service`.
++ API layer: it will be found under `orders/web`. As you are including a single type of web adapter (REST API), you will create a single folder `orders/web/api` to host the REST API adapter for the service. You could create different folders for different additional adapters (e.g., service-side rendered frontends).
++ Data layer: it will be hosted in `orders/repository`. The name reflects the design pattern (**Repository pattern**) that you'll use to interface with the data.
+
+### Implementing the database models
+
+The goal of this part is to define the database tables and their fields.
+
+| NOTE: |
+| :---- |
+| In an actual development process, you'd typically start from the business layer instead, and work with a mocked data layer until you're comfortable with the data layer. |
+
+You can start with SQLite as your database engine, as Python's core library has built-in support for interfacing with SQLite, which makes it a great choice for quick prototyping and experimentation before moving to a production DB.
+
+While [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy) is the most popular ORM for Python, we will use a new project call [Oxyde ORM](https://github.com/mr-fatalyst/oxyde) as it seems to be more aligned to modern engineering practices:
++ It's async by default.
++ It supports type hints quite naturally.
++ It's based on Pydantic models, with very little boilerplate.
++ It comes with a built-in `explain()` method.
++ It does migrations out of the box.
+
+However, it's very new, so you might find some bumps along the way.

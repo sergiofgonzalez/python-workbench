@@ -14,15 +14,7 @@ ToDo
 You can run the application with:
 
 ```bash
-uv run fastapi dev main.py --port {port}
-```
-
-## Running your tests
-
-You can run the tests from your IDE or from the command line using:
-
-```bash
-uv run pytest
+uv run main.py
 ```
 
 ## Project management
@@ -32,13 +24,13 @@ This project is managed using `uv`.
 FastAPI dependency was added using:
 
 ```bash
-$ uv add fastapi[standard-no-fastapi-cloud-cli]
+$ uv add SQLAlchemy
 ```
 
 as I don't intend to use FastAPI cloud at the moment.
 
-PyTest (+ `pytest-sugar` + `pytest-cov`) and Ruff were also added as dev dependencies:
+The only other dependency was ruff:
 
 ```bash
-$ uv add pytest pytest-sugar pytest-cov --dev
+$ uv add ruff --dev
 ```
