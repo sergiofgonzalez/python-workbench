@@ -272,6 +272,10 @@ $ uv sync
 uv tree
 ```
 
+### uv audit
+
+Running `uv audit` in your project queries the OSV database against your lockfile and reports known vulnerabilities.
+
 ### Misc utilities
 
 The following commands can be used to manage and inspect `uv`'s state:

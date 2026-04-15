@@ -95,7 +95,28 @@
         + [Using AsyncSession with concurrent tasks](#using-asyncsession-with-concurrent-tasks)
         + [Preventing implicit I/O when using `AsyncSession`](#preventing-implicit-io-when-using-asyncsession)
 
-+ [Alembic]()
++ [Alembic](#alembic)
+    + [The migration environment](#the-migration-environment)
+        + [Editing the `.ini` file](#editing-the-ini-file)
+        + [Using `pyproject.toml` for configuration](#using-pyprojecttoml-for-configuration)
+    + [Creating a migration script](#creating-a-migration-script)
+    + [Running your first migration](#running-your-first-migration)
+    + [Running your second migration](#running-your-second-migration)
+    + [Partial revision identifiers](#partial-revision-identifiers)
+    + [Relative migration identifiers](#relative-migration-identifiers)
+    + [Getting information](#getting-information)
+    + [Downgrading](#downgrading)
+    + [Auto generating migrations](#auto-generating-migrations)
+        + [What does `--autogenerate` detect and what does not detect?](#what-does---autogenerate-detect-and-what-does-not-detect)
+        + [Applying post processing and python code formatters to generated revisions](#applying-post-processing-and-python-code-formatters-to-generated-revisions)
+    + [Running checks before the upgrade operation](#running-checks-before-the-upgrade-operation)
+    + [The "offline mode"](#the-offline-mode)
+    + [Data migration considerations](#data-migration-considerations)
+        + [Small data](#small-data)
+        + [Separate migration script](#separate-migration-script)
+        + [Online migration](#online-migration)
+
+
 
 ## High-level architecture
 
@@ -2679,3 +2700,964 @@ There are several techniquest to work around that:
 + You can rely on `selectinload()`, to eagerly load the collections.
 
 ## Alembic
+
+Alembic is a tool for the creation, management, and invocation of *migrations* for a relational DB, using SQLAlchemy as the underlying engine.
+
+You will typically install Alembic within your local virtual environment using as a development dependency.
+
+```bash
+uv add --dev alembic
+```
+
+### The migration environment
+
+Usage of Alembic starts with the creation of the *Migration environment*. This is a directory of scripts that is specific to a particular application.
+
+This migration environment is created just once, and is then maintained along with the application's source code itself.
+
+The environment is created using the `init` command, and it looks like the following
+
+```
+009_sqlalchemy_alembic_hello/
+├── README.md
+├── main.py
+├── pyproject.toml
+└── uv.lock
+```
+
+```bash
+# Create a migration environment using `alembic/` as the dir name
+$ uv run alembic init alembic
+  Creating directory /home/.../009_sqlalchemy_alembic_hello/alembic ...  done
+  Creating directory /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic/versions ...  done
+  Generating /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic/env.py ...  done
+  Generating /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic.ini ...  done
+  Generating /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic/script.py.mako ...  done
+  Generating /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic/README ...  done
+  Please edit configuration/connection/logging settings in /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic.ini before proceeding.
+```
+
+After running the command you will notice the following directories and files created:
+
+
+```
+../009_sqlalchemy_alembic_hello/
+├── README.md
+├── alembic/           # home dir for migration environment
+│   ├── README         # information about migrations
+│   ├── env.py         # customizable script invoked in migrations
+│   ├── script.py.mako # template to generate migrations in versions/
+│   └── versions/      # where migrations will be stored
+├── alembic.ini        # main config file
+├── main.py
+├── pyproject.toml
+└── uv.lock
+```
+
++ `alembic.ini`: Alembic's main configuration file. Note that the information in this file can also be included in your `pyproject.toml`.
+
++ `alembic/`: Home directory of your migration environment. This is using the default name, but the name can be changed. A project with multiple DBs may have more than one of these directories.
+
++ `alembic/env.py`: Python script that is run whenever the Alembic migration tool is invoked.
+
+    At the very least contains the instructions to configure and generate a SQLAlchemy engine, procure a connection from that engine along with a transaction, and then invoke the migration engine providing that connection.
+
+    The script can be modified if required to include custom arguments to be made available to the migration environment, use app-specific libraries, etc.
+
++ `alembic/README`: README file for migrations that should include information for the end-user. By default, it contains a one-liner explaining this is the generic config for a single DB project.
+
++ `script.py.mako`: A [Mako](https://github.com/sqlalchemy/mako) template file which is used to generate new migration scripts.
+
+    The template will be used to generate new files within `versions/`. This is also customizable, so that you can update the structure of `upgrade()` and `downgrade()`.
+
++ `versions/`: Directory holding the individual version scripts. Files here will be named using a partial GUID approach such as:
+
+    ```
+    versions/
+        3512b954651e_add_account.py
+        2b1ae634e5cd_add_order_id.py
+        3adcc9a56557_rename_username_field.py
+    ```
+
+#### Editing the `.ini` file
+
+Alembic will look into the current directory for an `alembic.ini` file.
+
+The initial `.ini` file generated by the default template looks like the this:
+
+```ini
+# A generic, single database configuration.
+
+[alembic]
+# path to migration scripts.
+# this is typically a path given in POSIX (e.g. forward slashes)
+# format, relative to the token %(here)s which refers to the location of this
+# ini file
+script_location = %(here)s/alembic
+
+# template used to generate migration file names; The default value is %%(rev)s_%%(slug)s
+# Uncomment the line below if you want the files to be prepended with date and time
+# see https://alembic.sqlalchemy.org/en/latest/tutorial.html#editing-the-ini-file
+# for all available tokens
+# file_template = %%(year)d_%%(month).2d_%%(day).2d_%%(hour).2d%%(minute).2d-%%(rev)s_%%(slug)s
+# Or organize into date-based subdirectories (requires recursive_version_locations = true)
+# file_template = %%(year)d/%%(month).2d/%%(day).2d_%%(hour).2d%%(minute).2d_%%(second).2d_%%(rev)s_%%(slug)s
+
+# sys.path path, will be prepended to sys.path if present.
+# defaults to the current working directory.  for multiple paths, the path separator
+# is defined by "path_separator" below.
+prepend_sys_path = .
+
+
+# timezone to use when rendering the date within the migration file
+# as well as the filename.
+# If specified, requires the tzdata library which can be installed by adding
+# `alembic[tz]` to the pip requirements.
+# string value is passed to ZoneInfo()
+# leave blank for localtime
+# timezone =
+
+# max length of characters to apply to the "slug" field
+# truncate_slug_length = 40
+
+# set to 'true' to run the environment during
+# the 'revision' command, regardless of autogenerate
+# revision_environment = false
+
+# set to 'true' to allow .pyc and .pyo files without
+# a source .py file to be detected as revisions in the
+# versions/ directory
+# sourceless = false
+
+# version location specification; This defaults
+# to <script_location>/versions.  When using multiple version
+# directories, initial revisions must be specified with --version-path.
+# The path separator used here should be the separator specified by "path_separator"
+# below.
+# version_locations = %(here)s/bar:%(here)s/bat:%(here)s/alembic/versions
+
+# path_separator; This indicates what character is used to split lists of file
+# paths, including version_locations and prepend_sys_path within configparser
+# files such as alembic.ini.
+# The default rendered in new alembic.ini files is "os", which uses os.pathsep
+# to provide os-dependent path splitting.
+#
+# Note that in order to support legacy alembic.ini files, this default does NOT
+# take place if path_separator is not present in alembic.ini.  If this
+# option is omitted entirely, fallback logic is as follows:
+#
+# 1. Parsing of the version_locations option falls back to using the legacy
+#    "version_path_separator" key, which if absent then falls back to the legacy
+#    behavior of splitting on spaces and/or commas.
+# 2. Parsing of the prepend_sys_path option falls back to the legacy
+#    behavior of splitting on spaces, commas, or colons.
+#
+# Valid values for path_separator are:
+#
+# path_separator = :
+# path_separator = ;
+# path_separator = space
+# path_separator = newline
+#
+# Use os.pathsep. Default configuration used for new projects.
+path_separator = os
+
+# set to 'true' to search source files recursively
+# in each "version_locations" directory
+# new in Alembic version 1.10
+# recursive_version_locations = false
+
+# the output encoding used when revision files
+# are written from script.py.mako
+# output_encoding = utf-8
+
+# database URL.  This is consumed by the user-maintained env.py script only.
+# other means of configuring database URLs may be customized within the env.py
+# file.
+sqlalchemy.url = driver://user:pass@localhost/dbname
+
+
+[post_write_hooks]
+# post_write_hooks defines scripts or Python functions that are run
+# on newly generated revision scripts.  See the documentation for further
+# detail and examples
+
+# format using "black" - use the console_scripts runner, against the "black" entrypoint
+# hooks = black
+# black.type = console_scripts
+# black.entrypoint = black
+# black.options = -l 79 REVISION_SCRIPT_FILENAME
+
+# lint with attempts to fix using "ruff" - use the module runner, against the "ruff" module
+# hooks = ruff
+# ruff.type = module
+# ruff.module = ruff
+# ruff.options = check --fix REVISION_SCRIPT_FILENAME
+
+# Alternatively, use the exec runner to execute a binary found on your PATH
+# hooks = ruff
+# ruff.type = exec
+# ruff.executable = ruff
+# ruff.options = check --fix REVISION_SCRIPT_FILENAME
+
+# Logging configuration.  This is also consumed by the user-maintained
+# env.py script only.
+[loggers]
+keys = root,sqlalchemy,alembic
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = WARNING
+handlers = console
+qualname =
+
+[logger_sqlalchemy]
+level = WARNING
+handlers =
+qualname = sqlalchemy.engine
+
+[logger_alembic]
+level = INFO
+handlers =
+qualname = alembic
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(levelname)-5.5s [%(name)s] %(message)s
+datefmt = %H:%M:%S
+```
+
+
+| NOTE: |
+| :---- |
+| Alembic also includes other templates. This can be listed using `alembic list_templates` (e.g., there's a template to include the `.ini` information in your `pyproject.toml`). |
+
+
+The following features are worth mentioning:
+
++ `[alembic]`: Indicates the section that will be read by Alembic to determine the configuration.
+
++ `alembic.script_location`: The location of the Alembic environment, as a filesystem location relative to `%(here)s` which indicates where the config file is located.
+
++ `alembic.file_template`: Specifies the naming schema used to generate new migration files. The default is `%%(rev)s_%%(slug)s`, but it can be customized to prepend with date and time, organize into subdirectories, etc.
+
++ `alembic.timezone`: An optional timezone name (e.g., UTC) that will be applied to the timestamp which renders inside the migration file's comments as well as within the filename.
+
++ `alembic_slug_length`: The max number of characters to include in the slug, which defaults to 40.
+
++ `alembic.sqlalchemy.url`: A URL to connect to the DB via SQLAlchemy. Note that this config value is used only if the `env.py` file calls upon them (which is the default).
+
+    If the SQLAlchemy URL should come from some other place (e.g., environment variable, etc.), you are encouraged to alter `env.py` to use whatever method is appropriate to acquire the DB URL. In particular, `config.get_main_option("sqlalchemy.url")` and `engine_from_config(prefix="sqlalchemy.")` should be changed in `run_migrations_offline()` and `run_migrations_online()` respectively.
+
+| NOTE: |
+| :---- |
+| For starting up with just a single DB and the generic configuration, you just need to update `alembic.sqlalchemy.url` key. |
+
+#### Using `pyproject.toml` for configuration
+
+To start with a `pyproject.toml` configuration you just need to do:
+
+```bash
+alembic init --template pyproject alembic
+```
+
+This will include certain configuration in your `pyproject.toml`, while other parts (such as `sqlalchemy.url`) will still be placed in your `alembic.ini`.
+
+| NOTE: |
+| :---- |
+| If you modify `env.py` to obtain the DB connectivity details from other place (e.g., environment variable, `.env` file, etc.), then you can omit `alembic.ini` altogether.<br>As that is the desired end-goal for mid-sized/big projects, using `pyproject` approach is recommended. |
+
+```bashblock
+$ uv run alembic init --template pyproject alembic
+  Creating directory /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic ...  done
+  Creating directory /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic/versions ...  done
+  Generating /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic/env.py ...  done
+  Generating /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic.ini ...  done
+  Generating /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic/script.py.mako ...  done
+  Appending to existing /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/pyproject.toml ...  done
+  Generating /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic/README ...  done
+  Please edit configuration settings in /home/.../009_sqlalchemy_alembic_hello//009_sqlalchemy_alembic_hello/pyproject.toml and configuration/connection/logging settings in
+  /home/.../009_sqlalchemy_alembic_hello/009_sqlalchemy_alembic_hello/alembic.ini before proceeding.
+```
+
+That will add the following keys to your `pyproject.toml`:
+
+```toml
+[tool.alembic]
+
+script_location = "%(here)s/alembic"
+
+prepend_sys_path = [
+    "."
+]
+```
+
+And your `alembic.ini` will get simplified:
+
+```ini
+# A generic, single database configuration.
+
+[alembic]
+
+# database URL.  This is consumed by the user-maintained env.py script only.
+# other means of configuring database URLs may be customized within the env.py
+# file.
+sqlalchemy.url = driver://user:pass@localhost/dbname
+
+
+# Logging configuration
+[loggers]
+keys = root,sqlalchemy,alembic
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = WARNING
+handlers = console
+qualname =
+
+[logger_sqlalchemy]
+level = WARNING
+handlers =
+qualname = sqlalchemy.engine
+
+[logger_alembic]
+level = INFO
+handlers =
+qualname = alembic
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(levelname)-5.5s [%(name)s] %(message)s
+datefmt = %H:%M:%S
+```
+
+### Creating a migration script
+
+With the environment in place, you can create a new revision using the following command:
+
+```bash
+$ uv run alembic revision -m "create user_account table"
+  Generating /home/.../009_sqlalchemy_alembic_hello/alembic/versions/8b471e5e82ba_create_user_account_table.py ...  done
+```
+
+That will create a new file in the `versions/` directory with the following contents:
+
+```python
+"""create user_account table
+
+Revision ID: 8b471e5e82ba
+Revises:
+Create Date: 2026-04-07 08:46:31.652919
+
+"""
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision: str = '8b471e5e82ba'
+down_revision: Union[str, Sequence[str], None] = None
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+    """Upgrade schema."""
+    pass
+
+
+def downgrade() -> None:
+    """Downgrade schema."""
+    pass
+```
+
+The file contains some header information, and a couple of empty `upgrade()` and `downgrade()` functions.
+
+Your job is to populate `upgrade()` and `downgrade()` functions that will apply a set of changes to the DB.
+
+The `down_revision` variable is how Alembic knows the correct order in which to apply migrations. As this is our first revision, it is initially set to `None` (i.e., Alembic will read these files and compose a list based on the `down_revision` IDs).
+
+The following code illustrates a potential implementation for the `upgrade()` and `downgrade()` functions:
+
+```python
+def upgrade():
+    op.create_table(
+        "user_account",
+        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("name", sa.String(30), nullable=False),
+        sa.Column("description", sa.String)
+    )
+
+def downgrade():
+    op.drop_table("user_account")
+```
+
+Both `create_table()` and `drop_table()` are Alembic directives. Alembic provides all the basic DB migration operations via these directives, which are designed to be as simple and minimalistic as possible.
+
+An overview of all Alembic directives can be found in [Operation Reference](https://alembic.sqlalchemy.org/en/latest/ops.html#ops) section of Alembic's docs (e.g., `alter_column()`, `add_column()`)
+
+Note that nothing prevents you from modifying the migrations file to adapt it to your coding style:
+
+```python
+"""create user_account table.
+
+Revision ID: 8b471e5e82ba
+Revises:
+Create Date: 2026-04-07 08:46:31.652919
+
+"""
+
+from collections.abc import Sequence
+
+from sqlalchemy import Column, Integer, String
+
+from alembic import op
+
+# revision identifiers, used by Alembic.
+revision: str = "8b471e5e82ba"
+down_revision: str | Sequence[str] | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
+
+
+def upgrade() -> None:
+    """Upgrade schema."""
+    op.create_table(
+        "user_account",
+        Column("id", Integer, primary_key=True),
+        Column("name", String(30), nullable=False, unique=True),
+        Column("fullname", String(120), nullable=False),
+    )
+
+
+def downgrade() -> None:
+    """Downgrade schema."""
+    op.drop_table("user_account")
+```
+
+### Running your first migration
+
+The `alembic upgrade` command will run upgrade operations, proceeding from the current database revision (in this example `None`, as the DB will be totally clean and unversioned).
+
+
+You can specify the revision (e.g., `uv run alembic upgrade 8b471e5e82ba`) but you will typically refer to the *most recent* upgrade by using the `head` alias (`uv run alembic upgrade head`).
+
+Note that at this point, your `alembic.ini` should've been updated. For the purpose of the example, we will assume you're using a SQLite DB backed by a file named `app.db`.
+
+```ini
+[alembic]
+
+# database URL.  This is consumed by the user-maintained env.py script only.
+# other means of configuring database URLs may be customized within the env.py
+# file.
+sqlalchemy.url = sqlite+pysqlite:///app.db
+```
+
+With that change in place, you can proceed to upgrade your DB:
+
+```bash
+$ uv run alembic upgrade head
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 8b471e5e82ba, create user_account table.
+```
+
+Behind the scenes, Alembic checks if the DB has a table called `alembic_version`, and if not, Alembic creates it.
+
+Then, it look in this table for the current version, if any, and then calculates the path from this version to the requested one (in this case, the most recent one). It then invokes `upgrade()` as you implemented.
+
+### Running your second migration
+
+Let's now add an additional column to the `user_account` table to keep track of when the record was created:
+
+```bash
+$ uv run alembic revision -m "add created_at col in user_account table"
+  Generating /home/.../009_sqlalchemy_alembic_hello/alembic/versions/965aa2324ea1_add_created_at_col_in_user_account_table.py ...  done
+```
+
+This will create another revision that we can implement like:
+
+```python
+"""add created_at col in user_account table.
+
+Revision ID: 965aa2324ea1
+Revises: 8b471e5e82ba
+Create Date: 2026-04-07 09:16:53.131319
+
+"""
+
+from collections.abc import Sequence
+
+from sqlalchemy import Column, DateTime
+
+from alembic import op
+
+# revision identifiers, used by Alembic.
+revision: str = "965aa2324ea1"
+down_revision: str | Sequence[str] | None = "8b471e5e82ba"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
+
+
+def upgrade() -> None:
+    """Upgrade schema."""
+    op.add_column(
+        "user_account",
+        Column("created_at", DateTime(), nullable=True),
+    )
+
+
+def downgrade() -> None:
+    """Downgrade schema."""
+    op.drop_column("user_account", "created_at")
+```
+
+And you can upgrade your DB running again:
+
+```bash
+$ uv run alembic upgrade head
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 8b471e5e82ba -> 965aa2324ea1, add created_at col in user_account table.
+```
+
+### Partial revision identifiers
+
+It is possible to use a partial revision number to refer to a particular revision:
+
+```bash
+# to run 8b471e5e82ba
+$ uv run alembic upgrade 8b4
+```
+
+Alembic will complain if there are more than one versions that start with the prefix you provided.
+
+### Relative migration identifiers
+
+Relative upgrades/downgrades are also supported
+
+```bash
+# move two versions from the current
+$ uv run alembic upgrade +2
+
+# downgrade to the version previous from the current
+$ uv run alembic downgrade -1
+
+# upgrade two version from the given one
+$ uv run alembic upgrade 8b4+2
+```
+
+### Getting information
+
+You can use `alembic current` to get information about the current revision:
+
+```python
+# succinct output
+$ uv run alembic current
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+965aa2324ea1 (head)
+
+# verbose
+$ uv run alembic current --verbose
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+Current revision(s) for sqlite+pysqlite:///app.db:
+Rev: 965aa2324ea1 (head)
+Parent: 8b471e5e82ba
+Path: /home/.../009_sqlalchemy_alembic_hello/alembic/versions/965aa2324ea1_add_created_at_col_in_user_account_table.py
+
+    add created_at col in user_account table.
+
+    Revision ID: 965aa2324ea1
+    Revises: 8b471e5e82ba
+    Create Date: 2026-04-07 09:16:53.131319
+
+```
+
+You can review the migration history using `alembic history` which also accepts the `--verbose` option:
+
+```python
+# succinct
+$ uv run alembic history
+8b471e5e82ba -> 965aa2324ea1 (head), add created_at col in user_account table.
+<base> -> 8b471e5e82ba, create user_account table.
+
+# verbose
+$ uv run alembic history --verbose
+Rev: 965aa2324ea1 (head)
+Parent: 8b471e5e82ba
+Path: /home/.../009_sqlalchemy_alembic_hello/alembic/versions/965aa2324ea1_add_created_at_col_in_user_account_table.py
+
+    add created_at col in user_account table.
+
+    Revision ID: 965aa2324ea1
+    Revises: 8b471e5e82ba
+    Create Date: 2026-04-07 09:16:53.131319
+
+Rev: 8b471e5e82ba
+Parent: <base>
+Path: /home/.../009_sqlalchemy_alembic_hello/alembic/versions/8b471e5e82ba_create_user_account_table.py
+
+    create user_account table.
+
+    Revision ID: 8b471e5e82ba
+    Revises:
+    Create Date: 2026-04-07 08:46:31.652919
+```
+
+The `history` command also allows you view history ranges:
+
+```bash
+# using explicit (partial) rev numbers
+$ uv run alembic history -r 8b47:965a
+8b471e5e82ba -> 965aa2324ea1 (head), add created_at col in user_account table.
+<base> -> 8b471e5e82ba, create user_account table.
+
+# using relative ranges
+$ uv run alembic history -r-1:current
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+8b471e5e82ba -> 965aa2324ea1 (head), add created_at col in user_account table.
+<base> -> 8b471e5e82ba, create user_account table.
+
+$ uv run alembic history -r current:head
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+8b471e5e82ba -> 965aa2324ea1 (head), add created_at col in user_account table.
+```
+
+### Downgrading
+
+The command `alembic downgrade` can be used to bring back the DB to any desired state:
+
+```bash
+$ uv run alembic downgrade 8b47
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running downgrade 965aa2324ea1 -> 8b471e5e82ba, add created_at col in user_account table.
+```
+
+### Auto generating migrations
+
+While the previous approach illustrates the way in which you can create your migrations manually, the vast majority of Alembic environments rely on the autogenerate feature.
+
+When using this feature, Alembic can view the status of the database (as identified in your `sqlalchemy.url`) compare against the table metadata as defined in your application, and generate the migrations based on a comparison.
+
+This is achieved using the `--autogenerate` option in the `alembic revision` command (which creates the migration scripts).
+
+In our application, we have a declarative base directly declared in `main.py`. We will need to update our `alembic/env.py` so that it gets access to that metadata object that contains the desired target state of the DB.
+
+For your convenience, `alembic/env.py` includes a section with the following:
+
+```python
+# add your model's MetaData object here
+# for 'autogenerate' support
+# from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
+target_metadata = None
+```
+
+In our case, we will need to do:
+
+```python
+# add your model's MetaData object here
+# for 'autogenerate' support
+# from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
+# add your model's MetaData object here
+# for 'autogenerate' support
+# from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
+from main import Base
+
+target_metadata = Base.metadata
+```
+
+| NOTE: |
+| :---- |
+| In a real project, you will use something like `from myapp.mydel import Base`. |
+
+With that, you'll be prepared to run an autogenerated migration:
+
+| NOTE: |
+| :---- |
+| The DB must be up-to-date (in head) before running the command or you'll get a ERROR [alembic.util.messaging] Target database is not up to date.
+  FAILED: Target database is not up to date.. |
+
+```python
+$ uv run alembic revision --autogenerate -m "Bring DB schema up-to-date with app"
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.schemas
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.tables
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.types
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.constraints
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.defaults
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.comments
+INFO  [alembic.autogenerate.compare.tables] Detected added table 'address'
+INFO  [alembic.autogenerate.compare.tables] Detected removed column 'user_account.created_at'
+  Generating /home/.../009_sqla
+  lchemy_alembic_hello/alembic/versions/7c9419189b78_bring_db_schema_up_to_date_with_app.py ...  done
+```
+
+We can then review the contents of the newly generated migration script, to check it's done a pretty decent job:
+
+```python
+"""Bring DB schema up-to-date with app
+
+Revision ID: 7c9419189b78
+Revises: 965aa2324ea1
+Create Date: 2026-04-07 10:16:49.220049
+
+"""
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision: str = '7c9419189b78'
+down_revision: Union[str, Sequence[str], None] = '965aa2324ea1'
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+    """Upgrade schema."""
+    # ### commands auto generated by Alembic - please adjust! ###
+    op.create_table('address',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('email_address', sa.String(length=50), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['user_account.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.drop_column('user_account', 'created_at')
+    # ### end Alembic commands ###
+
+
+def downgrade() -> None:
+    """Downgrade schema."""
+    # ### commands auto generated by Alembic - please adjust! ###
+    op.add_column('user_account', sa.Column('created_at', sa.DATETIME(), nullable=True))
+    op.drop_table('address')
+    # ### end Alembic commands ###
+```
+
+At that point, you can adjust whatever it's necessary. For example, it hasn't noticed that we created a unique index on `user_account.name`.
+
+#### What does `--autogenerate` detect and what does not detect?
+
+Autogeneration is meant to be a helper, rather than a helper tool.
+
+According to Alembic's docs, **it is always necessary** to manually **review and correct** the candidate migration that autogenerate produces.
+
+You should be aware of what autogenerate will detect, what can optionally detect, and what cannot detect:
+
+Autogenerate will detect:
++ Table additions, removals.
++ Column additions, removals.
++ Change of nullable status on columns.
++ Basic changes in indexes and explicitly named unique constraints.
++ Basic changes in foreign key constraints.
+
+Autogenerate can optionally detect:
++ Change on column types (which will happen by default).
++ Change of server default, which will happen if you set the `EnvironmentContext.configure.compare_server_default` parameter to `True` or to a custom callable function (see the documentation for details).
+
+Autogenerate will not detect:
++ Changes of table name. These will come out as an add/drop of two different tables and should be hand-edited into a name change as needed.
+
++ Changes of column names. Similarly to table name changes, these are detected as column add/drop pair.
+
++ Anonymously named constraints.In order to prevent these caveat, make sure to give your constraints a name (e.g., `UniqueConstraint("col1", "col2", name="my_unique_index")`).
+
+    For example, you should have declared the uniqueness of the `name` column as:
+
+    ```python
+    user_account = Table("user_account", meta,
+                  Column("id", Integer, primary_key=True),
+                  Column("name", String(50)),
+                  UniqueConstraint("name", name="uq_user_account_name")
+              )
+    ```
+
++ Special SQLAlchemy types such as `Enum` when generated on a backend that doesn't support ENUM directly.
+
++ Some free-standing constraint additions and removals (including PRIMARY KEY, EXCLUDE, CHECK), although there's work in progress to support this.
+
++ Sequence additions, removals. There's work in progress to support this.
+
+Note also that there are certain 3rd party libraries that can be used to support additional things such as:
+
++ `alembic-utils`: Library to add autogenerate support for Postgres functions, views, triggers...
++ `alembic-postgresql-enum`: Library that adds autogenerate support for creation, alteration, and deletion of `Enum`s in Postgres.
+
+Finally see the following sections to control what to be autogenerated:
++ [Controlling what to be autogenerated](https://alembic.sqlalchemy.org/en/latest/autogenerate.html#controlling-what-to-be-autogenerated)
+
++ [Omitting schema names from the autogenerate process](https://alembic.sqlalchemy.org/en/latest/autogenerate.html#omitting-schema-names-from-the-autogenerate-process)
+
++ [Omitting table names from the autogenerate process](https://alembic.sqlalchemy.org/en/latest/autogenerate.html#omitting-table-names-from-the-autogenerate-process)
+
++ ...
+
+#### Applying post processing and python code formatters to generated revisions
+
+The scripts generated by the `alembic revision` command, can be optionally piped through a series of post-production functions which may analyze or rewrite Python source code generated by Alembic.
+
+This is intended to allow you to apply formatting and linting rules to the files.
+
+The template samples for `alembic.ini` and `pyproject.toml` include commented-out configuration illustrating how to configure code-formatting tools to run against the newly generate file path.
+
+Note also, that you can always do that manually, as you are ultimately responsible for reviewing and adapting those migration scripts.
+
+You can find examples in the [docs](https://alembic.sqlalchemy.org/en/latest/autogenerate.html#omitting-table-names-from-the-autogenerate-process).
+
+### Running checks before the upgrade operation
+
+Alembic provides the `alembic check` command, which will run through the same process as `alembic revision --autogenerate`, but will not generate any new files. Instead, it will return an error code and a message if it detects that a new revision will be required to bring the DB in sync with your app, or a success code if your app is in sync with your DB:
+
+```bash
+# app not in sync with your DB
+$ uv run alembic check
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+ERROR [alembic.util.messaging] Target database is not up to date.
+  FAILED: Target database is not up to date.
+
+# app in sync with your DB
+$ uv run alembic check
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.schemas
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.tables
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.types
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.constraints
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.defaults
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.comments
+No new upgrade operations detected.
+```
+
+### The "offline mode"
+
+A major capability of Alembic is to generate migrations as SQL scripts, instead of running them against the DB.
+
+This is needed in large organization scenarios where migrations scripts should be handed off to DBAs for their review and execution, as access to DDL might be restricted.
+
+You can do so with the `--sql` option:
+
+```
+$ uv run alembic upgrade head --sql
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Generating static SQL
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+CREATE TABLE alembic_version (
+    version_num VARCHAR(32) NOT NULL,
+    CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num)
+);
+
+INFO  [alembic.runtime.migration] Running upgrade  -> 8b471e5e82ba, create user_account table.
+-- Running upgrade  -> 8b471e5e82ba
+
+CREATE TABLE user_account (
+    id INTEGER NOT NULL,
+    name VARCHAR(30) NOT NULL,
+    fullname VARCHAR(120) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE (name)
+);
+
+INSERT INTO alembic_version (version_num) VALUES ('8b471e5e82ba') RETURNING version_num;
+
+INFO  [alembic.runtime.migration] Running upgrade 8b471e5e82ba -> 965aa2324ea1, add created_at col in user_account table.
+-- Running upgrade 8b471e5e82ba -> 965aa2324ea1
+
+ALTER TABLE user_account ADD COLUMN created_at DATETIME;
+
+UPDATE alembic_version SET version_num='965aa2324ea1' WHERE alembic_version.version_num = '8b471e5e82ba';
+
+INFO  [alembic.runtime.migration] Running upgrade 965aa2324ea1 -> 7c9419189b78, Bring DB schema up-to-date with app
+-- Running upgrade 965aa2324ea1 -> 7c9419189b78
+
+CREATE TABLE address (
+    id INTEGER NOT NULL,
+    email_address VARCHAR(50) NOT NULL,
+    user_id INTEGER NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY(user_id) REFERENCES user_account (id)
+);
+
+ALTER TABLE user_account DROP COLUMN created_at;
+
+UPDATE alembic_version SET version_num='7c9419189b78' WHERE alembic_version.version_num = '965aa2324ea1';
+```
+
+You can use `alembic upgrade 965aa2324ea1 --sql > migration.sql` to get the DDL written to `migration.sql` file.
+
+### Data migration considerations
+
+Alembic migrations are designed for schema migrations. The nature of data migrations are inherently different, and it's not advisable in the general case to write data migrations that integrate with Alembic's schema versioning model.
+
+In particular, downgrades will be difficult to address since they might require deletion of data, which may not even be possible to detect.
+
+There are however, three basic techniques that might come in handy.
+
+#### Small data
+
+Small data migrations are easy to perform, especially in cases where you need initial data added to a new table.
+
+These are typically handled using `Operations.bulk_insert()`:
+
+```python
+op.bulk_insert(
+    user_table,
+    [
+        {"id": 1, "name": "spongebob", "fullname": "Spongebob Squarepants"},
+        {"id": 2, "name": "patrick", "fullname": "Patrick Star"},
+        {"id": 3, "name": "sandy", "fullname": "Sandy Cheeks"},
+    ],
+)
+```
+
+See [Bulk Insert](https://alembic.sqlalchemy.org/en/latest/ops.html#alembic.operations.Operations.bulk_insert) for additional details.
+
+#### Separate migration script
+
+One possibility is a completely separate script aside of alembic migrations.
+
+In those case, the complete migration process will be as follows:
+
+1. Run the initial alembic migrations (new columns, etc.).
+1. Run the separate data migration script.
+1. Run the final alembic migrations (database constraints, delete columns, etc.).
+
+#### Online migration
+
+The app maintains a version of schema with both versions. Writes are performed on both places, while the background script move all the remaining data across.
+
+This technique is very challenging and time demanding, since it requires custom app logic to handle intermediate states.

@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install dependencies
 uv sync
 
-# Run dev server (default port 8000, or specify with --port)
+# Run dev server (while default port is 8000, is taken by other process so use 5000 instead)
 uv run fastapi dev --port 5000
 
 # Run all tests (with coverage + verbose output, configured in pyproject.toml)
@@ -40,9 +40,19 @@ All functions use type annotations for parameters and return types.
 
 For HTTP status codes, use `fastapi.status` constants (e.g., `status.HTTP_201_CREATED`) rather than raw integer values.
 
+Runtime environment is WSL2. Browser (Edge) is available running `microsoft-edge`.
+
 ## Linting
 
 Ruff is configured with **all rules enabled** (`select = ["ALL"]`). Notable exceptions:
 - `T201` is ignored globally (print statements allowed)
 - `S101` and `PLR2004` are ignored in `tests/` (assert and magic values allowed)
 - Docstring convention: Google style
+
+## Escalation Rule
+
+If you have tried 3 different approaches to solve a configuration or environment issue without success, STOP. Summarize what was tried, what failed, and suggest the user try manually or consult specific documentation. Do not continue brute-forcing.
+
+## MCP Configuration
+
+When configuring MCP servers (e.g., Playwright), check the official documentation for supported configuration options FIRST before attempting trial-and-error. If a configuration change isn't working after 2 attempts, stop and present the user with what's been tried and ask for guidance rather than continuing to iterate.

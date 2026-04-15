@@ -14,7 +14,7 @@ ToDo
 You can run the application with:
 
 ```bash
-uv run fastapi dev main.py --port {port}
+uv run fastapi dev --port {port}
 ```
 
 ## Running your tests

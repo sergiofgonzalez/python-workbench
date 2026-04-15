@@ -1,5 +1,6 @@
 """Unit tests for the orders API endpoints."""
 
+import yaml
 from fastapi import status
 from fastapi.testclient import TestClient
 
@@ -497,3 +498,28 @@ def test_pay_order_not_found() -> None:
     # Assert
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json()["detail"] == "Order not found"
+
+
+# --- GET /openapi.yaml ---
+
+
+def test_openapi_yaml_returns_200() -> None:
+    """GET /openapi.yaml returns 200 with application/yaml content type."""
+    # Act
+    response = client.get("/openapi.yaml")
+
+    # Assert
+    assert response.status_code == status.HTTP_200_OK
+    assert response.headers["content-type"] == "application/yaml"
+
+
+def test_openapi_yaml_is_valid_yaml() -> None:
+    """GET /openapi.yaml returns valid YAML with expected OpenAPI keys."""
+    # Act
+    response = client.get("/openapi.yaml")
+    schema = yaml.safe_load(response.text)
+
+    # Assert
+    assert "openapi" in schema
+    assert "info" in schema
+    assert "paths" in schema
