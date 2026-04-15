@@ -1,0 +1,45 @@
+[project]
+name = "001_fastapi_orders_service"
+version = "0.1.0"
+description = "Starting point for simple microservice with DB models"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Sergio F. Gonzalez", email = "sergio.f.gonzalez@gmail.com" },
+]
+
+requires-python = ">=3.12"
+
+dependencies = ["fastapi[standard-no-fastapi-cloud-cli]>=0.135.1"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "pytest-sugar>=1.1.1",
+    "ruff>=0.15.5",
+]
+
+[tool.ruff]
+
+ignore = [
+    "T201", # Allow print statements
+]
+
+# Enable all rules
+select = ["ALL"]
+
+# Specific per-file-ignores for the tests directory
+per-file-ignores = { "tests/**/*.py" = [
+    "S101",    # Allow assert in tests
+    "PLR2004", # Allow magic values in comparisons in tests
+] }
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pytest.ini_options]
+addopts = "--verbosity=3 --cov --cov-report=html"
+
+[tool.coverage.run]
+omit = ["tests/*"]
