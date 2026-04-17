@@ -124,3 +124,23 @@ PyTest (+ `pytest-sugar` + `pytest-cov`) and Ruff were also added as dev depende
 ```bash
 $ uv add fastapi[standard-no-fastapi-cloud-cli] --dev
 ```
+
+## Claude Code details
+
+This repository has been co-created with Claude Code.
+
+While the code has been crafted manually for learning purposes, the tests have been created by Claude Code.
+
+Additionally, the playwright MCP server has been added using:
+
+```bash
+$ claude mcp add playwright npx @playwright/mcp@latest
+```
+
+You can validate that the mcp server has been effectively added by running `/mcp` within Claude Code and making sure it's connected.
+
+With the MCP Playwright server in place, you can do complicated things like the following:
+
+```
+Using the Playwright MCP server, go to the Swagger UI and run the same tests available in @tests/unit/test_orders.py from Swagger UI, creating an easy to read markdown file showing the results.
+```

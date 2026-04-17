@@ -1894,6 +1894,15 @@ You can use `/model` to choose a different model. For example, as the reasoning 
 
 ![Anatomy of .claude folder](pics/014_claude_code_anatomy_of_claude_folder.jpg)
 
+
+## Anthropic video on Skills
+
+![Skills: the complete picture](pics/015_claude_code_skills.png)
+
+![Skills: evolution](pics/016_claude_code_skills_evo.png)
+
+![Skills: rough analogy](pics/017_claude_code_skills_rough_analogy.png)
+
 ## ToDO
 
 
@@ -1907,3 +1916,8 @@ You can use `/model` to choose a different model. For example, as the reasoning 
 - [ ] Hands-on: Let Claude create tests using the Writer/Reviewer pattern explained in [Run multiple claude session](#run-multiple-claude-session)
 - [ ] Hands-on: Learn about the new UUID, then let Claude implement the change
 - [ ] Videos: Matt's Ralph loop videos and docs
+
+## Ideas
+
+- Check the browser CLI thingy (was this a skill)?
+- Implement the Netflix My List review to check for leaving soon and when.
