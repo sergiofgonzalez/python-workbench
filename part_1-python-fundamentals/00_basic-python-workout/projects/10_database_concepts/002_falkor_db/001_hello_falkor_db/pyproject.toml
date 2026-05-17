@@ -1,0 +1,32 @@
+[project]
+name = "001_hello_falkor_db"
+version = "0.1.0"
+description = "Illustrates the basics Falkor DB."
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Sergio F. Gonzalez", email = "sergio.f.gonzalez@gmail.com" },
+]
+requires-python = ">=3.12"
+dependencies = [
+    "falkordb>=1.6.1",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.0",
+    "ty>=0.0.33",
+]
+
+[tool.ruff]
+
+ignore = [
+    "T201", # Allow print statements
+]
+
+# Enable all rules
+select = ["ALL"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+

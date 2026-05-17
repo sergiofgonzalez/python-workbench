@@ -9,11 +9,14 @@ The microservice exposes the endpoints listed below, and the service logic is ve
 
 The project structure has been adapted to conform to FastAPI recommendations and conventions:
 
-+ The main package is called `app` so that `fastapi` command autodiscovers it.
-+ No need to create an intermediate `app.web` package for the path operations.
-+ While `routers` is FastAPI recommendation, `api` is more generic.
++ `main` package: maintained as `app` so that `fastapi` command autodiscovers it.
++ `app.web` package: the intermediate `app.web` package for the path operations has not been created, as it seems unnecessary.
++ `routers`: While `routers` is FastAPI recommendation, `api` is more generic.
 
 
+A custom endpoint `/openapi.yaml` has been created to expose the OpenAPI schema document in YAML format.
+
+The `tests/` folder include unit tests for the different endpoints.
 
 ### Sample requests
 

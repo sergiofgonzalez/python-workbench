@@ -1,0 +1,47 @@
+[project]
+name = "003_cognee_comprehensive_demo_azure_openai_hello"
+version = "0.1.0"
+description = "Illustrates a comprehensive demo of Cognee using Azure OpenAI"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Sergio F. Gonzalez", email = "sergio.f.gonzalez@gmail.com" },
+]
+requires-python = ">=3.14"
+dependencies = [
+    "cognee>=1.0.9",
+    "python-dotenv>=1.2.2",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.12",
+]
+
+[tool.ruff]
+
+ignore = [
+    "T201", # Allow print statements
+    "T203", # Allow pprint statements
+]
+
+# Enable all rules
+select = ["ALL"]
+
+# Specific per-file-ignores for the tests directory
+per-file-ignores = { "tests/**/*.py" = [
+    "S101",    # Allow assert in tests
+    "PLR2004", # Allow len() comparisons in tests
+], "main.py" = [
+    "S101", # Allow assert in main application
+] }
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pytest.ini_options]
+addopts = "--verbosity=3 --cov --cov-report=html"
+pythonpath = ["."]
+
+[tool.coverage.run]
+omit = ["tests/*"]

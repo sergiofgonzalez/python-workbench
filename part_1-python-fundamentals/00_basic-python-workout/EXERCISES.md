@@ -12,6 +12,7 @@ The following labels are used to prefix the exercises. Many of the exercises cov
 1. generators: generator functions
 1. types: types, type hints, annotations, etc.
 1. os: OS related functions
+1. uuid: working with UUIDs
 
 
 ## 01: Shakedown test
@@ -8242,3 +8243,24 @@ Then yield the file, so that the consumer can work on it, and in the *exit logic
 | NOTE: |
 | :---- |
 | This exercise is for informational purposes and to get you familiarized with context mangers. `pathlib` already provides production-grade context managers you can use to deal with files. |
+
+### 516: uuid7 as a sortable uuid
+
+UUIDv4 is the most common UUID, which is generated using `uuid4()`. It is a fully random or pseudo-random 122-bit value, that maximizes unpredictability and with very little metadata within it.
+
+Python 3.14 has rolled out UUIDv7, a time ordered UUID that uses Unix time + random bits for the randomness.
+
+1. Create a program that creates a UUIDv4 and a UUIDv7 and compare their format.
+
+1. Then print the time attribute of the UUIDv7.
+
+1. Create another UUIDv7 and check that you can compare them. Confirm that they are sorted according to their time attribute.
+
+1. Convert the UUIDv7 to string and parse it back as a UUIDv7. Confirm that it retains the timestamp information.
+
+1. Use the `hex` attribute to get the hexadecimal representation of the UUID without the dashes.
+
+1. Reason about why using a UUIDv7 may be a concern with respect to privacy.
+
+SOLUTION:
+Because the UUID7 contains timestamp information, it holds more metadata than 

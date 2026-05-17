@@ -1,0 +1,7 @@
+{
+  "project_index": "999",
+  "project_name": "LangChain Chat Agent",
+  "project_slug": "{{ cookiecutter.project_index }}_{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+  "project_description": "Illustrates the basics of building a basic chat agent using LangChain.",
+  "project_readme_title": "Hello, LangChain Chat Agent"
+}
