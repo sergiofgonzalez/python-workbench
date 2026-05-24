@@ -1,0 +1,31 @@
+body {
+  background-color: #ffffff;
+  color: #1e1e1e;
+}
+
+code {
+  background-color: #f3f3f3;
+  color: #1e1e1e;
+}
+
+pre {
+  background-color: #f3f3f3;
+}
+
+a {
+  color: #0066cc;
+}
+
+blockquote {
+  border-left-color: #cccccc;
+  color: #555555;
+}
+
+table th,
+table td {
+  border-color: #cccccc;
+}
+
+hr {
+  border-color: #cccccc;
+}

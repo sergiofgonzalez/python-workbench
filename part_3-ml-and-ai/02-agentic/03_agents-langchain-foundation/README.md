@@ -141,3 +141,33 @@ def tool_1(x: float) -> float:
 Create a personal chef assistant that takes your leftover ingredients you have in your kitchen, searches the web for recipes that use those ingredients and that can answer any follow-up questions you have.
 
 As a bonus, you could use multimodal techniques to upload a picture of those leftovers.
+
+## Module 2: Advanced agent
+
+### MCP (Model Context Protocol)
+
+- An open protocol that standardizes how your LLM apps connect to and work with your tools and data sources.
+
+In the standard, we have:
+
+![MCP: components](pics/002_mcp_components.png)
+
+We have an MCP host that hosts an MCP server which connects bidirectionally with an MCP server.
+
+If we expand what this means for the scenarios that we've worked on:
+- the MCP host is the AI app, in our case the LangChain agent. This will host an MCP Client.
+
+- the MCP server will expose: Tools, Resources, and Prompts.
+
+![MCP Components: detailed](pics/003_mcp_components_detailed.png)
+
+- Resources: read-only data
+- Prompts: prompt templates for the client
+- ...basically anything our agent might ever need...
+
+
+- The MCP spec is available at https://modelcontextprotocol.io. For example, to review the information about the transports, see https://modelcontextprotocol.io/specification/2025-11-25/basic/transports
+
+- While it's relatively easy to connect an agent with a custom MCP server tailored to your needs, the power of MCP lies in connecting your agent with (other people's) readily available MCP servers that will provide functionality to your agent.
+
+- You can find them in sites such as: https://mcp.so/servers,

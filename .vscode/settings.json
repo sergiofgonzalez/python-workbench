@@ -6,5 +6,9 @@
     // "./part_2-math/02_mini-projects/02_vector-2d-lib-refactoring",
     // "./part_2-math/02_mini-projects/03_vector-3d-lib",
   ],
-  "python.analysis.typeCheckingMode": "basic"
+  "python.analysis.typeCheckingMode": "basic",
+  // "markdown.styles": [
+  //   ".vscode/markdown-light.css"
+  // ]
+  "markdown-preview-github-styles.colorTheme": "light"
 }

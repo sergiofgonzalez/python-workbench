@@ -473,12 +473,12 @@ When using this architecture, you attach *adapters* that help the core (business
 
 This ideas helps you build loosely coupled services, as you keep the core logic of the service and the logic for the adapters strictly separated:
 + The implementation of the Web API layer shouldn't interfere with the implementation of the core business logic.
-+ The database, regardless of the technology or approach uses, shouldn't interfere with the core business logic.
++ The database, regardless of the technology or approach used, shouldn't interfere with the core business logic.
 
 The separation is achieved through ports. Ports are technology agnostic interfaces that connect the business layer with the adapters.
 
 When working out the relationships between the core business logic and the adapters, you must apply the **Dependency Inversion Principle** which states:
-+ High-level modules shouldn't depend on low-level details. Instead, both should depend on abstractions such as interfaces.
++ High-level modules shouldn't depend on low-level details. Instead, both should depend on abstractions (i.e., interfaces).
 
     For example, when the core (business) layer requires saving data, it shouldn't care whether the database is SQL or NoSQL.
 
@@ -488,7 +488,7 @@ When working out the relationships between the core business logic and the adapt
 
 ![Dependency Inversion Principle](pics/009_dependency-inversion-principle.png)
 
-The picture above illustrates the idea: the adapters will depend on the interface exposed by the *core business layer*. The *data layer* will be implemented agains that interface.
+The picture above illustrates the idea: the adapters will depend on the interface exposed by the *core business layer*. The *data layer* will be implemented against that interface.
 
 | NOTE: |
 | :---- |
@@ -504,9 +504,9 @@ The recommended project structure to reinforce this separation of concerns betwe
 
 ![Project structure](pics/011_project_structure.png)
 
-+ Business layer: it will be found in `orders/orders_service`.
-+ API layer: it will be found under `orders/web`. As you are including a single type of web adapter (REST API), you will create a single folder `orders/web/api` to host the REST API adapter for the service. You could create different folders for different additional adapters (e.g., service-side rendered frontends).
-+ Data layer: it will be hosted in `orders/repository`. The name reflects the design pattern (**Repository pattern**) that you'll use to interface with the data.
++ Business layer: it will be found in `app/orders_service`, where `app` is the application's main package.
++ API layer: it will be found under `app/api`. Note that because you are including a single type of web adapter (REST API), you will create a single folder `app/api` to host the REST API adapter for the service. You could create an intermediate folder (e.g., `web`, `cli`, ...) to host different APIs of completely different nature (e.g., `app/web/api`, `app/cli/api`, etc.).
++ Data layer: it will be hosted in `app/repository`. The name reflects the design pattern (**Repository pattern**) that you'll use to interface with the data.
 
 ### Implementing the database models
 
@@ -514,15 +514,173 @@ The goal of this part is to define the database tables and their fields.
 
 | NOTE: |
 | :---- |
-| In an actual development process, you'd typically start from the business layer instead, and work with a mocked data layer until you're comfortable with the data layer. |
+| In an actual development process, you'd typically start from the business layer instead, and work with a mocked data layer until you're comfortable with the business layer. In this particular activity, as you're learning about how to use SQLAlchemy, you'll start from the data layer. |
 
-You can start with SQLite as your database engine, as Python's core library has built-in support for interfacing with SQLite, which makes it a great choice for quick prototyping and experimentation before moving to a production DB.
+You can start with SQLite as your database engine, as Python's core library has built-in support for interfacing with SQLite, which makes it a great choice for quick prototyping and experimentation before moving to a production DB. Then you can switch to PostgreSQL.
 
-While [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy) is the most popular ORM for Python, we will use a new project call [Oxyde ORM](https://github.com/mr-fatalyst/oxyde) as it seems to be more aligned to modern engineering practices:
-+ It's async by default.
-+ It supports type hints quite naturally.
-+ It's based on Pydantic models, with very little boilerplate.
-+ It comes with a built-in `explain()` method.
-+ It does migrations out of the box.
+There are several options in the Python ecosystem to simplify the implementation of the data access layer, with [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy) being one the most popular one.
 
-However, it's very new, so you might find some bumps along the way.
+SQLAlchemy is a SQL toolkit and Object Relationship Mapper (ORM) is a comprehensive set of tools for working with databases in Python.
+
+There are some other attractive options out there such as:
++ [Oxyde ORM](https://github.com/mr-fatalyst/oxyde) as it seems to be more aligned to modern engineering practices:
+    + It's async by default.
+    + It supports type hints quite naturally.
+    + It's based on Pydantic models, with very little boilerplate.
+    + It comes with a built-in `explain()` method.
+    + It does migrations out of the box.
+
+    However, it's very new, so it needs a little bit more time to stabilize its DX.
+
++ [SQLModel](https://github.com/fastapi/sqlmodel) is a package built on top of [SQLAlchemy](https://www.sqlalchemy.org/) and Pydantic and it's a good solution if you need to use SQL databases in your FastAPI application.
+
+    However, it does not include certain features, such as migration tools to keep track of changes in your DB structure.
+
+SQLAlchemy includes both a Core API, which is a convenience abstraction layer on top of SQL, and an ORM API.
+
+Using an ORM makes sense when you want to rely on an object-oriented approach when interfacing with the DB. This won't prevent you from writing queries (using a syntax similar to SQL), but would definitely abstract away many of the underlying complexities.
+
+An ORM class maps to a DB table, so that from Python you will be able to access the values in each row as attributes of an object. Additionally, those objects representing tables can be enhanced with custom methods if needed.
+
+SQLAlchemy also provides a robust tool to manage the changes in your DB and DB models (i.e., the *migrations*). A robust approach for migrations will let your reliably deploy the DB scheme in different environments and roll out DB changes with confidence as your app evolves. [Alembic](https://github.com/sqlalchemy/alembic) is SQLAlchemy's migration tool.
+
+
+#### Identifying the DB models
+
+To understand the DB models (*mapped classes* in SQLAlchemy lingo) that have to be defined, you should start by reviewing the core objects of the application you're building for *Mama Jane's Pizza* ordering system.
+
+This should start as a textual description of the DB models, such as the one find below:
+
+The fundamental object of the Orders service for *Mama Jane's Pizza* will be the one the represent an order. Users will place, pay, update, and cancel orders. The lifecycle of the order will be tracked through the status of the order.
+
+Thus, the order model will need to feature:
+
++ ID: Unique ID for the order. A UUID will be used instead of incremental integers to facilitate deployments across environments.
+
++ Creation date: Date time value to keep track when the order was placed.
+
++ Items: List of items included in the order along with the amount of each product.
+
+    An order can have one or more number of items. A different model will be needed for the items. There will be a one-to-many relationship between the order and the items.
+
++ Status: enumeration that will keep track of the status of the order.
+    + Created: order has been placed.
+    + Paid: order has been paid.
+    + Progress: order is being worked on in the kitchen.
+    + Cancelled: order has been cancelled.
+    + Dispatched: order has been sent to the user.
+    + Delivered: order has been delivered to the user.
+
++ Schedule ID: Uniquer identifier of the order in the Kitchen service.
+
+    This ID will be created by the Kitchen service after scheduling the order for production and will be used to keep track the order's progress in the kitchen (e.g., in preparation, working on it, ready for delivery...).
+
++ Delivery ID: Unique identifier of the order in the Delivery service.
+
+    This ID will be created by the Delivery service after scheduling it for dispatch. It will be used to keep track of its progress during delivery (e.g., waiting for pick up, in transit, delivered...).
+
+The other fundamental DB model will be the item. This model will keep the information about the product selected by the user. There will be a many-to-one relationship between items and orders (as there's a one-to-many relationship between an order and its items).
+
+It must have the following attributes:
+
++ ID: Unique identifier for the item, using UUID format.
+
++ Order ID: A foreign key representing the ID of the order the items belongs to.
+
++ Product: The product selected by the user.
+
++ Size: The size of the product.
+
++ Quantity: The amount of the product the user wishes to buy.
+
++ Order: the corresponding order this item belongs to.
+
+#### Laying out the project structure for the DB models
+
+The proposed project structure when you need a data access layer is the following:
+
+```
+002_fastapi_orders_service_db_models/
+├── README.md
+├── app
+│   ├── __init__.py
+│   ├── api                 # path operations
+│   │   ├── __init__.py
+│   │   ├── orders.py
+│   │   └── schemas.py
+│   ├── main.py
+│   └── repository          # data access
+│       ├── __init__.py
+│       ├── dbschema.py     # DB scheema
+│       └── test_model.py
+├── pyproject.toml
+└── tests
+    ├── __init__.py
+    ├── conftest.py
+    └── unit
+        ├── __init__.py
+        └── test_orders.py
+```
+
+### Using the Repository pattern for data access
+
+The **Repository Pattern** is a design pattern that helps you decouple the business layer from the implementation details of the db layer.
+
+
+| NOTE: |
+| :---- |
+| While simpler apps can rely on the **Active Record Pattern**, in which the db models are used in the business logic directly, in the long term, the one-to-one mapping between service capabilities and DB operations and the need of collaboration of multiple domains make it a bad choice in geneeral.<br>
+
+For example, if you decide to change the storage technology from SQL to NoSQL, the **Active Record Pattern** will impact the business layer and break the proposed architectural approach, as data access won't be encapsulated in the data access layer, and business logic won't be using the adapter to persist data. |
+
+The **Repository pattern** exposes a consistent interface to the business layer to interact with the DB technology you use to store your data, no matter which one you choose. Ultimately, the pattern will allow you to change the DB system without having to change your core business logic.
+
+![Repository pattern](pics/012_repository-pattern.png)
+
+#### Repository Pattern: implementation details
+
+The recommended way to implement the **Repository pattern** is to prevent the repository from issuing a COMMIT statement for any of the operations carried out by the repository.
+
+Effectively, this means that if we add an order object to the repository, the repository will be responsible for adding the object to the session, but not to commit it to the DB. Instead, it will be the responsibility of the repository's consumer (i.e., the `OrdersService`) to commit the changes.
+
+The reason is simple:
+> The repository is not the right place to manage transactions. Instead, the service layer has all the context to decide when a transaction is complete.
+
+If you follow this approach, you will be able to robustly implement complex processes. One such process would be the processing of a payment:
+
+1. The API layer receives the request from the user and invokes `pay_order()` on the `OrdersService` to process the request.
+
+1. `OrdersService` talks to the payments service to process the payment.
+
+1. If the payment is successful, `OrdersService` schedules the order by invoking an endpoint on the `KitchenService`.
+
+1. `OrdersService` updates the state of the order in the DB using the `OrdersRepository`.
+
+1. If all the previous operations are successful, the API layer commits the transaction to the DB, otherwise, it rolls back all the changes.
+
+Another aspect to take into account is the kind of object the repository should return. A well-behaved repository should not return instances of the DB models (these should be internal to the repository). Instead, you should return objects that are defined in the business layer. If you don't do that, you won't be isolating the business layer from the changes on the data access layer.
+
+ABout the naming convention:
+
+A common convention:
+
+| Layer | Suffix/Prefix | Example | Purpose |
+|-------|--------------|---------|---------|
+| **API** | `Schema`, `Request`, `Response`, or `DTO` | `CreateOrderRequest`, `OrderResponse` | Serialization, validation, API contract |
+| **Service** | No suffix, or `Model`/`Domain` | `Order` | Business logic, pure domain representation |
+| **DB/Repository** | `Entity`, `Record`, or `DB` | `OrderEntity`, `OrderDB` | ORM mapping, persistence concern |
+
+**Most popular approach in Python/FastAPI projects:**
+
+- **API layer**: `CreateOrderSchema` / `OrderSchema` (Pydantic models — you're already using `schemas.py`)
+- **Service layer**: `Order` (plain domain object, dataclass or Pydantic)
+- **DB layer**: `OrderModel` or `OrderEntity` (SQLAlchemy/ORM model)
+
+The key principle: the **domain/service layer** gets the cleanest name (`Order`) since it represents the core concept. The other layers add qualifiers to signal their role.
+
+**Alternative naming** some teams prefer:
+
+- API: `OrderIn` / `OrderOut` (common in FastAPI docs)
+- DB: `OrderTable` or `OrderRow`
+
+Looking at your project, you already have `schemas.py` in the API layer and `dbschema.py` in the repository layer — that's a solid start. Just make sure the class names themselves also carry the distinction (e.g., `OrderSchema` vs `Order` vs `OrderEntity`) so imports stay unambiguous.

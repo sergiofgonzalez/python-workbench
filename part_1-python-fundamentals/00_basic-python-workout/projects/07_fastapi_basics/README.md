@@ -210,12 +210,6 @@
 
 
 
-
-
-
-
-
-
 ## Before you begin with FastAPI
 > prerequisites
 
